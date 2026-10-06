@@ -31,36 +31,43 @@ body.fit #spw #rs .lg{width:min(58vw,280px,calc(var(--H,100vh)*.30))}
 body.fit #spw #rs .sb b{font-size:clamp(16px,min(6vw,calc(var(--H,100vh)*.042)),30px)}
 body.fit.short #spw #rs .lg{width:calc(var(--H,100vh)*.22)}body.fit.short #spw #rs .tg{line-height:1.35}body.fit.short #spw #rs .sb span{font-size:10px}
 body.fit #spw #rs .ld{margin-top:min(34px,calc(var(--H,100vh)*.045))}
-body.gsi #spw #rs .ld{display:none}#gsi-sp{margin-top:min(34px,calc(var(--H,100vh)*.045));width:1px}#gsi-old{color:#cfd6ff;font:14px system-ui,sans-serif;text-decoration:underline}</style>
+body.gsi #spw #rs .ld{display:none}#gsi-sp{margin-top:min(34px,calc(var(--H,100vh)*.045));width:1px}</style>
 </head><body class="gsi fit">
 <div id="app"><div id="spw"><div style="height:var(--H,100vh);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%);color:#fff;font:700 40px Impact,'Arial Narrow',sans-serif;letter-spacing:.04em;font-style:italic">RED <span style="color:#ff2b3d;margin-left:.3em">SHIFT</span></div></div></div>
-<div id="gsi-box"><div id="gsi-btn"></div><a id="gsi-old" href="#">Other way to sign in</a></div>
+<div id="gsi-box"><div id="gsi-btn"></div></div>
 <script>
 var API="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",OLD="https://script.google.com/macros/s/AKfycbwvFA-j99bWDVCkRkEWJh5sfL8YY_Y3uinJB65amHkh6C-MpZQAXw6gJ03qogIhmhrj/exec",CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",SIB="W1.0",SPF="1CbXFQlj7QkQTyhfyUQWHyZCr6r-If4OZ",DK="AIzaSyCvm-_NB3jtiHuiK9PxYXQaAJiWhPFBjM8";
 var Q=new URLSearchParams(location.search),REF=(Q.get("ref")||"").replace(/[^A-Za-z0-9]/g,"").slice(0,20),PG=(Q.get("pg")||"").slice(0,300),TOK="";
-document.getElementById("gsi-old").href=OLD+(REF?"?ref="+REF:"")+(PG?(REF?"&":"?")+"pg="+encodeURIComponent(PG):"");
+
 (function(){var K="rsSplash",put=function(h){var w=document.getElementById("spw");if(w&&h)w.innerHTML=h;}; try{put(localStorage.getItem(K));}catch(e){} fetch("https://www.googleapis.com/drive/v3/files/"+SPF+"?alt=media&key="+DK).then(function(r){return r.ok?r.text():null;}) .then(function(h){if(!h)return;try{if(localStorage.getItem(K)!==h)localStorage.setItem(K,h);}catch(e){}put(h);},function(){});})();
-var MODE="POST",T0=Date.now();// 6 Oct: a background call with no answer in 30 s is dropped and asked again (lostAnswer retries reads once), instead of waiting
-// for Google's error page.
-function call(fn,args,ms,how){if(!ms&&fn!=="enter"&&fn!=="bootStatus")ms=30000;var md=how||MODE,body=JSON.stringify({fn:fn,args:args||[]}),o={method:"POST",body:body,credentials:"omit"},tm=null; if(ms&&window.AbortController){var ac=new AbortController();o.signal=ac.signal;tm=setTimeout(function(){ac.abort();},ms);} var p=md==="GET"?fetch(API+"?q="+encodeURIComponent(body),tm?{signal:o.signal,credentials:"omit"}:{credentials:"omit"}):fetch(API,o); if(tm)p=p.then(function(r){clearTimeout(tm);return r;},function(e){clearTimeout(tm);if(e&&e.name==="AbortError"){var x=new Error("No answer in "+Math.round(ms/1000)+" s");x.busy=1;throw x;}throw e;}); return p.then(function(r){return r.text();}).then(function(t){try{return JSON.parse(t);}catch(e){var m=/<title[^>]*>([^<]*)/i.exec(t);  var x=new Error("Google sent a page, not data: "+((m&&m[1].trim())||String(t).slice(0,60)));x.busy=1;throw x;}});}function RUN(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;}, rpc:function(fn,args){call(fn,args).then(function(j){if(j&&j.ok){if(ok)ok(j.result);}else if(no)no(new Error((j&&j.error)||"Server error"));},  function(e){if(no)no(e);});}};return o;}function show(html){var a=document.getElementById("app");a.innerHTML=html; a.querySelectorAll("script").forEach(function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});}function oops(m){document.getElementById("app").innerHTML='<div id="bar">Red Shift</div><main><p>Could not open Red Shift ('+ String(m).replace(/</g,"&lt;")+').</p><button onclick="retry()">Try again</button></main>';}// Rich, 6 Oct: "an overwriting status line ... caching: xxx, yyy, zzz and as long as we are not hung up we should let it rip ... a cache
+var MODE="POST",T0=Date.now();// No fixed cut-off on background calls (Rich, 6 Oct: "as long as we are not hung up we should let it rip"); Google's error page is
+// retried once for reads (lostAnswer).
+function call(fn,args,ms,how){var md=how||MODE,body=JSON.stringify({fn:fn,args:args||[]}),o={method:"POST",body:body,credentials:"omit"},tm=null; if(ms&&window.AbortController){var ac=new AbortController();o.signal=ac.signal;tm=setTimeout(function(){ac.abort();},ms);} var p=md==="GET"?fetch(API+"?q="+encodeURIComponent(body),tm?{signal:o.signal,credentials:"omit"}:{credentials:"omit"}):fetch(API,o); if(tm)p=p.then(function(r){clearTimeout(tm);return r;},function(e){clearTimeout(tm);if(e&&e.name==="AbortError"){var x=new Error("No answer in "+Math.round(ms/1000)+" s");x.busy=1;throw x;}throw e;}); return p.then(function(r){return r.text();}).then(function(t){try{return JSON.parse(t);}catch(e){var m=/<title[^>]*>([^<]*)/i.exec(t);  var x=new Error("Google sent a page, not data: "+((m&&m[1].trim())||String(t).slice(0,60)));x.busy=1;throw x;}});}function RUN(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;}, rpc:function(fn,args){call(fn,args).then(function(j){if(j&&j.ok){if(ok)ok(j.result);}else if(no)no(new Error((j&&j.error)||"Server error"));},  function(e){if(no)no(e);});}};return o;}function show(html){var a=document.getElementById("app");a.innerHTML=html; a.querySelectorAll("script").forEach(function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});}function oops(m){document.getElementById("app").innerHTML='<div id="bar">Red Shift</div><main><p>Could not open Red Shift ('+ String(m).replace(/</g,"&lt;")+').</p><button onclick="retry()">Try again</button></main>';}// Rich, 6 Oct: "an overwriting status line ... caching: xxx, yyy, zzz and as long as we are not hung up we should let it rip ... a cache
 // progress bar". The sign-in carries a start-up id (BID); the loader (0 Main v7) writes each start-up step under it and answers
 // "bootStatus" from its cache once a second while the sign-in runs. No fixed timeout: the sign-in is given up and sent again only when
 // the server reports no progress for 30 s (or, with a loader that does not report, after 90 s).
 var BID=(Math.random().toString(36).slice(2,10)+Date.now().toString(36)).replace(/[^a-z0-9]/g,"").slice(0,24);
-function st(t,p){var ld=document.querySelector("#rs .ld");if(!ld)return;var i=ld.querySelector("i"),s=document.getElementById("rs-st");
- if(!s){s=document.createElement("div");s.id="rs-st";s.style.cssText="margin-top:10px;min-height:1.3em;font:500 13px/1.3 system-ui,sans-serif;letter-spacing:.04em;color:#9fdcff;text-align:center;max-width:80vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";ld.parentNode.insertBefore(s,ld.nextSibling);}
- if(t!==undefined&&t!==null)s.textContent=t?"loading: "+t:"";if(i&&typeof p==="number"){i.style.animation="none";i.style.left="0";i.style.transition="width .6s ease";i.style.width=Math.max(4,Math.min(100,p*100))+"%";}}
-function enter(){var tries=0,done=false,ac=null,seen=false,last="",lastT=Date.now(),t0=Date.now(),poll=null;
- function finish(){done=true;clearInterval(poll);}
- function go(){tries++;lastT=t0=Date.now();ac=window.AbortController?new AbortController():null;
+// The status: "reading: <name>" for every name the server reads, played as fast as they came (Rich, 6 Oct: "a ripping text string for
+// the file names ... it should just say 'reading:' name.ext"), and the progress bar.
+var IDS={},Q=[],PT=null,POLL=null,BK=0;IDS[BID]=0;
+function stEl(){var ld=document.querySelector("#rs .ld");if(!ld)return null;var s=document.getElementById("rs-st");
+ if(!s){s=document.createElement("div");s.id="rs-st";s.style.cssText="margin-top:10px;min-height:1.3em;font:500 13px/1.3 ui-monospace,Menlo,Consolas,monospace;color:#9fdcff;text-align:center;max-width:84vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";ld.parentNode.insertBefore(s,ld.nextSibling);}return s;}
+function bar(p){var i=document.querySelector("#rs .ld i");if(!i||typeof p!=="number")return;i.style.animation="none";i.style.left="0";i.style.transition="width .5s ease";i.style.width=Math.max(3,Math.min(100,p*100))+"%";}
+function play(){if(PT)return;(function nx(){var n=Q.shift();if(n===undefined){PT=null;return;}var s=stEl();if(s)s.textContent="reading: "+n;PT=setTimeout(nx,Math.max(25,Math.min(250,900/Math.max(1,Q.length+1))));})();}
+function take(id,b){if(!b)return false;var last=IDS[id]||0,got=false;(b.names||[]).forEach(function(m){if(m[0]>last){last=m[0];if(m[1])Q.push(m[1]);got=true;}});IDS[id]=last;if(got)play();return got;}
+function poll(){var ids=Object.keys(IDS);fetch(API,{method:"POST",body:JSON.stringify({fn:"bootStatus",args:ids}),credentials:"omit"}).then(function(r){return r.json();}).then(function(j){var r=j&&j.ok&&j.result;if(!r)return;
+ if(ids.length===1){var o={};o[ids[0]]=r;r=o;}ids.forEach(function(id){var b=r[id];if(take(id,b)&&id===BID)window.BEAT=Date.now();if(id===BID&&b&&!window.HOLD)bar(b.p);});},function(){});}
+function enter(){var tries=0,done=false,ac=null,t0=Date.now();window.BEAT=0;
+ function finish(){done=true;}
+ function go(){tries++;t0=Date.now();window.BEAT=0;IDS[BID]=0;ac=window.AbortController?new AbortController():null;
   var o={method:"POST",body:JSON.stringify({fn:"enter",args:[TOK,REF,PG,BID]}),credentials:"omit"};if(ac)o.signal=ac.signal;
   fetch(API,o).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){var m=/<title[^>]*>([^<]*)/i.exec(t);throw new Error("Google sent a page, not data: "+((m&&m[1].trim())||String(t).slice(0,60)));}
-   finish();st("",1);if(j&&j.ok){MODE="POST";if(/Sign-in not accepted/.test(String(j.result||"")))tokDrop();hold(j.result);}else oops(j&&j.error);},
-  function(e){if(done)return;if(tries<4){st("trying again");return setTimeout(go,2000);}finish();oops(e&&e.message||e);});}
- poll=setInterval(function(){if(done)return;
-  fetch(API,{method:"POST",body:JSON.stringify({fn:"bootStatus",args:[BID]}),credentials:"omit"}).then(function(r){return r.json();}).then(function(j){var b=j&&j.ok&&j.result;if(!b||done)return;seen=true;var k=b.n+"|"+b.s;if(k!==last){last=k;lastT=Date.now();}st(b.s,b.p);},function(){});
-  var quiet=Date.now()-(seen?lastT:t0);if(ac&&quiet>(seen?30000:90000))ac.abort();},1000);
- st("signing in",0.02);go();}
+   finish();if(j&&j.ok){MODE="POST";if(/Sign-in not accepted/.test(String(j.result||"")))tokDrop();hold(j.result);}else{stopPoll();oops(j&&j.error);}},
+  function(e){if(done)return;if(tries<4)return setTimeout(go,2000);finish();stopPoll();oops(e&&e.message||e);});}
+ // hung = the server reports no new name for 30 s (or, with a loader that does not report, nothing for 90 s)
+ POLL=setInterval(function(){poll();if(!done&&ac){var q=Date.now()-(window.BEAT||t0);if(q>(window.BEAT?30000:90000))ac.abort();}},1000);
+ bar(0.02);go();}
+function stopPoll(){clearInterval(POLL);POLL=null;}
 var GB=document.getElementById("gsi-box"),GT=setInterval(gsiPlace,250);setTimeout(function(){clearInterval(GT);},15000);
 // Holds the loading bar's place for the button: a spacer of the button's height in the splash's middle group, and the button laid over it.
 function gsiPlace(){if(GB.hidden)return;var w=document.getElementById("spw"),ld=w&&w.querySelector("#rs .ld");if(!ld){GB.classList.remove("in");return;}
@@ -78,8 +85,9 @@ addEventListener("resize",gsiPlace);try{document.fonts.ready.then(gsiPlace);}cat
 // Never more than 15 s: then the main screen shows and the rest keeps loading (the orb line).
 function hold(html){var w=document.getElementById("spw"),o=document.createElement("div");o.id="rs-hold";
  o.style.cssText="position:fixed;inset:0;z-index:9999;overflow:hidden;transition:opacity .4s";if(w)o.appendChild(w);document.body.appendChild(o);
- var gone=0,off=function(){if(gone)return;gone=1;o.style.opacity="0";setTimeout(function(){o.remove();},450);};
- addEventListener("rsready",off);addEventListener("rsprog",function(e){var d=e.detail||{};if(d.total)st("your tiles, "+(d.total-d.left)+" of "+d.total,(d.total-d.left)/d.total);});st("your tiles",0.05);show(html);if(!window.RSAHEAD||window.RSREADY)off();setTimeout(off,15000);}
+ var gone=0,off=function(){if(gone)return;gone=1;window.HOLD=0;delete window.BOOTB;o.style.opacity="0";setTimeout(function(){o.remove();},450);};
+ window.HOLD=1;window.BOOTB=function(){var id=BID+"b"+(++BK);IDS[id]=0;return id;};
+ addEventListener("rsready",function(){delete window.BOOTB;setTimeout(stopPoll,3000);off();});addEventListener("rsprog",function(e){var d=e.detail||{};if(d.total)bar(0.6+0.4*(d.total-d.left)/d.total);});show(html);if(!window.RSAHEAD||window.RSREADY)off();setTimeout(off,15000);}
 // Rich, 6 Oct: "after try again, i have to log in again. seems not right". Google's sign-in (a signed token, good for about an hour)
 // is kept for this browser tab (sessionStorage): Try again sends it again instead of reloading, and a reload within the hour reuses it.
 // The server checks it every time (45 gsi.js); a token it refuses is dropped, and the Google button shows again.
