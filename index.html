@@ -87,9 +87,11 @@ addEventListener("resize",gsiPlace);try{document.fonts.ready.then(gsiPlace);}cat
 // Rich, 6 Oct ("all caching is done before spash screen transitions"; the middle ground): the splash stays over the main screen until
 // the main screen's tiles have their data (0 Main sends "rsready"); a screen with no tiles (registration, landing) shows at once.
 // No time cap (Rich, 6 Oct: "let it rip"; "i want the full dashboard cached before splash is done").
+// The status asks stop 3 s after the splash goes, on every screen (Rich, 6 Oct: the landing screen, which has no tiles and so no
+// "rsready", kept asking every second forever).
 function hold(html){var w=document.getElementById("spw"),o=document.createElement("div");o.id="rs-hold";
  o.style.cssText="position:fixed;inset:0;z-index:9999;overflow:hidden;transition:opacity .4s";if(w)o.appendChild(w);document.body.appendChild(o);
- var gone=0,off=function(){if(gone)return;gone=1;window.HOLD=0;delete window.BOOTB;o.style.opacity="0";setTimeout(function(){o.remove();},450);};
+ var gone=0,off=function(){if(gone)return;gone=1;window.HOLD=0;delete window.BOOTB;setTimeout(stopPoll,3000);o.style.opacity="0";setTimeout(function(){o.remove();},450);};
  window.HOLD=1;window.BOOTB=function(){var id=BID+"b"+(++BK);IDS[id]=0;return id;};
  addEventListener("rsready",function(){delete window.BOOTB;setTimeout(stopPoll,3000);off();});addEventListener("rsprog",function(e){var d=e.detail||{};if(d.total)bar(0.6+0.4*(d.total-d.left)/d.total);});show(html);if(!window.RSAHEAD||window.RSREADY)off();}
 // Rich, 6 Oct: "after try again, i have to log in again. seems not right". Google's sign-in (a signed token, good for about an hour)
