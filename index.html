@@ -8,7 +8,8 @@
 <meta property="og:image" content="https://redshift.vote/share-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://redshift.vote/share-card.png">
 <link rel="icon" href="logo.webp">
-<!-- The version label sits inside the splash's side stripes (22 px), not on them (Rich, 6 Oct: "spash version is still in the piping").
+<!-- No version label on the splash (Rich, 6 Oct: "drop the splash version. i think it is done for awhile"); SIB still prefixes the
+     app's version on the main screen.
      Red Shift's front door, redshift.vote itself (Rich, 6 Oct: "i want redshift.vote to be the url. i dont want users to have to type in /main.html"; Sign in with Google, 0 Main 45 gsi.js). Google's own button and account
      chooser give a signed ID token for the Red Shift client; the app checks it with Google and opens the session. Every later screen
      and save goes to 0 Main without the browser's Google cookies, so a browser holding several Google accounts works. -->
@@ -32,7 +33,7 @@ body.fit.short #spw #rs .lg{width:calc(var(--H,100vh)*.22)}body.fit.short #spw #
 body.fit #spw #rs .ld{margin-top:min(34px,calc(var(--H,100vh)*.045))}
 body.gsi #spw #rs .ld{display:none}#gsi-sp{margin-top:min(34px,calc(var(--H,100vh)*.045));width:1px}#gsi-old{color:#cfd6ff;font:14px system-ui,sans-serif;text-decoration:underline}</style>
 </head><body class="gsi fit">
-<div id="app"><div id="spw"><div style="height:var(--H,100vh);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%);color:#fff;font:700 40px Impact,'Arial Narrow',sans-serif;letter-spacing:.04em;font-style:italic">RED <span style="color:#ff2b3d;margin-left:.3em">SHIFT</span></div></div><div id="spv" style="position:absolute;top:8px;right:32px;font:12px system-ui,sans-serif;color:#fff;z-index:5">W1.0</div></div>
+<div id="app"><div id="spw"><div style="height:var(--H,100vh);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%);color:#fff;font:700 40px Impact,'Arial Narrow',sans-serif;letter-spacing:.04em;font-style:italic">RED <span style="color:#ff2b3d;margin-left:.3em">SHIFT</span></div></div></div>
 <div id="gsi-box"><div id="gsi-btn"></div><a id="gsi-old" href="#">Other way to sign in</a></div>
 <script>
 var API="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",OLD="https://script.google.com/macros/s/AKfycbwvFA-j99bWDVCkRkEWJh5sfL8YY_Y3uinJB65amHkh6C-MpZQAXw6gJ03qogIhmhrj/exec",CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",SIB="W1.0",SPF="1CbXFQlj7QkQTyhfyUQWHyZCr6r-If4OZ",DK="AIzaSyCvm-_NB3jtiHuiK9PxYXQaAJiWhPFBjM8";
