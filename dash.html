@@ -12,9 +12,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://redshift.vote/share-card.png">
 <link rel="icon" href="logo.webp">
-<!-- The dashboard share link (Rich, 6 Oct; 0 Main 41 dashinvite.js): carries the share card, then sends the visitor to sign in.
-     ?k = the sharer's key, ?p = the dashboard page. Red Shift is not public: nobody sees the dashboard without signing in. -->
+<!-- The dashboard share link (Rich, 6 Oct; 0 Main 41 dashinvite.js): carries the share card, then sends the visitor to sign in at
+     redshift.vote. ?k = the sharer's key, ?p = the dashboard page. Red Shift is not public: nobody sees the dashboard without signing in. -->
 <style>html,body{margin:0;height:100%;background:#030a2e}</style>
-<script>(function(){var S="https://script.google.com/macros/s/AKfycbwvFA-j99bWDVCkRkEWJh5sfL8YY_Y3uinJB65amHkh6C-MpZQAXw6gJ03qogIhmhrj/exec",q=new URLSearchParams(location.search),k=q.get("k")||"",p=q.get("p")||"";
+<script>(function(){var S="/",q=new URLSearchParams(location.search),k=q.get("k")||"",p=q.get("p")||"";
 if(!/^[A-Za-z0-9]{19,40}$/.test(k)){location.replace(S);return;}location.replace(S+"?ref=d"+k.slice(0,19)+(p?"&pg="+encodeURIComponent(p.slice(0,300)):""));})();</script>
-</head><body><noscript><a href="https://script.google.com/macros/s/AKfycbwvFA-j99bWDVCkRkEWJh5sfL8YY_Y3uinJB65amHkh6C-MpZQAXw6gJ03qogIhmhrj/exec" style="color:#fff;font:18px sans-serif;display:block;padding:24px">Open Red Shift</a></noscript></body></html>
+</head><body><noscript><a href="/" style="color:#fff;font:18px sans-serif;display:block;padding:24px">Open Red Shift</a></noscript></body></html>
