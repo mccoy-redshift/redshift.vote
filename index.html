@@ -49,9 +49,10 @@ function call(fn,args,ms,how){var md=how||MODE,body=JSON.stringify({fn:fn,args:a
 var BID=(Math.random().toString(36).slice(2,10)+Date.now().toString(36)).replace(/[^a-z0-9]/g,"").slice(0,24);
 // The status: "reading: <name>" for every name the server reads, played as fast as they came (Rich, 6 Oct: "a ripping text string for
 // the file names ... it should just say 'reading:' name.ext"), and the progress bar.
+// "reading:" stays in place and the name runs to the right (Rich, 6 Oct: "you are recentering each paint which is no good").
 var IDS={},Q=[],PT=null,POLL=null,BK=0;IDS[BID]=0;
 function stEl(){var ld=document.querySelector("#rs .ld");if(!ld)return null;var s=document.getElementById("rs-st");
- if(!s){s=document.createElement("div");s.id="rs-st";s.style.cssText="margin-top:10px;min-height:1.3em;font:500 13px/1.3 ui-monospace,Menlo,Consolas,monospace;color:#9fdcff;text-align:center;max-width:84vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";ld.parentNode.insertBefore(s,ld.nextSibling);}return s;}
+ if(!s){s=document.createElement("div");s.id="rs-st";s.style.cssText="margin-top:10px;min-height:1.3em;font:500 13px/1.3 ui-monospace,Menlo,Consolas,monospace;color:#9fdcff;text-align:left;width:min(84vw,340px);margin-left:auto;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";ld.parentNode.insertBefore(s,ld.nextSibling);}return s;}
 function bar(p){var i=document.querySelector("#rs .ld i");if(!i||typeof p!=="number")return;i.style.animation="none";i.style.left="0";i.style.transition="width .5s ease";i.style.width=Math.max(3,Math.min(100,p*100))+"%";}
 function play(){if(PT)return;(function nx(){var n=Q.shift();if(n===undefined){PT=null;return;}var s=stEl();if(s)s.textContent="reading: "+n;PT=setTimeout(nx,Math.max(25,Math.min(250,900/Math.max(1,Q.length+1))));})();}
 function take(id,b){if(!b)return false;var last=IDS[id]||0,got=false;(b.names||[]).forEach(function(m){if(m[0]>last){last=m[0];if(m[1])Q.push(m[1]);got=true;}});IDS[id]=last;if(got)play();return got;}
@@ -82,12 +83,12 @@ fitH();addEventListener("resize",fitH);addEventListener("orientationchange",func
 addEventListener("resize",gsiPlace);try{document.fonts.ready.then(gsiPlace);}catch(e){}gsiPlace();
 // Rich, 6 Oct ("all caching is done before spash screen transitions"; the middle ground): the splash stays over the main screen until
 // the main screen's tiles have their data (0 Main sends "rsready"); a screen with no tiles (registration, landing) shows at once.
-// Never more than 15 s: then the main screen shows and the rest keeps loading (the orb line).
+// No time cap (Rich, 6 Oct: "let it rip"; "i want the full dashboard cached before splash is done").
 function hold(html){var w=document.getElementById("spw"),o=document.createElement("div");o.id="rs-hold";
  o.style.cssText="position:fixed;inset:0;z-index:9999;overflow:hidden;transition:opacity .4s";if(w)o.appendChild(w);document.body.appendChild(o);
  var gone=0,off=function(){if(gone)return;gone=1;window.HOLD=0;delete window.BOOTB;o.style.opacity="0";setTimeout(function(){o.remove();},450);};
  window.HOLD=1;window.BOOTB=function(){var id=BID+"b"+(++BK);IDS[id]=0;return id;};
- addEventListener("rsready",function(){delete window.BOOTB;setTimeout(stopPoll,3000);off();});addEventListener("rsprog",function(e){var d=e.detail||{};if(d.total)bar(0.6+0.4*(d.total-d.left)/d.total);});show(html);if(!window.RSAHEAD||window.RSREADY)off();setTimeout(off,15000);}
+ addEventListener("rsready",function(){delete window.BOOTB;setTimeout(stopPoll,3000);off();});addEventListener("rsprog",function(e){var d=e.detail||{};if(d.total)bar(0.6+0.4*(d.total-d.left)/d.total);});show(html);if(!window.RSAHEAD||window.RSREADY)off();}
 // Rich, 6 Oct: "after try again, i have to log in again. seems not right". Google's sign-in (a signed token, good for about an hour)
 // is kept for this browser tab (sessionStorage): Try again sends it again instead of reloading, and a reload within the hour reuses it.
 // The server checks it every time (45 gsi.js); a token it refuses is dropped, and the Google button shows again.
