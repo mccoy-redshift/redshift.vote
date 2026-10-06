@@ -56,8 +56,11 @@ function stEl(){var ld=document.querySelector("#rs .ld");if(!ld)return null;var 
 function bar(p){var i=document.querySelector("#rs .ld i");if(!i||typeof p!=="number")return;i.style.animation="none";i.style.left="0";i.style.transition="width .5s ease";i.style.width=Math.max(3,Math.min(100,p*100))+"%";}
 function play(){if(PT)return;(function nx(){var n=Q.shift();if(n===undefined){PT=null;return;}var s=stEl();if(s)s.textContent="reading: "+n;PT=setTimeout(nx,Math.max(25,Math.min(250,900/Math.max(1,Q.length+1))));})();}
 function take(id,b){if(!b)return false;var last=IDS[id]||0,got=false;(b.names||[]).forEach(function(m){if(m[0]>last){last=m[0];if(m[1])Q.push(m[1]);got=true;}});IDS[id]=last;if(got)play();return got;}
-function poll(){var ids=Object.keys(IDS);fetch(API,{method:"POST",body:JSON.stringify({fn:"bootStatus",args:ids}),credentials:"omit"}).then(function(r){return r.json();}).then(function(j){var r=j&&j.ok&&j.result;if(!r)return;
- if(ids.length===1){var o={};o[ids[0]]=r;r=o;}ids.forEach(function(id){var b=r[id];if(take(id,b)&&id===BID)window.BEAT=Date.now();if(id===BID&&b&&!window.HOLD)bar(b.p);});},function(){});}
+// One status ask at a time (Rich, 6 Oct: "still hung on do more"): asks sent every second whether or not the last had answered piled up
+// on Google's server (single asks took up to 31 s) and held up the real work; the next ask now goes only after the last one answers.
+var PIN=0;
+function poll(){if(PIN)return;PIN=1;var ids=Object.keys(IDS);fetch(API,{method:"POST",body:JSON.stringify({fn:"bootStatus",args:ids}),credentials:"omit"}).then(function(r){return r.json();}).then(function(j){PIN=0;var r=j&&j.ok&&j.result;if(!r)return;
+ if(ids.length===1){var o={};o[ids[0]]=r;r=o;}ids.forEach(function(id){var b=r[id];if(take(id,b)&&id===BID)window.BEAT=Date.now();if(id===BID&&b&&!window.HOLD)bar(b.p);});},function(){PIN=0;});}
 function enter(){var tries=0,done=false,ac=null,t0=Date.now();window.BEAT=0;
  function finish(){done=true;}
  function go(){tries++;t0=Date.now();window.BEAT=0;IDS[BID]=0;ac=window.AbortController?new AbortController():null;
