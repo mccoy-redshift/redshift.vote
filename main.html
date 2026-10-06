@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Shift</title>
+<meta name="description" content="Technology by the Grassroots, for the Grassroots.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://redshift.vote/">
+<meta property="og:title" content="Redshift"><meta property="og:description" content="Technology by the Grassroots, for the Grassroots.">
+<meta property="og:image" content="https://redshift.vote/share-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://redshift.vote/share-card.png">
+<link rel="icon" href="logo.webp">
+<!-- Red Shift's front door (Rich, 6 Oct: Sign in with Google on redshift.vote; 0 Main 45 gsi.js). Google's own button and account
+     chooser give a signed ID token for the Red Shift client; the app checks it with Google and opens the session. Every later screen
+     and save goes to 0 Main without the browser's Google cookies, so a browser holding several Google accounts works. -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>body{font:16px system-ui,sans-serif;margin:0;color:#eee;background:#000}
+#bar{background:#b71c1c;color:#fff;padding:10px 14px;font-weight:700;font-size:18px}main{padding:14px;max-width:560px;margin:auto}
+button{width:100%;padding:14px;margin-top:10px;font-size:16px;border:0;border-radius:10px;background:#c62828;color:#fff}
+#gsi-box{position:fixed;left:0;right:0;bottom:12%;z-index:50;display:flex;flex-direction:column;align-items:center;gap:12px}
+#gsi-box.in{position:absolute;bottom:auto}#gsi-box[hidden]{display:none}
+/* Sign-in geometry (Rich, 6 Oct: the button was landing on the splash): the button takes the loading bar's place in the
+   splash's middle group, and the splash fits the screen height so title, logo, button and sponsor line never overlap. */
+body.gsi #spw #rs{min-height:100vh;min-height:100dvh;padding:max(14px,5vh) 20px max(10px,3vh)}
+body.gsi #spw #rs h1{font-size:clamp(34px,min(16vw,11vh),128px)}
+body.gsi #spw #rs .tg{margin-top:min(10px,1.2vh)}
+body.gsi #spw #rs .lg{width:min(58vw,280px,30vh)}
+body.gsi #spw #rs .sb b{font-size:clamp(16px,min(6vw,4.2vh),30px)}
+@media (max-height:440px){body.gsi #spw #rs .lg{width:24vh}body.gsi #spw #rs .tg{line-height:1.35}}
+body.gsi #spw #rs .ld{display:none}#gsi-sp{margin-top:min(34px,4.5vh);width:1px}#gsi-old{color:#cfd6ff;font:14px system-ui,sans-serif;text-decoration:underline}</style>
+</head><body class="gsi">
+<div id="app"><div id="spw"><div style="min-height:max(640px,100vh);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%);color:#fff;font:700 40px Impact,'Arial Narrow',sans-serif;letter-spacing:.04em;font-style:italic">RED <span style="color:#ff2b3d;margin-left:.3em">SHIFT</span></div></div><div style="position:absolute;top:6px;right:10px;font:12px system-ui,sans-serif;color:#fff;z-index:5">W1.0</div></div>
+<div id="gsi-box"><div id="gsi-btn"></div><a id="gsi-old" href="#">Other way to sign in</a></div>
+<script>
+var API="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",OLD="https://script.google.com/macros/s/AKfycbwvFA-j99bWDVCkRkEWJh5sfL8YY_Y3uinJB65amHkh6C-MpZQAXw6gJ03qogIhmhrj/exec",CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",SIB="W1.0",SPF="1CbXFQlj7QkQTyhfyUQWHyZCr6r-If4OZ",DK="AIzaSyCvm-_NB3jtiHuiK9PxYXQaAJiWhPFBjM8";
+var Q=new URLSearchParams(location.search),REF=(Q.get("ref")||"").replace(/[^A-Za-z0-9]/g,"").slice(0,20),PG=(Q.get("pg")||"").slice(0,300),TOK="";
+document.getElementById("gsi-old").href=OLD+(REF?"?ref="+REF:"")+(PG?(REF?"&":"?")+"pg="+encodeURIComponent(PG):"");
+(function(){var K="rsSplash",put=function(h){var w=document.getElementById("spw");if(w&&h)w.innerHTML=h;}; try{put(localStorage.getItem(K));}catch(e){} fetch("https://www.googleapis.com/drive/v3/files/"+SPF+"?alt=media&key="+DK).then(function(r){return r.ok?r.text():null;}) .then(function(h){if(!h)return;try{if(localStorage.getItem(K)!==h)localStorage.setItem(K,h);}catch(e){}put(h);},function(){});})();
+var MODE="POST",T0=Date.now();function call(fn,args,ms,how){var md=how||MODE,body=JSON.stringify({fn:fn,args:args||[]}),o={method:"POST",body:body,credentials:"omit"},tm=null; if(ms&&window.AbortController){var ac=new AbortController();o.signal=ac.signal;tm=setTimeout(function(){ac.abort();},ms);} var p=md==="GET"?fetch(API+"?q="+encodeURIComponent(body),tm?{signal:o.signal,credentials:"omit"}:{credentials:"omit"}):fetch(API,o); if(tm)p=p.then(function(r){clearTimeout(tm);return r;},function(e){clearTimeout(tm);throw e;}); return p.then(function(r){return r.text();}).then(function(t){try{return JSON.parse(t);}catch(e){var m=/<title[^>]*>([^<]*)/i.exec(t);  var x=new Error("Google sent a page, not data: "+((m&&m[1].trim())||String(t).slice(0,60)));x.busy=1;throw x;}});}function RUN(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;}, rpc:function(fn,args){call(fn,args).then(function(j){if(j&&j.ok){if(ok)ok(j.result);}else if(no)no(new Error((j&&j.error)||"Server error"));},  function(e){if(no)no(e);});}};return o;}function show(html){var a=document.getElementById("app");a.innerHTML=html; a.querySelectorAll("script").forEach(function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});}function oops(m){document.getElementById("app").innerHTML='<div id="bar">Red Shift</div><main><p>Could not open Red Shift ('+ String(m).replace(/</g,"&lt;")+').</p><button onclick="location.reload()">Try again</button></main>';}function enter(){var bad=0;function go(){call("enter",[TOK,REF,PG],30000,"POST").then(function(j){if(j&&j.ok){MODE="POST";hold(j.result);}else oops(j&&j.error);},function(e){if(++bad<4&&Date.now()-T0<90000)return setTimeout(go,4000);oops(e&&e.message||e);});}go();}
+var GB=document.getElementById("gsi-box"),GT=setInterval(gsiPlace,250);setTimeout(function(){clearInterval(GT);},15000);
+// Holds the loading bar's place for the button: a spacer of the button's height in the splash's middle group, and the button laid over it.
+function gsiPlace(){if(GB.hidden)return;var w=document.getElementById("spw"),ld=w&&w.querySelector("#rs .ld");if(!ld){GB.classList.remove("in");return;}
+ var sp=document.getElementById("gsi-sp");if(!sp){sp=document.createElement("div");sp.id="gsi-sp";ld.parentNode.insertBefore(sp,ld);}
+ var h=GB.offsetHeight+"px";if(sp.style.height!==h)sp.style.height=h;var r=sp.getBoundingClientRect();GB.classList.add("in");GB.style.top=(r.top+scrollY)+"px";}
+try{new MutationObserver(gsiPlace).observe(document.getElementById("spw"),{childList:true,subtree:true});}catch(e){}
+addEventListener("resize",gsiPlace);try{document.fonts.ready.then(gsiPlace);}catch(e){}gsiPlace();
+// Rich, 6 Oct ("all caching is done before spash screen transitions"; the middle ground): the splash stays over the main screen until
+// the main screen's tiles have their data (0 Main sends "rsready"); a screen with no tiles (registration, landing) shows at once.
+// Never more than 15 s: then the main screen shows and the rest keeps loading (the orb line).
+function hold(html){var w=document.getElementById("spw"),o=document.createElement("div");o.id="rs-hold";
+ o.style.cssText="position:fixed;inset:0;z-index:9999;overflow:hidden;transition:opacity .4s";if(w)o.appendChild(w);document.body.appendChild(o);
+ var gone=0,off=function(){if(gone)return;gone=1;o.style.opacity="0";setTimeout(function(){o.remove();},450);};
+ addEventListener("rsready",off);show(html);if(!window.RSAHEAD||window.RSREADY)off();setTimeout(off,15000);}
+function signedIn(r){if(!r||!r.credential)return;TOK=r.credential;GB.hidden=true;document.body.classList.remove("gsi");var sp=document.getElementById("gsi-sp");if(sp)sp.remove();clearInterval(GT);try{history.replaceState(null,"",location.pathname);}catch(e){}enter();}
+function gsiStart(){if(!window.google||!google.accounts||!google.accounts.id)return setTimeout(gsiStart,150);
+ google.accounts.id.initialize({client_id:CID,callback:signedIn,auto_select:true,cancel_on_tap_outside:false,itp_support:true,use_fedcm_for_prompt:true});
+ google.accounts.id.renderButton(document.getElementById("gsi-btn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",logo_alignment:"left",width:Math.max(200,Math.min(320,innerWidth-48))});
+ google.accounts.id.prompt();}
+gsiStart();
+</script></body></html>
