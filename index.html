@@ -36,7 +36,7 @@ body.gsi #spw #rs .ld{display:none}#gsi-sp{margin-top:min(34px,calc(var(--H,100v
 <div id="app"><div id="spw"><div style="height:var(--H,100vh);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%);color:#fff;font:700 40px Impact,'Arial Narrow',sans-serif;letter-spacing:.04em;font-style:italic">RED <span style="color:#ff2b3d;margin-left:.3em">SHIFT</span></div></div></div>
 <div id="gsi-box"><div id="gsi-btn"></div></div>
 <script>
-var API="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",OLD="https://script.google.com/macros/s/AKfycbwvFA-j99bWDVCkRkEWJh5sfL8YY_Y3uinJB65amHkh6C-MpZQAXw6gJ03qogIhmhrj/exec",CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",SIB="W1.1",SPF="1CbXFQlj7QkQTyhfyUQWHyZCr6r-If4OZ",DK="AIzaSyCvm-_NB3jtiHuiK9PxYXQaAJiWhPFBjM8";
+var API="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",OLD="https://script.google.com/macros/s/AKfycbwvFA-j99bWDVCkRkEWJh5sfL8YY_Y3uinJB65amHkh6C-MpZQAXw6gJ03qogIhmhrj/exec",CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",SIB="W1.2",SPF="1CbXFQlj7QkQTyhfyUQWHyZCr6r-If4OZ",DK="AIzaSyCvm-_NB3jtiHuiK9PxYXQaAJiWhPFBjM8";
 var Q=new URLSearchParams(location.search),REF=(Q.get("ref")||"").replace(/[^A-Za-z0-9]/g,"").slice(0,20),PG=(Q.get("pg")||"").slice(0,300),TOK="";
 
 (function(){var K="rsSplash",put=function(h){var w=document.getElementById("spw");if(w&&h)w.innerHTML=h;}; try{put(localStorage.getItem(K));}catch(e){} fetch("https://www.googleapis.com/drive/v3/files/"+SPF+"?alt=media&key="+DK).then(function(r){return r.ok?r.text():null;}) .then(function(h){if(!h)return;try{if(localStorage.getItem(K)!==h)localStorage.setItem(K,h);}catch(e){}put(h);},function(){});})();
@@ -98,7 +98,7 @@ addEventListener("resize",gsiPlace);try{document.fonts.ready.then(gsiPlace);}cat
 // "rsready", kept asking every second forever).
 function hold(html){var w=document.getElementById("spw"),o=document.createElement("div");o.id="rs-hold";
  o.style.cssText="position:fixed;inset:0;z-index:9999;overflow:hidden;transition:opacity .4s";if(w)o.appendChild(w);document.body.appendChild(o);
- var gone=0,off=function(){if(gone)return;gone=1;window.HOLD=0;delete window.BOOTB;setTimeout(stopPoll,3000);TRS=window.RSAHEAD?"main":"landing";setTimeout(trailOff,60000);o.style.opacity="0";setTimeout(function(){o.remove();},450);};
+ var gone=0,off=function(){if(gone)return;gone=1;var tt=document.getElementById("rs-tt");if(tt)tt.remove();window.HOLD=0;delete window.BOOTB;setTimeout(stopPoll,3000);TRS=window.RSAHEAD?"main":"landing";setTimeout(trailOff,60000);o.style.opacity="0";setTimeout(function(){o.remove();},450);};
  window.HOLD=1;window.BOOTB=function(){var id=BID+"b"+(++BK);IDS[id]=0;return id;};
  addEventListener("rsready",function(){delete window.BOOTB;setTimeout(stopPoll,3000);off();});addEventListener("rsprog",function(e){var d=e.detail||{};if(d.total)bar(0.6+0.4*(d.total-d.left)/d.total);});show(html);if(!window.RSAHEAD||window.RSREADY)off();}
 // Rich, 6 Oct: "after try again, i have to log in again. seems not right". Google's sign-in (a signed token, good for about an hour)
@@ -124,12 +124,23 @@ function passRefused(){USED=0;TOK="";passDrop();stopPoll();try{trailOff();}catch
 // The start-up table's first rows, live from the first moment (B219 item 8; the Owner only, "me for now": this browser remembers it,
 // rsOwner, from the main screen). 0 Main's table (72 startup.js) takes over when the main screen arrives. AS:Wait = the time at
 // Google's servers (queue + our code), split into AS:Queue and AS:Server by 0 Main's table.
-var SU0=null;try{if(localStorage.getItem("rsOwner")==="1")SU0={go:0,back:0,load:0};}catch(e){}
-if(SU0){addEventListener("load",function(){SU0.load=performance.now();});(function(){var b=document.createElement("div");b.id="rs-su0";
+// W1.2 (Rich, 11 Oct): "a show hide selection (very subtle) on the splash so if a client is having slow issues, i can have them do a
+// 'show' and then they can screen shot to us. remember the show hide setting"; "just call it show log". rsTimer = show | hide (the
+// Owner sees it unless he hid it). 0 Main's table (72 startup.js) follows the same setting.
+var SU0={go:0,back:0,load:0},TMK="rsTimer";addEventListener("load",function(){SU0.load=performance.now();});
+function suOn(){var m="";try{m=localStorage.getItem(TMK)||"";}catch(e){}if(m==="show")return true;if(m==="hide")return false;try{return localStorage.getItem("rsOwner")==="1";}catch(e){return false;}}
+function suStart(){if(document.getElementById("rs-su0"))return;var b=document.createElement("div");b.id="rs-su0";
  b.style.cssText="position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:10001;background:rgba(0,0,0,.78);border:1px solid #444;border-radius:10px;padding:8px 12px;font:500 13px/1.35 ui-monospace,Menlo,Consolas,monospace;color:#ddd;min-width:220px;pointer-events:none";
  document.body.appendChild(b);var s2=function(ms){return(Math.max(0,ms)/1000).toFixed(2);},td="padding:0 4px",row=function(l,v,on){return '<tr'+(on?' style="color:#9fdcff"':'')+'><td style="'+td+'">'+l+'</td><td style="'+td+';text-align:right">'+v+'</td></tr>';};
  var T=setInterval(function(){if(!b.parentNode)return clearInterval(T);var n=performance.now(),L=SU0.load,G=SU0.go,B=SU0.back;
   b.innerHTML='<table style="border-collapse:collapse;width:100%">'+row("Page",s2(L||n)+(L?"":"\u2026"),!L)+row("Login",L?s2((G||n)-L)+(G?"":"\u2026"):"",L&&!G)+row("AS:Wait",G?s2((B||n)-G)+(B?"":"\u2026"):"",G&&!B)+
-   '<tr><td style="'+td+';border-top:1px solid #555;color:#fff;font-weight:700">Total</td><td style="'+td+';border-top:1px solid #555;color:#fff;font-weight:700;text-align:right">'+s2(n)+'\u2026</td></tr></table>';},50);})();}
+   '<tr><td style="'+td+';border-top:1px solid #555;color:#fff;font-weight:700">Total</td><td style="'+td+';border-top:1px solid #555;color:#fff;font-weight:700;text-align:right">'+s2(n)+'\u2026</td></tr></table>';},50);}
+function suStop(){["rs-su0","rs-su"].forEach(function(i){var x=document.getElementById(i);if(x)x.remove();});}
+(function(){var t=document.createElement("a");t.id="rs-tt";t.href="#";
+ t.style.cssText="position:fixed;left:10px;bottom:8px;z-index:10002;font:11px system-ui,sans-serif;color:#fff;opacity:.3;text-decoration:none;padding:6px";
+ var lab=function(){t.textContent=suOn()?"hide log":"show log";};lab();
+ t.onclick=function(e){e.preventDefault();var on=!suOn();try{localStorage.setItem(TMK,on?"show":"hide");}catch(x){}if(on)suStart();else suStop();lab();};
+ document.body.appendChild(t);})();
+if(suOn())suStart();
 (function(){var p=passGet();if(p)return passIn(p);var t=null;try{t=sessionStorage.getItem(TK);}catch(e){}if(tokOk(t))signedIn({credential:t});else{tokDrop();gsiStart();}})();
 </script></body></html>
