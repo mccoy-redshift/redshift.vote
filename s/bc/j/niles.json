@@ -2,19 +2,25 @@
  "name": "City of Niles",
  "office": "City of Niles Clerk",
  "clerk": "Tina Bergman",
- "address": "333 N 2nd St, Ste 301, Niles, MI 49120",
- "mailing": "333 N 2nd St, Ste 301, Niles, MI 49120",
- "phone": "(269) 683-4700 x3030",
+ "address": "333 N Second St., Suite 301, Niles, MI 49120",
+ "mailing": "333 N Second St., Suite 301, Niles, MI 49120",
+ "phone": "(269) 683-4700",
  "email": "cityclerk@nilesmi.org",
- "hours": "Mon–Thu 7:30am–5pm (closed 12–1), Fri 7:30–11:30am",
+ "hours": "Mon–Thu 7:30am–12pm, 1pm–5:30pm; Fri 7:30–11:30am",
  "weekend": [
   [
    "Sat, Oct 31",
-   "7am–3pm"
+   "8am–4pm"
   ]
  ],
- "boxes": [],
- "source": "City of Niles Clerk elections page (nilesmi.org/government/elections/election.php), read 14 Oct 2026",
+ "boxes": [
+  {
+   "address": "333 N 2nd Street, Niles",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 14 Oct 2026",
  "early": {
   "site": "Niles City Hall",
   "address": "333 N. 2nd Street, Niles, MI 49120",

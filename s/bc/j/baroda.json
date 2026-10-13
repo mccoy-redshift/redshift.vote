@@ -2,14 +2,25 @@
  "name": "Baroda Township",
  "office": "Baroda Township Clerk",
  "clerk": "Christina Price",
- "address": "9091 First St., Baroda, MI 49101",
- "mailing": "9091 First St., Baroda, MI 49101",
+ "address": "9091 First St, Baroda, MI 49101",
+ "mailing": "PO Box 215, Baroda, MI 49101",
  "phone": "(269) 422-2300",
- "email": "Barodaclerk@gmail.com",
- "hours": "Mon–Thu 8am–2pm",
- "weekend": [],
- "boxes": [],
- "source": "Baroda Township elections page (barodatownship.org/elections), read 14 Oct 2026",
+ "email": "barodaclerk@gmail.com",
+ "hours": "Mon–Thu 9am–12pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "7am–3pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "9091 First St, Baroda",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 14 Oct 2026",
  "early": {
   "site": "Lake Charter Township Hall",
   "address": "3220 Shawnee Rd., Bridgman, MI 49106",
