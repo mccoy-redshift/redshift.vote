@@ -20,5 +20,43 @@
    "hours": "Open 24 hours, 7 days a week"
   }
  ],
- "source": "Michigan Voter Information Center, read 14 Oct 2026"
+ "source": "Michigan Voter Information Center, read 14 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 Shawnee Rd., Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Berrien County's one early voting site for your city or township.",
+  "source": "Berrien County Clerk, Early Voting page (berriencounty.org/1926), read 14 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "City Hall",
+   "address": "700 Broad St., St. Joseph, MI 49085"
+  },
+  {
+   "p": "2",
+   "place": "Howard Ice Arena",
+   "address": "2414 Willa Dr., St. Joseph, MI 49085"
+  },
+  {
+   "p": "3",
+   "place": "Zion Evangelical Church",
+   "address": "3001 Veronica, St. Joseph, MI 49085"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (berriencounty.org/DocumentCenter/View/10254), read 14 Oct 2026"
 }

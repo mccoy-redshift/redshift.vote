@@ -29,5 +29,53 @@
    "hours": "Open 24 hours, 7 days a week"
   }
  ],
- "source": "Michigan Voter Information Center, read 14 Oct 2026"
+ "source": "Michigan Voter Information Center, read 14 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 Shawnee Rd., Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Berrien County's one early voting site for your city or township.",
+  "source": "Berrien County Clerk, Early Voting page (berriencounty.org/1926), read 14 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Municipal Bldg",
+   "address": "2055 W. John Beers Rd., Stevensville, MI 49127"
+  },
+  {
+   "p": "2",
+   "place": "The Chapel",
+   "address": "4250 Washington Ave, St. Joseph, MI 49085"
+  },
+  {
+   "p": "3",
+   "place": "Lakeshore Christian Church",
+   "address": "5565 Washington Ave, St. Joseph, MI 49085"
+  },
+  {
+   "p": "4",
+   "place": "Lincoln Charter Twp. Fire Station",
+   "address": "2130 W. John Beers Rd., Stevensville, MI 49127"
+  },
+  {
+   "p": "5",
+   "place": "Berrien County Baptist Church",
+   "address": "5940 St. Joseph Avenue, Stevensville, MI 49127"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (berriencounty.org/DocumentCenter/View/10254), read 14 Oct 2026"
 }
