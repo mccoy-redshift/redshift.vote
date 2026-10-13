@@ -1,0 +1,16 @@
+{
+ "id": "ballot-chase",
+ "title": "A quick survey",
+ "hint": "Tap a number: 1 = no · 5 = not sure · 10 = yes",
+ "questions": [
+  {"id": "t", "type": "ten", "text": "Will you vote this November?"},
+  {"id": "r", "type": "ten", "text": "Will you vote a straight Republican ticket?"},
+  {"id": "k|hd38", "type": "ten", "text": "Will you vote for Mark Krieger?", "if": {"hd": "38"}},
+  {"id": "k|sjps", "type": "ten", "text": "Will you vote for Brandon Sheskey?", "if": {"s": "sjps"}}
+ ],
+ "send": "Send",
+ "thanks": "Thank you! We can count on you.",
+ "pav": {"text": "When Republicans start voting absentee, we’ll never lose again. Signup takes only 30 seconds.", "link": "Click here to sign up", "url": "https://mvic.sos.state.mi.us/AVApplication/Index"},
+ "post": "",
+ "source": "Red Shift texted survey (34 qrwalk.js qrSurveyPage_), same questions as the door app's Door Score; candidates for tonight's HD-38 Ballot Chase books (campaign HD-38)"
+}
