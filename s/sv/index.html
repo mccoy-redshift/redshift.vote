@@ -37,5 +37,5 @@ fetch('j/'+SV+'.json').then(function(r){return r.ok?r.json():null;}).then(functi
    .then(function(r){$('go').disabled=false;if(r&&r.ok)done();else m.textContent=(r&&r.msg)||'Not sent. Try again.';},function(){$('go').disabled=false;m.textContent='No connection. Try again.';});};
  size();
 },none);
-window.addEventListener('resize',size);
+window.addEventListener('resize',size);try{new ResizeObserver(size).observe(document.body);}catch(e){}
 })();</script></body></html>
