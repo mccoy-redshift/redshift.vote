@@ -17,10 +17,10 @@ main{position:relative;max-width:560px;margin:0 auto;padding:0 18px 40px;backgro
 select{width:100%;font:600 17px system-ui,sans-serif;padding:13px 12px;border-radius:12px;border:2px solid #1ec8e0;background:#0a1a6e;color:#fff;appearance:auto}
 h2{font:400 28px/1.05 Anton,Impact,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.03em;margin:28px 0 12px}
 h2 b{font-weight:400;color:#ff2b3d;text-shadow:2px 2px 0 #fff,4px 4px 0 #0a1a6e}
-details{background:rgba(10,26,110,.55);border:1px solid rgba(255,255,255,.18);border-left:5px solid #ff2b3d;border-radius:14px;margin:0 0 10px;overflow:hidden}
+details{background:rgba(10,26,110,.55);border:1px solid rgba(255,255,255,.18);border-radius:14px;margin:0 0 10px;overflow:hidden}
 summary{list-style:none;cursor:pointer;padding:14px 44px 14px 14px;font:700 19px/1.25 Oswald,"Arial Narrow",sans-serif;letter-spacing:.03em;position:relative}
 summary::-webkit-details-marker{display:none}
-summary:after{content:"+";position:absolute;right:14px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:#ff2b3d;color:#fff;font:700 20px/26px system-ui;text-align:center}
+summary:after{content:"+";position:absolute;right:14px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:#fff;color:#000;font:700 20px/26px system-ui;text-align:center}
 details[open]>summary:after{content:"\2212"}
 summary small{display:block;font:400 14px system-ui,sans-serif;color:#cfe1ff;letter-spacing:0;margin-top:2px}
 .ans{padding:0 14px 14px;color:#e6eeff}.ans p{margin:8px 0}.ans b{color:#fff}
@@ -34,69 +34,70 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 .vg img{width:100%;border-radius:12px;margin:8px 0;display:block}
 .vg .cap{background:#ff2b3d;font-weight:700;text-align:center;padding:10px;border-radius:10px}
 [hidden]{display:none!important}
-#hd{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 34px 14px 34px;background:radial-gradient(ellipse at 15% 25%,rgba(214,22,40,.55),transparent 55%),radial-gradient(ellipse at 85% 70%,rgba(26,74,255,.55),transparent 55%),linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%)}#hd .st{position:absolute;top:0;bottom:0;left:0;width:14px;background:linear-gradient(90deg,#d61628 0 25%,#fff 25% 37%,#0a1a6e 37% 62%,#1ec8e0 62% 75%,#fff 75% 82%,#1a4aff 82%)}#hd .st.r{left:auto;right:0;transform:scaleX(-1)}#hd .hn b{display:block;font:400 24px/1.05 Anton,Impact,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.03em}#hd .hn span{font:500 12px Oswald,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#9fdcff}#hd .hl{width:min(15vw,70px);height:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}.top>summary{font-size:22px;padding:16px 46px 16px 14px}.top{border-left-color:#1ec8e0}.top>.ans{padding:4px 10px 10px}.top details{background:rgba(2,6,28,.55)}.addr{font:700 21px/1.35 system-ui,sans-serif;color:#fff;background:rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;margin:8px 0}.addr small{display:block;font:400 15px system-ui,sans-serif;color:#cfe1ff;margin-top:2px}.pkb{display:block;width:100%;margin:8px 0;padding:12px;font:700 18px system-ui,sans-serif;color:#fff;background:rgba(255,255,255,.1);border:1px solid #1ec8e0;border-radius:10px;text-align:left}footer{text-align:center;font:500 12px Oswald,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:#9fdcff;padding:18px 0 28px}
+#hd{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 34px 14px 34px;background:radial-gradient(ellipse at 15% 25%,rgba(214,22,40,.55),transparent 55%),radial-gradient(ellipse at 85% 70%,rgba(26,74,255,.55),transparent 55%),linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%)}#hd .st{position:absolute;top:0;bottom:0;left:0;width:14px;background:linear-gradient(90deg,#d61628 0 25%,#fff 25% 37%,#0a1a6e 37% 62%,#1ec8e0 62% 75%,#fff 75% 82%,#1a4aff 82%)}#hd .st.r{left:auto;right:0;transform:scaleX(-1)}#hd .hn b{display:block;font:400 24px/1.05 Anton,Impact,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.03em}#hd .hn span{font:500 12px Oswald,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#9fdcff}#hd .hl{width:min(15vw,70px);height:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}.top>summary{font-size:22px;padding:16px 46px 16px 14px}.top>.ans{padding:4px 10px 10px}.top details{background:rgba(2,6,28,.55)}.addr{font:700 21px/1.35 system-ui,sans-serif;color:#fff;background:rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;margin:8px 0}.addr small{display:block;font:400 15px system-ui,sans-serif;color:#cfe1ff;margin-top:2px}.pkb{display:block;width:100%;margin:8px 0;padding:12px;font:700 18px system-ui,sans-serif;color:#fff;background:rgba(255,255,255,.1);border:1px solid #1ec8e0;border-radius:10px;text-align:left}ul.f{margin:8px 0;padding-left:20px}ul.f li{margin:3px 0}.addr .tn{display:block;font:500 13px Oswald,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:#9fdcff}#hd{justify-content:flex-end}footer{text-align:center;font:500 12px Oswald,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:#9fdcff;padding:18px 0 28px}
 </style></head><body>
-<header id="hd"><i class="st"></i><i class="st r"></i><div class="hn"><b>Your absentee ballot</b><span>Berrien County GOP</span></div><img class="hl" src="/logo.webp" alt="Berrien County GOP"></header>
+<header id="hd"><i class="st"></i><i class="st r"></i><img class="hl" src="/logo.webp" alt="Berrien County GOP"></header>
 <main>
-<details class="top" open><summary>Have you returned your absentee ballot?<small>It has to reach your clerk by 8&nbsp;p.m. on Election Day, Tuesday, Nov.&nbsp;3</small></summary><div class="ans">
+<details class="top" open><summary>Have you returned your absentee ballot?</summary><div class="ans">
+<ul class="f"><li>It must reach your clerk by 8&nbsp;p.m. on Election Day, Tue, Nov.&nbsp;3.</li></ul>
 
 <details><summary>Where to mail</summary><div class="ans">
-<p>Sign and date the return envelope the way you sign your driver&rsquo;s license or state ID, and mail it in the prepaid envelope. It must <b>reach</b> your clerk by 8&nbsp;p.m. on Nov.&nbsp;3. The state advises mailing at least two weeks before Election Day (by <b>Oct.&nbsp;20</b>); after that, use a drop box or your clerk&rsquo;s office.</p>
-<div id="a-mail" class="addr pick">Your city or township clerk</div></div></details>
+<ul class="f"><li>Sign and date the envelope as on your driver&rsquo;s license or state ID.</li><li>Use the prepaid return envelope.</li><li>It must arrive by 8&nbsp;p.m., Nov.&nbsp;3.</li><li>Mail by Oct.&nbsp;20. After that, use a drop box or your clerk&rsquo;s office.</li></ul>
+<div id="a-mail"></div></div></details>
 
 <details><summary>Where is my drop box</summary><div class="ans">
-<p>Your clerk&rsquo;s secure drop box takes your signed envelope until 8&nbsp;p.m. on Nov.&nbsp;3. Clerks collect from it and store the ballots safely until counting.</p>
-<div id="a-box"><div class="addr pick">Your clerk&rsquo;s drop boxes</div></div></div></details>
+<ul class="f"><li>Your clerk&rsquo;s secure drop box.</li><li>Open until 8&nbsp;p.m., Nov.&nbsp;3.</li></ul>
+<div id="a-box"></div></div></details>
 
 <details><summary>Where is my clerk&rsquo;s office</summary><div class="ans">
-<p>Hand your signed envelope to your clerk in person during office hours, or on the weekend before Election Day when the office is open.</p>
-<div id="a-clerk" class="addr pick">Your city or township clerk</div></div></details>
+<ul class="f"><li>Hand in your signed envelope in person.</li><li>Open office hours and the weekend before Election Day.</li></ul>
+<div id="a-clerk"></div></div></details>
 
 <details><summary>Where is my early voting location</summary><div class="ans">
-<p>Bring your completed ballot to your early voting site and put it in the tabulator yourself, or vote there in person: hand in your absentee ballot or have it &ldquo;spoiled&rdquo; and get a new one. Early voting runs through Sunday, Nov.&nbsp;1.</p>
-<div id="a-early" class="addr pick">Your early voting site</div></div></details>
+<ul class="f"><li>Sat, Oct.&nbsp;24 to Sun, Nov.&nbsp;1.</li><li>Put your completed ballot in the tabulator yourself.</li><li>Or vote in person: hand in your absentee ballot, or have it spoiled and get a new one.</li></ul>
+<div id="a-early"></div></div></details>
 
 <details><summary>Where do I drop it off on Election Day</summary><div class="ans">
-<p>On Tuesday, Nov.&nbsp;3, bring your completed ballot to your polling place and put it in the tabulator, or vote there in person: hand in your absentee ballot or have it &ldquo;spoiled&rdquo; and get a new one. Your clerk&rsquo;s drop box also takes it until 8&nbsp;p.m.</p>
-<div id="a-poll"><div class="addr pick">Your polling place</div></div></div></details>
+<ul class="f"><li>Tue, Nov.&nbsp;3. Polls are open 7&nbsp;a.m. to 8&nbsp;p.m.</li><li>Put your completed ballot in the tabulator at your polling place.</li><li>Or vote in person: hand in your absentee ballot, or have it spoiled and get a new one.</li><li>Or use your clerk&rsquo;s drop box until 8&nbsp;p.m.</li></ul>
+<div id="a-poll"></div><div id="a-box2"></div></div></details>
 
 <details><summary>More FAQ on Absentee Voting</summary><div class="ans">
-<details><summary>When does my ballot have to arrive?</summary><div class="ans"><p>By 8&nbsp;p.m. on Election Day, Tuesday, Nov.&nbsp;3, at your clerk&rsquo;s office.</p></div></details>
-<details><summary>Can I vote in person instead?</summary><div class="ans"><p>Yes, at your early voting site or your polling place on Nov.&nbsp;3, if you haven&rsquo;t already returned it. Hand in your voted absentee ballot there, or have it &ldquo;spoiled&rdquo; and get a new ballot.</p></div></details>
-<details><summary>Who can return my ballot for me?</summary><div class="ans"><p>You; a member of your immediate family or someone in your household you asked; a mail carrier; or an election official. It is a felony for anyone else to possess or deliver your ballot.</p></div></details>
-<details><summary>I made a mistake or signed in the wrong place.</summary><div class="ans"><p>Ask your clerk for a new ballot. Sign the envelope the way you sign your driver&rsquo;s license, state ID or voter registration.</p></div></details>
-<details><summary>How do I know my ballot arrived?</summary><div class="ans"><p>Call your clerk to confirm it arrived<span id="a-tel"></span>. To check for updates yourself, track it at <a href="https://www.michigan.gov/vote">Michigan.gov/Vote</a>.</p></div></details>
-<details><summary>Can I change my vote after returning it?</summary><div class="ans"><p>Only with a written, signed request that reaches your clerk by 5&nbsp;p.m. on Friday, Oct.&nbsp;23.</p></div></details>
-<p style="font-size:13px;color:#9fb3e6">From the Michigan Secretary of State and the Berrien County Clerk. Check for updates: <a href="https://www.michigan.gov/sos/elections/voting/absentee-voting">Michigan Secretary of State</a>.</p></div></details>
+<details><summary>When does my ballot have to arrive?</summary><div class="ans"><ul class="f"><li>By 8&nbsp;p.m., Tue, Nov.&nbsp;3, at your clerk&rsquo;s office.</li></ul></div></details>
+<details><summary>Can I vote in person instead?</summary><div class="ans"><ul class="f"><li>Yes, at early voting or your polling place on Nov.&nbsp;3, if you haven&rsquo;t returned it.</li><li>Hand in your absentee ballot, or have it spoiled and get a new one.</li></ul></div></details>
+<details><summary>Who can return my ballot for me?</summary><div class="ans"><ul class="f"><li>You.</li><li>Immediate family or someone in your household, if you ask.</li><li>A mail carrier.</li><li>An election official.</li><li>Anyone else holding or delivering it commits a felony.</li></ul></div></details>
+<details><summary>I made a mistake or signed in the wrong place.</summary><div class="ans"><ul class="f"><li>Ask your clerk for a new ballot.</li><li>Sign as on your driver&rsquo;s license, state ID or voter registration.</li></ul></div></details>
+<details><summary>How do I know my ballot arrived?</summary><div class="ans"><ul class="f" id="a-tel"><li>Call your clerk.</li></ul><ul class="f"><li>Check for updates: <a href="https://www.michigan.gov/vote">Michigan.gov/Vote</a></li></ul></div></details>
+<details><summary>Can I change my vote after returning it?</summary><div class="ans"><ul class="f"><li>Only by a written, signed request.</li><li>It must reach your clerk by 5&nbsp;p.m., Fri, Oct.&nbsp;23.</li></ul></div></details>
+<ul class="f" style="font-size:13px;color:#9fb3e6"><li>Check for updates: <a href="https://www.michigan.gov/sos/elections/voting/absentee-voting">Michigan Secretary of State</a></li></ul></div></details>
 
 </div></details>
 
 <h2>Every vote <b>counts</b></h2>
 <p class="big">Key races in Berrien County and Michigan will be decided by razor-thin margins. We need every Republican to vote.</p>
-<details class="vg"><summary>Our voter guide<small>The partisan races, and the nonpartisan ones</small></summary><div class="ans">
+<details class="vg"><summary>See our voter guide</summary><div class="ans">
 <img src="vg-front.jpg" alt="Voter guide, front"><div class="cap">Straight ticket does NOT cover judges or school board. Turn your ballot over.</div><img src="vg-back.jpg" alt="Voter guide, back"></div></details>
 
-
-<div id="pk" class="thx" hidden><b>Where do you vote?</b><div id="pkb"></div></div>
 </main>
 <footer>Berrien County GOP</footer>
 <script>(function(){
-var P=new URLSearchParams(location.search),J=(P.get('j')||'').replace(/[^a-z0-9-]/g,'');
+var P=new URLSearchParams(location.search),J=(P.get('j')||'').replace(/[^a-z0-9-]/g,''),PC=(P.get('p')||'').replace(/[^0-9a-z]/gi,''),ALL=['lincoln','sjcity','sjtwp'];
 function $(i){return document.getElementById(i);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-var JS=[['lincoln','Lincoln Charter Township'],['sjcity','City of St. Joseph'],['sjtwp','St. Joseph Charter Township']],PC=(P.get('p')||'').replace(/[^0-9a-z]/gi,'');
-function pick(){var pk=$('pk');pk.hidden=false;$('pkb').innerHTML=JS.map(function(j){return '<button type="button" class="pkb" data-j="'+j[0]+'">'+esc(j[1])+'</button>';}).join('');
- Array.prototype.forEach.call(document.querySelectorAll('.pick'),function(e){e.innerHTML+='<small><a href="#pk">Choose your city or township</a></small>';});
- $('pkb').onclick=function(e){var b=e.target.closest('[data-j]');if(!b)return;P.set('j',b.getAttribute('data-j'));location.search=P.toString();};}
-if(!J)pick();else fetch('j/'+J+'.json').then(function(r){return r.ok?r.json():null;}).then(function(d){if(!d){pick();return;}
- var tel=String(d.phone||'').replace(/[^0-9]/g,''),wk=(d.weekend||[]).map(function(w){return esc(w[0])+' '+esc(w[1]);}).join(', ');
- $('a-mail').innerHTML=esc(d.office)+'<br>'+esc(d.mailing||d.address);
- $('a-clerk').innerHTML=esc(d.office)+'<br>'+esc(d.address)+'<small>'+esc(d.hours)+(wk?'<br>Weekend before Election Day: '+wk:'')+'<br><a href="tel:'+tel+'">'+esc(d.phone)+'</a> &middot; <a href="mailto:'+esc(d.email)+'">'+esc(d.email)+'</a></small>';
- $('a-box').innerHTML=(d.boxes||[]).map(function(b){return '<div class="addr">'+esc(b.address)+'<small>'+(b.where?esc(b.where)+'<br>':'')+esc(b.hours)+'</small></div>';}).join('');
- $('a-tel').innerHTML=' at <a href="tel:'+tel+'">'+esc(d.phone)+'</a>';
- var E=d.early;if(E)$('a-early').innerHTML=esc(E.site)+'<br>'+esc(E.address)+'<small>'+(E.hours||[]).map(function(h){return esc(h[0])+': '+esc(h[1]);}).join('<br>')+'</small>';
- var PL=d.polls||[],one=PL.filter(function(x){return x.p===PC;});
- if(PL.length)$('a-poll').innerHTML=(one.length?one:PL).map(function(x){return '<div class="addr">'+esc(x.place)+'<br>'+esc(x.address)+'<small>'+esc(d.name)+', Precinct '+esc(x.p)+'</small></div>';}).join('')+'<small style="display:block;color:#cfe1ff">Polls are open 7&nbsp;a.m. to 8&nbsp;p.m.</small>';
-},function(){pick();});
+function get(k){return fetch('j/'+k+'.json').then(function(r){return r.ok?r.json():null;},function(){return null;});}
+function fill(L){L=L.filter(Boolean);if(!L.length)return;var many=L.length>1;
+ function tn(d){return many?'<span class="tn">'+esc(d.name)+'</span>':'';}
+ function A(d,main,sm){return '<div class="addr">'+tn(d)+main+(sm?'<small>'+sm+'</small>':'')+'</div>';}
+ function tel(d){return '<a href="tel:'+String(d.phone||'').replace(/[^0-9]/g,'')+'">'+esc(d.phone)+'</a>';}
+ function boxes(d){return (d.boxes||[]).map(function(b){return A(d,'Drop box<br>'+esc(b.address),(b.where?esc(b.where)+'<br>':'')+esc(b.hours));}).join('');}
+ $('a-mail').innerHTML=L.map(function(d){return A(d,esc(d.office)+'<br>'+esc(d.mailing||d.address));}).join('');
+ $('a-clerk').innerHTML=L.map(function(d){var wk=(d.weekend||[]).map(function(w){return esc(w[0])+' '+esc(w[1]);}).join(', ');
+  return A(d,esc(d.office)+'<br>'+esc(d.address),esc(d.hours)+(wk?'<br>Weekend before Election Day: '+wk:'')+'<br>'+tel(d)+' &middot; <a href="mailto:'+esc(d.email)+'">'+esc(d.email)+'</a>');}).join('');
+ $('a-box').innerHTML=L.map(boxes).join('');$('a-box2').innerHTML=L.map(boxes).join('');
+ var E=L[0].early;if(E)$('a-early').innerHTML='<div class="addr">'+esc(E.site)+'<br>'+esc(E.address)+'<small>'+(E.hours||[]).map(function(h){return esc(h[0])+': '+esc(h[1]);}).join('<br>')+'</small></div>';
+ $('a-poll').innerHTML=L.map(function(d){var PL=d.polls||[],one=many?[]:PL.filter(function(x){return x.p===PC;});
+  return (one.length?one:PL).map(function(x){return A(d,'Polling place<br>'+esc(x.place)+'<br>'+esc(x.address),'Precinct '+esc(x.p));}).join('');}).join('');
+ $('a-tel').innerHTML=L.map(function(d){return '<li>Call your clerk'+(many?' ('+esc(d.name)+')':'')+': '+tel(d)+'</li>';}).join('');
+}
+Promise.all((J&&ALL.indexOf(J)>=0?[J]:ALL).map(get)).then(fill);
 })();</script>
 </body></html>
