@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A quick survey · Berrien County GOP</title><meta name="robots" content="noindex"><link rel="icon" href="/logo.webp">
+<style>html,body{margin:0;font-family:system-ui,Arial,sans-serif;background:#fff;color:#111}#top{background:#b71c1c;color:#fff;padding:14px 16px;font-weight:700;font-size:19px}
+.w{padding:6px 16px 30px;max-width:560px}.hint{color:#555;font-size:15px;margin:12px 0 4px}.q{margin:16px 0}.qt{font-weight:700;font-size:17px;margin-bottom:6px}.rad{display:flex;gap:3px}
+.rad button{flex:1;min-width:0;padding:10px 0;font-size:16px;font-weight:700;border-radius:8px;background:#f1f1f1;color:#111;border:1px solid #bbb}.rad button.on{background:#b71c1c;color:#fff;border-color:#b71c1c}
+#go{width:100%;border:0;border-radius:10px;padding:14px;font-size:18px;font-weight:700;color:#fff;background:#b71c1c;margin-top:10px}#msg{margin-top:10px;color:#b71c1c;font-size:15px;min-height:18px}
+.pav{margin-top:24px;padding:14px;border:2px solid #b71c1c;border-radius:12px;font-size:17px;line-height:1.4}.pav a{display:block;text-align:center;margin-top:10px;padding:13px;border-radius:10px;background:#1a4aff;color:#fff;font-weight:700;text-decoration:none;font-size:18px}
+#thanks{font-size:20px;font-weight:700;margin:18px 0 0}[hidden]{display:none!important}body.emb #top{display:none}</style></head>
+<body><div id="top"></div><div class="w"><div id="qs"></div><div id="thanks" hidden></div><div id="pv"></div></div>
+<script>(function(){
+// The survey as its own page (Rich, 14 Oct: "Surveys should be atomic like scripts"). Which survey and which questions come from the link:
+// sv = survey id (j/<sv>.json); the voter's districts (cd, sd, hd, s, v, w, j) pick the questions with an "if"; k = the voter's Red Shift
+// key (never VoterKey) for saving answers; emb = shown inside another page; demo = fake data, nothing is saved.
+var P=new URLSearchParams(location.search),SV=(P.get('sv')||'').replace(/[^a-z0-9-]/g,''),DEMO=P.get('demo')==='1';
+function $(i){return document.getElementById(i);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+if(P.get('emb')==='1')document.body.className='emb';
+function size(){try{parent.postMessage({rsSurvey:1,h:document.documentElement.scrollHeight},'*');}catch(e){}}
+function none(){$('qs').innerHTML='<div class="hint">This survey link is not active.</div>';size();}
+if(!SV)return none();
+fetch('j/'+SV+'.json').then(function(r){return r.ok?r.json():null;}).then(function(D){if(!D)return none();
+ function ok(q){if(!q['if'])return true;return Object.keys(q['if']).every(function(k){return String(P.get(k)||'').toLowerCase()===q['if'][k];});}
+ var Q=D.questions.filter(ok),A={};
+ $('top').textContent=D.title;
+ $('qs').innerHTML='<div class="hint">'+esc(D.hint)+'</div>'+Q.map(function(q){var b='';for(var i=1;i<=10;i++)b+='<button type="button" data-v="'+i+'">'+i+'</button>';
+  return '<div class="q"><div class="qt">'+esc(q.text)+'</div><div class="rad" data-q="'+esc(q.id)+'">'+b+'</div></div>';}).join('')+'<button type="button" id="go">'+esc(D.send)+'</button><div id="msg"></div>';
+ $('thanks').textContent=D.thanks;
+ if(D.pav)$('pv').innerHTML='<div class="pav">'+esc(D.pav.text)+'<a href="'+esc(D.pav.url)+'" target="_top" rel="noopener">'+esc(D.pav.link)+'</a></div>';
+ Array.prototype.forEach.call(document.querySelectorAll('[data-q] button'),function(b){b.onclick=function(){var id=b.parentNode.getAttribute('data-q');
+  Array.prototype.forEach.call(b.parentNode.children,function(x){x.className=x===b?'on':'';});A[id]=Number(b.getAttribute('data-v'));};});
+ $('go').onclick=function(){var m=$('msg');if(!Object.keys(A).length){m.textContent='Pick an answer first.';return;}
+  function done(){$('qs').hidden=true;$('thanks').hidden=false;size();}
+  if(DEMO)return done();   // fake data: nothing is saved
+  var K=P.get('k');if(!D.post||!K){m.textContent='This survey link is not active.';return;}
+  $('go').disabled=true;m.textContent='Sending...';
+  fetch(D.post,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({sv:SV,k:K,a:A})}).then(function(r){return r.json();})
+   .then(function(r){$('go').disabled=false;if(r&&r.ok)done();else m.textContent=(r&&r.msg)||'Not sent. Try again.';},function(){$('go').disabled=false;m.textContent='No connection. Try again.';});};
+ size();
+},none);
+window.addEventListener('resize',size);
+})();</script></body></html>
