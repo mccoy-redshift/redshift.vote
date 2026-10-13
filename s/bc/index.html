@@ -108,6 +108,9 @@ function fill(L){L=L.filter(Boolean);if(!L.length)return;var many=L.length>1;
 // the survey is its own page (s/sv), shown here with the same link values (Rich, 14 Oct: "Surveys should be atomic like scripts")
 (function(){var q=new URLSearchParams(location.search);if(!q.get('sv'))q.set('sv','ballot-chase');q.set('emb','1');$('svf').src='../sv/?'+q.toString();
  window.addEventListener('message',function(e){if(e.data&&e.data.rsSurvey&&e.data.h)$('svf').style.height=(e.data.h+4)+'px';});})();
+// shown inside the Red Shift call/text card (emb=1): no banner or footer; tell the card how tall the page is
+if(P.get('emb')==='1'){var es=document.createElement('style');es.textContent='#hd,footer{display:none!important}main{padding-top:8px}';document.head.appendChild(es);
+ var eh=function(){try{parent.postMessage({rsBc:1,h:document.documentElement.scrollHeight},'*');}catch(e){}};window.addEventListener('load',eh);document.addEventListener('toggle',eh,true);try{new ResizeObserver(eh).observe(document.body);}catch(e){}}
 var KS=(J&&KNOWN.indexOf(J)>=0?[J]:[]);
 Promise.all(KS.map(get)).then(function(L){fill(L);return fetch('j/vg.json').then(function(r){return r.json();}).then(function(G){rec(G,L.filter(Boolean));});}).catch(function(){});
 function rec(G,L){var V={};['cd','sd','hd','s','v','w'].forEach(function(k){if(P.has(k)){V[k]=[String(P.get(k)).toLowerCase()];return;}var a=[];L.forEach(function(d){(d.dist&&d.dist[k]||[]).forEach(function(x){if(a.indexOf(x)<0)a.push(x);});});V[k]=a;});
