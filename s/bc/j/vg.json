@@ -1,0 +1,240 @@
+{
+ "source": "Berrien County GOP voter guide card (front and back), 2026",
+ "sections": [
+  {
+   "t": "Statewide",
+   "r": [
+    {
+     "o": "Governor",
+     "n": [
+      "John James"
+     ]
+    },
+    {
+     "o": "Attorney General",
+     "n": [
+      "Doug Lloyd"
+     ]
+    },
+    {
+     "o": "Secretary of State",
+     "n": [
+      "Anthony Forlini"
+     ]
+    },
+    {
+     "o": "U.S. Senate",
+     "n": [
+      "Mike Rogers"
+     ]
+    },
+    {
+     "o": "U.S. Rep, 4th District",
+     "n": [
+      "Bill Huizenga"
+     ],
+     "if": {
+      "cd": "4"
+     }
+    },
+    {
+     "o": "U.S. Rep, 5th District",
+     "n": [
+      "Tim Walberg"
+     ],
+     "if": {
+      "cd": "5"
+     }
+    }
+   ]
+  },
+  {
+   "t": "Judicial",
+   "r": [
+    {
+     "o": "Michigan Supreme Court Justice",
+     "n": [
+      "Michael Warren",
+      "Casandra Morse Bills"
+     ]
+    },
+    {
+     "o": "5th District Court Judge",
+     "n": [
+      "Myrene Koch"
+     ]
+    }
+   ]
+  },
+  {
+   "t": "Education",
+   "r": [
+    {
+     "o": "State Board of Education",
+     "n": [
+      "Bree Moeggenberg",
+      "Terence Collins"
+     ]
+    },
+    {
+     "o": "MSU Board of Trustees",
+     "n": [
+      "Julie Maday",
+      "Roger Victory"
+     ]
+    },
+    {
+     "o": "University of Michigan Board of Regents",
+     "n": [
+      "Lena Epstein",
+      "Michael Schostak"
+     ]
+    },
+    {
+     "o": "Wayne State Board of Governors",
+     "n": [
+      "Andy Anuzis",
+      "Christa Murphy"
+     ]
+    }
+   ]
+  },
+  {
+   "t": "State House",
+   "r": [
+    {
+     "o": "State Representative, 37th District",
+     "n": [
+      "Brad Paquette"
+     ],
+     "if": {
+      "hd": "37"
+     }
+    },
+    {
+     "o": "State Representative, 38th District",
+     "n": [
+      "Mark Krieger"
+     ],
+     "if": {
+      "hd": "38"
+     }
+    },
+    {
+     "o": "State Representative, 39th District",
+     "n": [
+      "Pauline Wendzel"
+     ],
+     "if": {
+      "hd": "39"
+     }
+    }
+   ]
+  },
+  {
+   "t": "State Senate",
+   "r": [
+    {
+     "o": "State Senate, 17th District",
+     "n": [
+      "Jonathan Lindsey"
+     ],
+     "if": {
+      "sd": "17"
+     }
+    },
+    {
+     "o": "State Senate, 20th District",
+     "n": [
+      "Chris Moraitis"
+     ],
+     "if": {
+      "sd": "20"
+     }
+    }
+   ]
+  },
+  {
+   "t": "School Board",
+   "r": [
+    {
+     "o": "St. Joseph Public Schools",
+     "n": [
+      "Brandon Sheskey"
+     ],
+     "if": {
+      "s": "sjps"
+     }
+    }
+   ]
+  },
+  {
+   "t": "Local Officials",
+   "r": [
+    {
+     "o": "Niles City Council, Ward 1",
+     "n": [
+      "Krystal McCully"
+     ],
+     "if": {
+      "w": "niles-1"
+     }
+    },
+    {
+     "o": "Niles City Council, Ward 4",
+     "n": [
+      "Michael Thompson"
+     ],
+     "if": {
+      "w": "niles-4"
+     }
+    },
+    {
+     "o": "President, Village of Baroda",
+     "n": [
+      "Michael Price"
+     ],
+     "if": {
+      "v": "baroda"
+     }
+    },
+    {
+     "o": "Trustee, Village of Baroda",
+     "n": [
+      "James Whitehead",
+      "Joanna Whitehead"
+     ],
+     "if": {
+      "v": "baroda"
+     }
+    },
+    {
+     "o": "Baroda Township Clerk",
+     "n": [
+      "Christina Price"
+     ],
+     "if": {
+      "j": "baroda"
+     }
+    }
+   ]
+  },
+  {
+   "t": "Ballot Proposals",
+   "r": [
+    {
+     "o": "Proposal 1: Constitutional Convention",
+     "n": [
+      "Vote Yes"
+     ]
+    },
+    {
+     "o": "Proposal 2: No Utility Money",
+     "n": [
+      "Vote No"
+     ]
+    }
+   ]
+  }
+ ]
+}

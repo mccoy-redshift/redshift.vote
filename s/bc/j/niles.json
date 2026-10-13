@@ -1,0 +1,74 @@
+{
+ "name": "City of Niles",
+ "office": "City of Niles Clerk",
+ "clerk": "Tina Bergman",
+ "address": "333 N 2nd St, Ste 301, Niles, MI 49120",
+ "mailing": "333 N 2nd St, Ste 301, Niles, MI 49120",
+ "phone": "(269) 683-4700 x3030",
+ "email": "cityclerk@nilesmi.org",
+ "hours": "Mon–Thu 7:30am–5pm (closed 12–1), Fri 7:30–11:30am",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "7am–3pm"
+  ]
+ ],
+ "boxes": [],
+ "source": "City of Niles Clerk elections page (nilesmi.org/government/elections/election.php), read 14 Oct 2026",
+ "early": {
+  "site": "Niles City Hall",
+  "address": "333 N. 2nd Street, Niles, MI 49120",
+  "hours": [
+   [
+    "Sat, Oct 24 – Sun, Nov 1",
+    "8am–4pm"
+   ]
+  ],
+  "source": "Berrien County Clerk, Early Voting page (berriencounty.org/1926), read 14 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "w": "1",
+   "place": "YMCA",
+   "address": "905 N. Front Street, Niles, MI 49120"
+  },
+  {
+   "p": "2",
+   "w": "2",
+   "place": "YMCA",
+   "address": "905 N. Front Street, Niles, MI 49120"
+  },
+  {
+   "p": "3",
+   "w": "3",
+   "place": "Niles Fire Station",
+   "address": "1345 E. Main St., Niles, MI 49120"
+  },
+  {
+   "p": "4",
+   "w": "4",
+   "place": "FOP Lodge 95",
+   "address": "531 N. State St., Niles, MI 49120"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (berriencounty.org/DocumentCenter/View/10254), read 14 Oct 2026",
+ "dist": {
+  "cd": [
+   "5"
+  ],
+  "sd": [
+   "17"
+  ],
+  "hd": [
+   "37"
+  ],
+  "w": [
+   "niles-1",
+   "niles-2",
+   "niles-3",
+   "niles-4"
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters, Berrien_2330)"
+}

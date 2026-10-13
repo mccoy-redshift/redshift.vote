@@ -1,0 +1,60 @@
+{
+ "name": "Baroda Township",
+ "office": "Baroda Township Clerk",
+ "clerk": "Christina Price",
+ "address": "9091 First St., Baroda, MI 49101",
+ "mailing": "9091 First St., Baroda, MI 49101",
+ "phone": "(269) 422-2300",
+ "email": "Barodaclerk@gmail.com",
+ "hours": "Mon–Thu 8am–2pm",
+ "weekend": [],
+ "boxes": [],
+ "source": "Baroda Township elections page (barodatownship.org/elections), read 14 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 Shawnee Rd., Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Berrien County's one early voting site for your city or township.",
+  "source": "Berrien County Clerk, Early Voting page (berriencounty.org/1926), read 14 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "American Legion Post #345",
+   "address": "9214 First Street, Baroda, MI 49101"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (berriencounty.org/DocumentCenter/View/10254), read 14 Oct 2026",
+ "dist": {
+  "cd": [
+   "5"
+  ],
+  "sd": [
+   "17"
+  ],
+  "hd": [
+   "37"
+  ],
+  "v": [
+   "baroda",
+   ""
+  ],
+  "j": [
+   "baroda"
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters, Berrien_2330)"
+}

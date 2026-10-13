@@ -63,5 +63,21 @@
    "address": "3590 Lincoln Ave., St. Joseph, MI 49085"
   }
  ],
- "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (berriencounty.org/DocumentCenter/View/10254), read 14 Oct 2026"
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (berriencounty.org/DocumentCenter/View/10254), read 14 Oct 2026",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   "sjps",
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters, Berrien_2330)"
 }
