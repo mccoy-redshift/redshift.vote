@@ -1,0 +1,33 @@
+{
+ "name": "Lincoln Township",
+ "office": "Lincoln Charter Township Clerk",
+ "clerk": "Michael Brown",
+ "address": "2055 W. John Beers Rd, Stevensville, MI 49127",
+ "mailing": "PO Box 279, Stevensville, MI 49127",
+ "phone": "(269) 429-1589",
+ "email": "clerk@lctberrien.org",
+ "hours": "Mon–Fri 9am–5pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "6am–10am"
+  ],
+  [
+   "Sun, Nov 1",
+   "6am–10am"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "2055 W. John Beers Rd, Stevensville",
+   "where": "To the right of the front door",
+   "hours": "Open 24 hours, 7 days a week"
+  },
+  {
+   "address": "2055 W. John Beers Rd, Stevensville",
+   "where": "Drive-up box by the flag pole in the parking lot",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 14 Oct 2026"
+}

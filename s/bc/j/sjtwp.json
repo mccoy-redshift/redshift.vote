@@ -1,0 +1,24 @@
+{
+ "name": "St. Joseph Township",
+ "office": "St. Joseph Charter Township Clerk",
+ "clerk": "Patrice Rose",
+ "address": "3000 Washington Ave, St. Joseph, MI 49085",
+ "mailing": "P.O. Box 147, St. Joseph, MI 49085",
+ "phone": "(269) 429-7703",
+ "email": "prose@sjct.org",
+ "hours": "Mon–Fri 8am–5pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "8am–4pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "3000 Washington Ave., St. Joseph",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 14 Oct 2026"
+}

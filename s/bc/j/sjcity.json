@@ -1,0 +1,24 @@
+{
+ "name": "City of St. Joseph",
+ "office": "City of St. Joseph Clerk",
+ "clerk": "Abby Bennett",
+ "address": "700 Broad St, St. Joseph, MI 49085",
+ "mailing": "700 Broad Street, St. Joseph, MI 49085",
+ "phone": "(269) 983-6325",
+ "email": "clerk@sjcity.com",
+ "hours": "Mon–Fri 8am–5pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "7am–3pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "700 Broad Street, St. Joseph",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 14 Oct 2026"
+}
