@@ -41,23 +41,23 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 <details class="top"><summary>Have you returned your absentee ballot?</summary><div class="ans">
 
 <details><summary>By Mail</summary><div class="ans">
-<span class="lb">Where</span><div id="a-mail"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Sign and date the envelope as on your driver&rsquo;s license or state ID.</li><li>Use the prepaid return envelope.</li></ul>
+<span class="lb">Where</span><div id="a-mail"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div>
 </div></details>
 
 <details><summary>At a drop box</summary><div class="ans">
-<span class="lb">Where</span><div id="a-box"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Your clerk&rsquo;s secure drop box.</li></ul>
+<span class="lb">Where</span><div id="a-box"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div>
 </div></details>
 
 <details><summary>At your local clerk&rsquo;s office</summary><div class="ans">
-<span class="lb">Where</span><div id="a-clerk"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Hand in your signed envelope in person.</li><li>Open office hours and the weekend before Election Day.</li></ul>
+<span class="lb">Where</span><div id="a-clerk"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div>
 </div></details>
 
 <details><summary>At your early voting location</summary><div class="ans">
-<span class="lb">Where</span><div id="a-early"></div><span class="lb">When</span><div class="addr">Sat, Oct.&nbsp;24 to Sun, Nov.&nbsp;1</div><ul class="f"><li>Put your completed ballot in the tabulator yourself.</li><li>Or vote in person: hand in your absentee ballot, or have it spoiled and get a new one.</li></ul>
+<span class="lb">Where</span><div id="a-early"></div><span class="lb">When</span><div class="addr">Sat, Oct.&nbsp;24 to Sun, Nov.&nbsp;1</div>
 </div></details>
 
 <details><summary>At your polling place</summary><div class="ans">
-<span class="lb">Where</span><div id="a-where"></div><span class="lb">When</span><div class="addr">Tue, Nov.&nbsp;3<br>Polls are open 7&nbsp;a.m. to 8&nbsp;p.m.</div><ul class="f"><li>Put your completed ballot in the tabulator at your polling place.</li><li>Or vote in person: hand in your absentee ballot, or have it spoiled and get a new one.</li><li>Or use your clerk&rsquo;s drop box until 8&nbsp;p.m.</li></ul>
+<span class="lb">Where</span><div id="a-where"></div><span class="lb">When</span><div class="addr">Tue, Nov.&nbsp;3<br>Polls are open 7&nbsp;a.m. to 8&nbsp;p.m.</div>
 </div></details>
 
 <details><summary>More FAQ on Absentee Voting</summary><div class="ans">
@@ -91,14 +91,14 @@ function fill(L){L=L.filter(Boolean);if(!L.length)return;var many=L.length>1;
  // one block per drop-box address (a clerk with two boxes at one address shows that address once)
  function boxes(d,lb){var G=[],M={};(d.boxes||[]).forEach(function(b){var g=M[b.address];if(!g){g=M[b.address]={a:b.address,w:[],h:b.hours};G.push(g);}if(b.where)g.w.push(b.where);});
   return G.map(function(g){return A(d,lb?'Drop box':'',esc(g.a),(g.w.length?g.w.map(esc).join('<br>')+'<br>':'')+esc(g.h));}).join('');}
- function poll(d){if(many||!PC)return '';var x=(d.polls||[]).filter(function(x){return x.p===PC;})[0];return x?A(d,'Polling place',esc(x.place)+'<br>'+esc(x.address),'Precinct '+esc(x.p)):'';}
+ function poll(d){if(many||!PC)return '';var x=(d.polls||[]).filter(function(x){return x.p===PC;})[0];return x?A(d,'',esc(x.place)+'<br>'+esc(x.address),'Precinct '+esc(x.p)):'';}
  $('a-mail').innerHTML=L.map(function(d){return A(d,'',esc(d.office)+'<br>'+esc(d.mailing||d.address));}).join('');
  $('a-clerk').innerHTML=L.map(function(d){var wk=(d.weekend||[]).map(function(w){return esc(w[0])+' '+esc(w[1]);}).join(', ');
   return A(d,'',esc(d.office)+'<br>'+esc(d.address),esc(d.hours)+(wk?'<br>Weekend before Election Day: '+wk:'')+'<br>'+tel(d)+' &middot; <a href="mailto:'+esc(d.email)+'">'+esc(d.email)+'</a>');}).join('');
  $('a-box').innerHTML=L.map(function(d){return boxes(d);}).join('');
  var E=L[0].early;if(E)$('a-early').innerHTML=A(L[0],'',esc(E.site)+'<br>'+esc(E.address),(E.hours||[]).map(function(h){return esc(h[0])+': '+esc(h[1]);}).join('<br>'));
- // At your polling place (Rich, 14 Oct): Where = drop box, clerk's office, the voter's one polling place
- $('a-where').innerHTML=L.map(function(d){return boxes(d,1)+A(d,'Clerk&rsquo;s office',esc(d.office)+'<br>'+esc(d.address))+poll(d);}).join('');
+ // At your polling place (Rich, 14 Oct): the voter's one polling place only; drop box and clerk have their own sections
+ $('a-where').innerHTML=L.map(poll).join('');
  $('a-tel').innerHTML=L.map(function(d){return '<li>Call your clerk'+(many?' ('+esc(d.name)+')':'')+': '+tel(d)+'</li>';}).join('');
 }
 // Rich, 14 Oct: the page shows the one voter's data from the link the text app makes (j = town, p = precinct, plus districts); no link, no town data
