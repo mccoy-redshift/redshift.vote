@@ -41,15 +41,15 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 <details class="top"><summary>Have you returned your absentee ballot?</summary><div class="ans">
 
 <details><summary>By Mail</summary><div class="ans">
-<span class="lb">Where</span><div id="a-mail"></div><span class="lb">When</span><div class="addr">Deadline: 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Mail by Oct.&nbsp;20.</li><li>Sign and date the envelope as on your driver&rsquo;s license or state ID.</li><li>Use the prepaid return envelope.</li><li>After Oct.&nbsp;20, use a drop box or your clerk&rsquo;s office.</li></ul>
+<span class="lb">Where</span><div id="a-mail"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Sign and date the envelope as on your driver&rsquo;s license or state ID.</li><li>Use the prepaid return envelope.</li></ul>
 </div></details>
 
 <details><summary>At a drop box</summary><div class="ans">
-<span class="lb">Where</span><div id="a-box"></div><span class="lb">When</span><div class="addr">Deadline: 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Your clerk&rsquo;s secure drop box.</li></ul>
+<span class="lb">Where</span><div id="a-box"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Your clerk&rsquo;s secure drop box.</li></ul>
 </div></details>
 
 <details><summary>At your local clerk&rsquo;s office</summary><div class="ans">
-<span class="lb">Where</span><div id="a-clerk"></div><span class="lb">When</span><div class="addr">Deadline: 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Hand in your signed envelope in person.</li><li>Open office hours and the weekend before Election Day.</li></ul>
+<span class="lb">Where</span><div id="a-clerk"></div><span class="lb">When</span><div class="addr">Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3</div><ul class="f"><li>Hand in your signed envelope in person.</li><li>Open office hours and the weekend before Election Day.</li></ul>
 </div></details>
 
 <details><summary>At your early voting location</summary><div class="ans">
@@ -61,12 +61,12 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 </div></details>
 
 <details><summary>More FAQ on Absentee Voting</summary><div class="ans">
-<details><summary>When does my ballot have to arrive?</summary><div class="ans"><ul class="f"><li>Deadline: 8&nbsp;p.m., Tue, Nov.&nbsp;3.</li></ul></div></details>
+<details><summary>When does my ballot have to arrive?</summary><div class="ans"><ul class="f"><li>Deadline: received by 8&nbsp;p.m., Tue, Nov.&nbsp;3.</li></ul></div></details>
 <details><summary>Can I vote in person instead?</summary><div class="ans"><ul class="f"><li>Yes, at early voting or your polling place on Nov.&nbsp;3, if you haven&rsquo;t returned it.</li><li>Hand in your absentee ballot, or have it spoiled and get a new one.</li></ul></div></details>
 <details><summary>Who can return my ballot for me?</summary><div class="ans"><ul class="f"><li>You.</li><li>Immediate family or someone in your household, if you ask.</li><li>A mail carrier.</li><li>An election official.</li><li>Anyone else holding or delivering it commits a felony.</li></ul></div></details>
 <details><summary>I made a mistake or signed in the wrong place.</summary><div class="ans"><ul class="f"><li>Ask your clerk for a new ballot.</li><li>Sign as on your driver&rsquo;s license, state ID or voter registration.</li></ul></div></details>
 <details><summary>How do I know my ballot arrived?</summary><div class="ans"><ul class="f" id="a-tel"><li>Call your clerk.</li></ul><ul class="f"><li>Check for updates: <a href="https://www.michigan.gov/vote">Michigan.gov/Vote</a></li></ul></div></details>
-<details><summary>Can I change my vote after returning it?</summary><div class="ans"><ul class="f"><li>Only by a written, signed request.</li><li>Deadline: 5&nbsp;p.m., Fri, Oct.&nbsp;23.</li></ul></div></details>
+<details><summary>Can I change my vote after returning it?</summary><div class="ans"><ul class="f"><li>Only by a written, signed request.</li><li>Deadline: received by 5&nbsp;p.m., Fri, Oct.&nbsp;23.</li></ul></div></details>
 <ul class="f" style="font-size:13px;color:#9fb3e6"><li>Check for updates: <a href="https://www.michigan.gov/sos/elections/voting/absentee-voting">Michigan Secretary of State</a></li></ul></div></details>
 
 </div></details>
@@ -101,7 +101,8 @@ function fill(L){L=L.filter(Boolean);if(!L.length)return;var many=L.length>1;
  $('a-where').innerHTML=L.map(function(d){return boxes(d,1)+A(d,'Clerk&rsquo;s office',esc(d.office)+'<br>'+esc(d.address))+poll(d);}).join('');
  $('a-tel').innerHTML=L.map(function(d){return '<li>Call your clerk'+(many?' ('+esc(d.name)+')':'')+': '+tel(d)+'</li>';}).join('');
 }
-var KS=(J&&KNOWN.indexOf(J)>=0?[J]:ALL);
+// Rich, 14 Oct: the page shows the one voter's data from the link the text app makes (j = town, p = precinct, plus districts); no link, no town data
+var KS=(J&&KNOWN.indexOf(J)>=0?[J]:[]);
 Promise.all(KS.map(get)).then(function(L){fill(L);return fetch('j/vg.json').then(function(r){return r.json();}).then(function(G){rec(G,L.filter(Boolean));});}).catch(function(){});
 function rec(G,L){var V={};['cd','sd','hd','s','v','w'].forEach(function(k){if(P.has(k)){V[k]=[String(P.get(k)).toLowerCase()];return;}var a=[];L.forEach(function(d){(d.dist&&d.dist[k]||[]).forEach(function(x){if(a.indexOf(x)<0)a.push(x);});});V[k]=a;});
  V.j=KS.slice();
