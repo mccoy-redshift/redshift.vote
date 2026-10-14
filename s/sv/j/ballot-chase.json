@@ -4,6 +4,12 @@
  "hint": "Tap a number: 1 = no · 5 = not sure · 10 = yes",
  "questions": [
   {
+   "id": "ret",
+   "type": "ten",
+   "text": "Will you return your ballot?",
+   "returned": "Already returned"
+  },
+  {
    "id": "r",
    "type": "ten",
    "text": "Will you vote a straight Republican ticket?"
