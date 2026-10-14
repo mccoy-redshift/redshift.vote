@@ -19,11 +19,11 @@
 <body>
 <main><img src="../logo.webp" alt="Red Shift"><p id="m">Opening your book...</p></main>
 <script>
-// The text card for an assignment (97r asgotp.js): ?t=<pass> opens Red Shift signed in; ?a&g&s is a guest's link (no sign-in)
+// The text card for an assignment (97r asgotp.js, 97w scoped.js): ?t=<pass> opens the book's own page (only that book, no sign-in); ?a&g&s is a guest's link
 (function(){
   var Q=new URLSearchParams(location.search),t=Q.get("t")||"",a=Q.get("a")||"",g=Q.get("g")||"",s=Q.get("s")||"",go="";
   var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec";
-  if(/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(t))go="/?otp="+encodeURIComponent(t);
+  if(/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(t))go=APP+"/b?t="+encodeURIComponent(t);
   else if(/^[\w-]{1,40}$/.test(a)&&/^[\w-]{1,40}$/.test(g)&&/^[\w-]{1,60}=*$/.test(s))go=APP+"/g?a="+encodeURIComponent(a)+"&g="+encodeURIComponent(g)+"&s="+encodeURIComponent(s);
   if(go)location.replace(go);
   else document.getElementById("m").innerHTML='This link is not complete. <a href="/">Open Red Shift</a>';
