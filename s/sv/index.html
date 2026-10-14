@@ -15,7 +15,7 @@ var P=new URLSearchParams(location.search),SV=(P.get('sv')||'').replace(/[^a-z0-
 function $(i){return document.getElementById(i);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 if(P.get('emb')==='1')document.body.className='emb';
-function size(){try{parent.postMessage({rsSurvey:1,h:document.documentElement.scrollHeight},'*');}catch(e){}}
+function size(){try{parent.postMessage({rsSurvey:1,h:Math.ceil(document.body.getBoundingClientRect().height)},'*');}catch(e){}}
 function none(){$('qs').innerHTML='<div class="hint">This survey link is not active.</div>';size();}
 if(!SV)return none();
 fetch('j/'+SV+'.json').then(function(r){return r.ok?r.json():null;}).then(function(D){if(!D)return none();
