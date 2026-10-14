@@ -147,5 +147,5 @@ function suStop(){["rs-su0","rs-su"].forEach(function(i){var x=document.getEleme
  t.onclick=function(e){e.preventDefault();var on=!suOn();try{localStorage.setItem(TMK,on?"show":"hide");}catch(x){}if(on)suStart();else suStop();lab();};
  document.body.appendChild(t);})();
 if(suOn())suStart();
-(function(){var o=Q.get("otp")||"";if(/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(o)){try{history.replaceState(null,"",location.pathname);}catch(e){}return passIn(o);}var p=passGet();if(p)return passIn(p);var t=null;try{t=sessionStorage.getItem(TK);}catch(e){}if(tokOk(t))signedIn({credential:t});else{tokDrop();gsiStart();}})();
+(function(){var o=new URLSearchParams(location.search).get("otp")||"";if(/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(o)){try{history.replaceState(null,"",location.pathname);}catch(e){}return passIn(o);}var p=passGet();if(p)return passIn(p);var t=null;try{t=sessionStorage.getItem(TK);}catch(e){}if(tokOk(t))signedIn({credential:t});else{tokDrop();gsiStart();}})();
 </script></body></html>
