@@ -109,7 +109,7 @@ function fill(L){L=L.filter(Boolean);if(!L.length)return;var many=L.length>1;
 (function(){var q=new URLSearchParams(location.search);if(!q.get('sv'))q.set('sv','ballot-chase');q.set('emb','1');$('svf').src='../sv/?'+q.toString();
  window.addEventListener('message',function(e){if(e.data&&e.data.rsSurvey&&e.data.h)$('svf').style.height=e.data.h+'px';});})();
 // shown inside the Red Shift call/text card (emb=1): no banner or footer; tell the card how tall the page is
-if(P.get('emb')==='1'){var ON={ret:'ret',rec:'rec',vg:'vg',sv:'svd'}[P.get('only')||''];if(ON)[].forEach.call(document.querySelectorAll('main>details'),function(d){if(d.id!==ON)d.style.display='none';});var es=document.createElement('style');es.textContent='#hd,footer{display:none!important}main{padding-top:8px}';document.head.appendChild(es);
+if(P.get('emb')==='1'){var ON={ret:'ret',rec:'rec',vg:'vg',sv:'svd'}[P.get('only')||''];if(ON)[].forEach.call(document.querySelectorAll('main>details'),function(d){if(d.id!==ON)d.style.display='none';});var es=document.createElement('style');es.textContent='#hd,footer{display:none!important}html,body{background:transparent}main{max-width:none;padding:0;background:none}main>details{margin:0;background:#061149}';document.head.appendChild(es);
  var eh=function(){try{parent.postMessage({rsBc:1,h:Math.ceil(document.body.getBoundingClientRect().height)},'*');}catch(e){}};window.addEventListener('load',eh);document.addEventListener('toggle',eh,true);try{new ResizeObserver(eh).observe(document.body);}catch(e){}}
 var KS=(J&&KNOWN.indexOf(J)>=0?[J]:[]);
 Promise.all(KS.map(get)).then(function(L){fill(L);return fetch('j/vg.json').then(function(r){return r.json();}).then(function(G){rec(G,L.filter(Boolean));});}).catch(function(){});
