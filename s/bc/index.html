@@ -39,7 +39,7 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 </style></head><body>
 <header id="hd"><i class="st"></i><i class="st r"></i><b class="hi">Hello from Berrien County GOP</b><img class="hl" src="/logo.webp" alt="Berrien County GOP"></header>
 <main>
-<details class="top"><summary>Have you returned your absentee ballot?</summary><div class="ans">
+<details class="top" id="ret"><summary>Have you returned your absentee ballot?</summary><div class="ans">
 <div id="for" class="for"></div>
 
 <details><summary>By Mail</summary><div class="ans">
@@ -74,7 +74,7 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 </div></details>
 
 <details id="rec"><summary>Recommendations from the Berrien County GOP</summary><div class="ans" id="rec-b"></div></details>
-<details class="vg"><summary>View or Print the Berrien County GOP Voter Guide</summary><div class="ans">
+<details class="vg" id="vg"><summary>View or Print the Berrien County GOP Voter Guide</summary><div class="ans">
 <div class="car"><div class="trk" id="trk"><img src="vg-front.jpg" alt="Voter guide, front"><img src="vg-back.jpg" alt="Voter guide, back"></div><button type="button" class="ar l" id="arl" aria-label="Front">&#8249;</button><button type="button" class="ar r" id="arr" aria-label="Back">&#8250;</button></div>
 <div class="tb"><a href="vg.pdf" download="Berrien County GOP voter guide.pdf" aria-label="Download"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>Download</a><button type="button" id="shr" aria-label="Share"><svg viewBox="0 0 24 24"><path d="M12 15V3m0 0L7 8m5-5l5 5M5 11v9h14v-9"/></svg>Share</button><a href="vg.html?print=1" target="_blank" rel="noopener" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print</a></div><div class="cap">Straight ticket does NOT cover judges or school board. Turn your ballot over.</div></div></details>
 <details id="svd"><summary>Take our <span class="smv">Save Michigan <b>Vote Red</b></span> Survey</summary><div class="ans"><iframe id="svf" title="Survey" style="width:100%;border:0;border-radius:12px;background:#fff;height:520px"></iframe></div></details>
@@ -109,7 +109,7 @@ function fill(L){L=L.filter(Boolean);if(!L.length)return;var many=L.length>1;
 (function(){var q=new URLSearchParams(location.search);if(!q.get('sv'))q.set('sv','ballot-chase');q.set('emb','1');$('svf').src='../sv/?'+q.toString();
  window.addEventListener('message',function(e){if(e.data&&e.data.rsSurvey&&e.data.h)$('svf').style.height=e.data.h+'px';});})();
 // shown inside the Red Shift call/text card (emb=1): no banner or footer; tell the card how tall the page is
-if(P.get('emb')==='1'){var es=document.createElement('style');es.textContent='#hd,footer{display:none!important}main{padding-top:8px}';document.head.appendChild(es);
+if(P.get('emb')==='1'){var ON={ret:'ret',rec:'rec',vg:'vg',sv:'svd'}[P.get('only')||''];if(ON)[].forEach.call(document.querySelectorAll('main>details'),function(d){if(d.id!==ON)d.style.display='none';});var es=document.createElement('style');es.textContent='#hd,footer{display:none!important}main{padding-top:8px}';document.head.appendChild(es);
  var eh=function(){try{parent.postMessage({rsBc:1,h:Math.ceil(document.body.getBoundingClientRect().height)},'*');}catch(e){}};window.addEventListener('load',eh);document.addEventListener('toggle',eh,true);try{new ResizeObserver(eh).observe(document.body);}catch(e){}}
 var KS=(J&&KNOWN.indexOf(J)>=0?[J]:[]);
 Promise.all(KS.map(get)).then(function(L){fill(L);return fetch('j/vg.json').then(function(r){return r.json();}).then(function(G){rec(G,L.filter(Boolean));});}).catch(function(){});
