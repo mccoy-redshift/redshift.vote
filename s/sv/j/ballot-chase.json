@@ -7,7 +7,9 @@
    "id": "ret",
    "type": "ten",
    "text": "Will you return your ballot?",
-   "returned": "Already returned"
+   "returned": "Already returned",
+   "inperson": "Plan to vote in person",
+   "inpersonText": "How determined are you to vote on Nov 3?"
   },
   {
    "id": "r",
