@@ -92,7 +92,7 @@ function fill(L){L=L.filter(Boolean);if(!L.length)return;var many=L.length>1;
  function tel(d){return '<a href="tel:'+String(d.phone||'').replace(/[^0-9]/g,'')+'">'+esc(d.phone)+'</a>';}
  // one block per drop-box address (a clerk with two boxes at one address shows that address once)
  function boxes(d,lb){var G=[],M={};(d.boxes||[]).forEach(function(b){var g=M[b.address];if(!g){g=M[b.address]={a:b.address,w:[],h:b.hours};G.push(g);}if(b.where)g.w.push(b.where);});
-  return G.map(function(g){return A(d,lb?'Drop box':'',esc(g.a),(g.w.length?g.w.map(esc).join('<br>')+'<br>':'')+esc(g.h));}).join('');}
+  return G.map(function(g){return A(d,lb?'Drop box':'',esc(g.a),g.w.map(esc).join('<br>'));}).join('');}
  function poll(d){if(many||!PC)return '';var x=(d.polls||[]).filter(function(x){return x.p===PC;})[0];return x?A(d,'',esc(x.place)+'<br>'+esc(x.address),'Precinct '+esc(x.p)):'';}
  $('for').textContent='This data is for '+(L[0].name||'')+(PC?' Precinct '+PC:'');
  $('a-mail').innerHTML=L.map(function(d){return A(d,'',esc(d.office)+'<br>'+esc(d.mailing||d.address));}).join('');
