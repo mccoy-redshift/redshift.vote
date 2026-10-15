@@ -83,6 +83,7 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 
 <div id="poll" hidden><div class="pq" id="pq"></div><div class="pr" id="pr"></div><button type="button" id="pgo" hidden>Send</button><div id="pmsg"></div></div>
 
+<div id="stp" hidden style="text-align:center;margin:22px 0 6px"><button type="button" id="stpb" style="font:700 15px Arial,Helvetica,sans-serif;padding:8px 22px;border-radius:18px;border:1px solid #888;background:#fff;color:#333">STOP</button><div id="stpm" style="font-size:14px;color:#555;margin-top:6px"></div></div>
 </main>
 
 <script>(function(){
@@ -142,6 +143,8 @@ function rec(G,L){var V={};['cd','sd','hd','s','v','w'].forEach(function(k){if(P
 // the one question (Rich, 14 Oct), by the voter's absentee status (ab): ballot out not back, not absentee, ballot back
 var VG={},CANDS=[],AN=0,ST=null,AB=(P.get('ab')||'').replace(/[^a-z]/g,''),BK=P.get('bk')||'',RK=P.get('rk')||'',SG=P.get('sg')||'';
 var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec";
+// Opt out (Rich, 15 Oct: "Reply STOP, or select STOP in our link, to opt out"): a signed link's STOP records it
+if(BK&&RK&&SG){$('stp').hidden=false;$('stpb').onclick=function(){var b=$('stpb'),m=$('stpm');b.disabled=true;m.textContent='Sending...';fetch(APP,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:'bcStop',args:[BK,RK,SG]})}).then(function(r){return r.json();}).then(function(r){var x=r&&r.ok?r.result:null;if(x&&x.ok){b.hidden=true;m.textContent='We have recorded your response.';}else{b.disabled=false;m.textContent=(x&&x.msg)||'Not sent. Try again.';}},function(){b.disabled=false;m.textContent='No connection. Try again.';});};}
 function poll(){var box=$('poll');box.hidden=false;
  if(AB==='ret'){$('pq').textContent='Thank you, your ballot is in.';$('pr').innerHTML='';}
  else{$('pq').textContent=AB==='out'?'Will you return your ballot?':'Will you vote on Nov 3?';
