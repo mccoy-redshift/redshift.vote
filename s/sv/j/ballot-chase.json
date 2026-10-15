@@ -17,14 +17,6 @@
    "text": "Will you vote a straight Republican ticket?"
   },
   {
-   "id": "k|hd38",
-   "type": "five",
-   "text": "Will you vote for Mark Krieger?",
-   "if": {
-    "hd": "38"
-   }
-  },
-  {
    "id": "k|sjps",
    "type": "five",
    "text": "Will you vote for Brandon Sheskey?",
@@ -36,5 +28,6 @@
  "send": "Send",
  "thanks": "Thank you! We can count on you.",
  "post": "",
- "source": "Red Shift texted survey (34 qrwalk.js qrSurveyPage_), same questions as the door app's Door Score; candidates for tonight's HD-38 Ballot Chase books (campaign HD-38)"
+ "source": "Red Shift texted survey (34 qrwalk.js qrSurveyPage_), same questions as the door app's Door Score; candidates for tonight's HD-38 Ballot Chase books (campaign HD-38)",
+ "note": "Rich, 15 Oct: Mark Krieger is covered by the straight ticket question (\"take kreiger out because he is straitght ticket\")"
 }
