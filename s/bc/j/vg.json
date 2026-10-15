@@ -1,32 +1,38 @@
 {
  "source": "Berrien County GOP voter guide card (front and back), 2026",
+ "note": "Rich, 14 Oct: three sections (Republican Ticket, Judicial Races, Local Races only when the voter has any); every race only where the voter votes on it; the proposals are left off (they are on the voter guide).",
  "sections": [
   {
-   "t": "Statewide",
+   "t": "Republican Ticket",
+   "straight": true,
    "r": [
     {
      "o": "U.S. Senate",
      "n": [
       "Mike Rogers"
-     ]
+     ],
+     "id": "u-s-senate"
     },
     {
      "o": "Governor",
      "n": [
       "John James"
-     ]
+     ],
+     "id": "governor"
     },
     {
      "o": "Attorney General",
      "n": [
       "Doug Lloyd"
-     ]
+     ],
+     "id": "attorney-general"
     },
     {
      "o": "Secretary of State",
      "n": [
       "Anthony Forlini"
-     ]
+     ],
+     "id": "secretary-of-state"
     },
     {
      "o": "U.S. Rep, 4th District",
@@ -35,7 +41,8 @@
      ],
      "if": {
       "cd": "4"
-     }
+     },
+     "id": "u-s-rep-4th-district"
     },
     {
      "o": "U.S. Rep, 5th District",
@@ -44,96 +51,41 @@
      ],
      "if": {
       "cd": "5"
-     }
-    }
-   ]
-  },
-  {
-   "t": "Judicial",
-   "r": [
-    {
-     "o": "Michigan Supreme Court Justice",
-     "n": [
-      "Michael Warren",
-      "Casandra Morse Bills"
-     ]
+     },
+     "id": "u-s-rep-5th-district"
     },
-    {
-     "o": "5th District Court Judge",
-     "n": [
-      "Myrene Koch"
-     ]
-    }
-   ]
-  },
-  {
-   "t": "Education",
-   "r": [
     {
      "o": "State Board of Education",
      "n": [
       "Bree Moeggenberg",
       "Terence Collins"
-     ]
+     ],
+     "id": "state-board-of-education"
     },
     {
      "o": "MSU Board of Trustees",
      "n": [
       "Julie Maday",
       "Roger Victory"
-     ]
+     ],
+     "id": "msu-board-of-trustees"
     },
     {
      "o": "University of Michigan Board of Regents",
      "n": [
       "Lena Epstein",
       "Michael Schostak"
-     ]
+     ],
+     "id": "university-of-michigan-board-of-regents"
     },
     {
      "o": "Wayne State Board of Governors",
      "n": [
       "Andy Anuzis",
       "Christa Murphy"
-     ]
-    }
-   ]
-  },
-  {
-   "t": "State House",
-   "r": [
-    {
-     "o": "State Representative, 37th District",
-     "n": [
-      "Brad Paquette"
      ],
-     "if": {
-      "hd": "37"
-     }
+     "id": "wayne-state-board-of-governors"
     },
-    {
-     "o": "State Representative, 38th District",
-     "n": [
-      "Mark Krieger"
-     ],
-     "if": {
-      "hd": "38"
-     }
-    },
-    {
-     "o": "State Representative, 39th District",
-     "n": [
-      "Pauline Wendzel"
-     ],
-     "if": {
-      "hd": "39"
-     }
-    }
-   ]
-  },
-  {
-   "t": "State Senate",
-   "r": [
     {
      "o": "State Senate, 17th District",
      "n": [
@@ -141,7 +93,8 @@
      ],
      "if": {
       "sd": "17"
-     }
+     },
+     "id": "state-senate-17th-district"
     },
     {
      "o": "State Senate, 20th District",
@@ -150,12 +103,63 @@
      ],
      "if": {
       "sd": "20"
-     }
+     },
+     "id": "state-senate-20th-district"
+    },
+    {
+     "o": "State Representative, 37th District",
+     "n": [
+      "Brad Paquette"
+     ],
+     "if": {
+      "hd": "37"
+     },
+     "id": "state-representative-37th-district"
+    },
+    {
+     "o": "State Representative, 38th District",
+     "n": [
+      "Mark Krieger"
+     ],
+     "if": {
+      "hd": "38"
+     },
+     "id": "state-representative-38th-district"
+    },
+    {
+     "o": "State Representative, 39th District",
+     "n": [
+      "Pauline Wendzel"
+     ],
+     "if": {
+      "hd": "39"
+     },
+     "id": "state-representative-39th-district"
     }
    ]
   },
   {
-   "t": "School Board",
+   "t": "Judicial Races",
+   "r": [
+    {
+     "o": "Michigan Supreme Court Justice",
+     "n": [
+      "Michael Warren",
+      "Casandra Morse Bills"
+     ],
+     "id": "michigan-supreme-court-justice"
+    },
+    {
+     "o": "5th District Court Judge",
+     "n": [
+      "Myrene Koch"
+     ],
+     "id": "5th-district-court-judge"
+    }
+   ]
+  },
+  {
+   "t": "Local Races",
    "r": [
     {
      "o": "St. Joseph Public Schools",
@@ -164,13 +168,9 @@
      ],
      "if": {
       "s": "sjps"
-     }
-    }
-   ]
-  },
-  {
-   "t": "Local Officials",
-   "r": [
+     },
+     "id": "st-joseph-public-schools"
+    },
     {
      "o": "Niles City Council, Ward 1",
      "n": [
@@ -178,7 +178,8 @@
      ],
      "if": {
       "w": "niles-1"
-     }
+     },
+     "id": "niles-city-council-ward-1"
     },
     {
      "o": "Niles City Council, Ward 4",
@@ -187,7 +188,8 @@
      ],
      "if": {
       "w": "niles-4"
-     }
+     },
+     "id": "niles-city-council-ward-4"
     },
     {
      "o": "President, Village of Baroda",
@@ -196,7 +198,8 @@
      ],
      "if": {
       "v": "baroda"
-     }
+     },
+     "id": "president-village-of-baroda"
     },
     {
      "o": "Trustee, Village of Baroda",
@@ -206,7 +209,8 @@
      ],
      "if": {
       "v": "baroda"
-     }
+     },
+     "id": "trustee-village-of-baroda"
     },
     {
      "o": "Baroda Township Clerk",
@@ -215,24 +219,8 @@
      ],
      "if": {
       "j": "baroda"
-     }
-    }
-   ]
-  },
-  {
-   "t": "Ballot Proposals",
-   "r": [
-    {
-     "o": "Proposal 1: Constitutional Convention",
-     "n": [
-      "Vote Yes"
-     ]
-    },
-    {
-     "o": "Proposal 2: No Utility Money",
-     "n": [
-      "Vote No"
-     ]
+     },
+     "id": "baroda-township-clerk"
     }
    ]
   }
