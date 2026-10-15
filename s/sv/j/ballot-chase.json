@@ -1,11 +1,11 @@
 {
  "id": "ballot-chase",
  "title": "A quick survey",
- "hint": "Tap a number: 1 = no · 5 = not sure · 10 = yes",
+ "hint": "",
  "questions": [
   {
    "id": "ret",
-   "type": "ten",
+   "type": "five",
    "text": "Will you return your ballot?",
    "returned": "Already returned",
    "inperson": "Plan to vote in person",
@@ -13,12 +13,12 @@
   },
   {
    "id": "r",
-   "type": "ten",
+   "type": "five",
    "text": "Will you vote a straight Republican ticket?"
   },
   {
    "id": "k|hd38",
-   "type": "ten",
+   "type": "five",
    "text": "Will you vote for Mark Krieger?",
    "if": {
     "hd": "38"
@@ -26,7 +26,7 @@
   },
   {
    "id": "k|sjps",
-   "type": "ten",
+   "type": "five",
    "text": "Will you vote for Brandon Sheskey?",
    "if": {
     "s": "sjps"
