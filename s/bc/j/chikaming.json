@@ -1,0 +1,91 @@
+{
+ "name": "Chikaming Township",
+ "office": "Chikaming Township Clerk",
+ "clerk": "Paula Dudiak",
+ "address": "13535 Red Arrow Highway, Harbert, MI 49115",
+ "mailing": "PO Box 40, Harbert, MI 49115",
+ "phone": "(269) 469-1676",
+ "email": "pdudiak@chikamingtownship.org",
+ "hours": "Mon–Fri 8am–12pm, 12:30pm–4pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "8am–4pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "13535 Red Arrow Hwy Outside Mail Slot, Harbert, MI 49115",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  },
+  {
+   "address": "13535 Red Arrow Hwy Inside Lobby, Harbert, MI 49115",
+   "where": "",
+   "hours": "Mon. 8am-12pm, 12:30pm-4pm Tue. 8am-12pm, 12:30pm-4pm Wed. 8am-12pm, 12:30pm-4pm Thu. 8am-12pm, 12:30pm-4pm Fri. 8am-12pm, 12:30pm-4pm"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 W. Shawnee Rd, Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Berrien County Clerk (Early Voting page; WSJM, 8 Oct 2026); site from Michigan Voter Information Center"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Chikaming Township Center",
+   "address": "13535 Red Arrow Hwy., Harbert, MI 49115"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (PDF dated 13 Jan 2026)",
+ "dist": {
+  "cd": [
+   "5"
+  ],
+  "sd": [
+   "17"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://chikamingtownship.org",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "5"
+   ],
+   "sd": [
+    "17"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

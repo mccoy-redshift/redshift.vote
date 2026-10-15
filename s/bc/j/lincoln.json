@@ -94,5 +94,69 @@
    ""
   ]
  },
- "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters, Berrien_2330)"
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters, Berrien_2330)",
+ "web": "https://lctberrien.org/225/Elections",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "5"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "2": {
+   "cd": [
+    "5"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "3": {
+   "cd": [
+    "4",
+    "5"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "4": {
+   "cd": [
+    "5"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "5": {
+   "cd": [
+    "5"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
 }

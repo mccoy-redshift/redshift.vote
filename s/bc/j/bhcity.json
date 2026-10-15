@@ -1,0 +1,134 @@
+{
+ "name": "City of Benton Harbor",
+ "office": "Benton Harbor City Clerk",
+ "clerk": "Tiffany Moore",
+ "address": "200 East Wall Street, Benton Harbor, MI 49022",
+ "mailing": "200 E Wall St, Benton Harbor, MI 49022",
+ "phone": "(269) 927-8408",
+ "email": "tmoore@bhcity.us",
+ "hours": "Mon–Fri 9am–2pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "7am–3pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "200 E. Wall, Benton Harbor, MI 49022",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 W. Shawnee Rd, Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Berrien County Clerk (Early Voting page; WSJM, 8 Oct 2026); site from Michigan Voter Information Center"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "BH High School",
+   "address": "870 Colfax Ave, Benton Harbor, MI 49022"
+  },
+  {
+   "p": "2",
+   "place": "BH Housing Commission/Virginia Edwards Comm. Ctr.",
+   "address": "721 Nate Wells Sr. Dr., Benton Harbor, MI 49022"
+  },
+  {
+   "p": "3",
+   "place": "BH High School",
+   "address": "870 Colfax Ave, Benton Harbor, MI 49022"
+  },
+  {
+   "p": "4",
+   "place": "BH Housing Commission/Virginia Edwards Comm. Ctr.",
+   "address": "721 Nate Wells Sr. Dr., Benton Harbor, MI 49022"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (PDF dated 13 Jan 2026)",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://www.bhcity.us/pview.aspx?id=55034&catid=292",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "2": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "3": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "4": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

@@ -1,0 +1,76 @@
+{
+ "name": "Casco Township",
+ "office": "Casco Township Clerk",
+ "clerk": "Rachel Ridley",
+ "address": "7104 107th Ave, South Haven, MI 49090",
+ "mailing": "7104 107th Ave, South Haven, MI 49090",
+ "phone": "(269) 637-4441",
+ "email": "clerk@cascotownship.org",
+ "hours": "Tue–Wed 1pm–4pm; Thu 9am–4pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "9am–5pm"
+  ],
+  [
+   "Sun, Nov 1",
+   "9am–5pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "7104 107th Avenue, South Haven, MI 49090",
+   "where": "Located Inside The Entry On The South Side Of The Building",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "polls": [
+  {
+   "p": "1",
+   "place": "Casco Township Hall",
+   "address": "7104 107th Ave, South Haven, MI 49090"
+  }
+ ],
+ "pollsSource": "Michigan Voter Information Center, Search by address, read 15 Oct 2026; Allegan County Clerk, Polling Locations page (Douglas: City of Douglas Elections page; the county page still lists the old City Hall)",
+ "missing": [
+  {
+   "what": "your early voting site",
+   "note": "We were not able to locate your early voting site. Please call your clerk at (269) 637-4441 to find your early voting site."
+  }
+ ],
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://cascotownship.org",
+ "county": {
+  "name": "Allegan County Clerk",
+  "url": "https://allegancounty.org/departments/elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

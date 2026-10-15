@@ -1,0 +1,86 @@
+{
+ "name": "Hagar Township",
+ "office": "Hagar Township Clerk",
+ "clerk": "Tom Allen",
+ "address": "3900 Riverside Rd, Riverside, MI 49084",
+ "mailing": "PO Box 87, Riverside, MI 49084",
+ "phone": "(269) 849-0455",
+ "email": "hagarclerk@gmail.com",
+ "hours": "Mon–Thu 9am–1pm; Fri 9am–1pm, 2pm–5pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "7am–3pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "3900 Riverside Rd, Benton Harbor, MI 49022",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 W. Shawnee Rd, Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Berrien County Clerk (Early Voting page; WSJM, 8 Oct 2026); site from Michigan Voter Information Center"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Township Hall",
+   "address": "3900 Riverside Rd., Riverside, MI 49084"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (PDF dated 13 Jan 2026)",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://www.hagartownship.gov",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

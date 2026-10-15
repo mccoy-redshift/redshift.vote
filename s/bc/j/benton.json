@@ -1,0 +1,170 @@
+{
+ "name": "Benton Township",
+ "office": "Benton Charter Township Clerk",
+ "clerk": "Carolyn Phillips",
+ "address": "1725 Territorial Road Bldg B, Benton Harbor, MI 49022",
+ "mailing": "1725 Territorial Rd, Bldg B, Benton Harbor, MI 49022",
+ "phone": "(269) 925-0616",
+ "email": "cphillips@bentonchartertownship-mi.gov",
+ "hours": "Mon–Fri 8:30am–5pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "8am–4pm"
+  ],
+  [
+   "Sun, Nov 1",
+   "8am–4pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "1725 Territorial Rd, Benton Harbor, MI 49022",
+   "where": "Drop Box Is Located In Front Of Building.",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Benton Charter Township Municipal Building",
+  "address": "1725 Territorial Road, Suite B, Benton Harbor, MI 49022",
+  "hours": [
+   [
+    "Sat, Oct 24 – Sun, Oct 25",
+    "8am–4pm"
+   ],
+   [
+    "Mon, Oct 26 – Fri, Oct 30",
+    "9am–5pm"
+   ],
+   [
+    "Sat, Oct 31 – Sun, Nov 1",
+    "8am–4pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Michigan Voter Information Center, Search by address (clerk office address), read 15 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Township Hall",
+   "address": "1725 Territorial Rd., Bldg. B, Benton Harbor, MI 49022"
+  },
+  {
+   "p": "2",
+   "place": "Township Hall",
+   "address": "1725 Territorial Rd., Bldg. B, Benton Harbor, MI 49022"
+  },
+  {
+   "p": "3",
+   "place": "Sammie Smith Family Investment Center",
+   "address": "301 S. Martin Luther King Dr., Benton Harbor, MI 49022"
+  },
+  {
+   "p": "4",
+   "place": "Township Fire Station #2",
+   "address": "181 Enterprise Way, Benton Harbor, MI 49022"
+  },
+  {
+   "p": "5",
+   "place": "Township Fire Station #1",
+   "address": "781 S. Crystal Ave., Benton Harbor, MI 49022"
+  },
+  {
+   "p": "6",
+   "place": "Sammie Smith Family Investment Center",
+   "address": "301 S. Martin Luther King Dr., Benton Harbor, MI 49022"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (PDF dated 13 Jan 2026)",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://bentonchartertownship-mi.gov",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "2": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "3": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "4": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "5": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "6": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

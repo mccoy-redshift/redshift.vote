@@ -1,0 +1,78 @@
+{
+ "name": "City of Douglas",
+ "office": "Village Of Douglas City Clerk",
+ "clerk": "Laura Kasper",
+ "address": "415 West Wiley Rd, Suite 103, Douglas, MI 49406",
+ "mailing": "PO Box 757, Douglas, MI 49406",
+ "phone": "(269) 857-1438",
+ "email": "clerk@douglasmi.gov",
+ "hours": "Mon–Fri 8am–4pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "8am–4pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "415 West Wiley Rd, Suite 103, Douglas, MI 49406",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Douglas City Hall",
+  "address": "415 West Wiley Rd, Suite 103, Douglas, MI 49406",
+  "hours": [
+   [
+    "Sat, Oct 24 – Sun, Nov 1",
+    "8am–4pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Michigan Voter Information Center, Search by address (clerk office address), read 15 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Douglas City Hall",
+   "address": "415 West Wiley Rd, Suite 103, Douglas, MI 49406"
+  }
+ ],
+ "pollsSource": "Michigan Voter Information Center, Search by address, read 15 Oct 2026; Allegan County Clerk, Polling Locations page (Douglas: City of Douglas Elections page; the county page still lists the old City Hall)",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://www.douglasmi.gov/1303/Elections",
+ "county": {
+  "name": "Allegan County Clerk",
+  "url": "https://allegancounty.org/departments/elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

@@ -1,0 +1,102 @@
+{
+ "name": "South Haven Township",
+ "office": "South Haven Township Clerk",
+ "clerk": "Brenda Bertorelli",
+ "address": "09761 Blue Star Memorial Highway, South Haven, MI 49090",
+ "mailing": "09761 Blue Star Highway, South Haven, MI 49090",
+ "phone": "(269) 637-3305",
+ "email": "shtwp.clerk@gmail.com",
+ "hours": "Tue 9am–12pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "9am–5pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "09761 Blue Star Highway Township Hall, South Haven, MI 49090",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Van Buren County Early Voting Site (Human Services West Building)",
+  "address": "57418 C.R. 681, Hartford, MI 49057",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "9am–5pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "12pm–8pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "9am–5pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Michigan Voter Information Center, Search by address (clerk office address), read 15 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "South Haven Township Hall",
+   "address": "09761 Blue Star Highway, South Haven, MI 49090"
+  },
+  {
+   "p": "2",
+   "place": "South Haven Township Hall",
+   "address": "09761 Blue Star Highway, South Haven, MI 49090"
+  }
+ ],
+ "pollsSource": "Van Buren County 2026 Voter Guide; Michigan Voter Information Center, Search by address, read 15 Oct 2026",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://southhaventwp.com",
+ "county": {
+  "name": "Van Buren County Clerk",
+  "url": "https://vanburencountymi.gov/departments/departments-offices/clerk/elections/"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "2": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

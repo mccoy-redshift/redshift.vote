@@ -1,0 +1,90 @@
+{
+ "name": "Lake Township",
+ "office": "Lake Charter Township Clerk",
+ "clerk": "Miranda Companion",
+ "address": "3220 Shawnee Road, Bridgman, MI 49106",
+ "mailing": "P.o. Box 818, 3220 Shawnee Road, Bridgman, MI 49106",
+ "phone": "(269) 465-6601",
+ "email": "clerk@lake-township.org",
+ "hours": "Mon–Thu 7:30am–4pm; Fri 7:30am–3pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "6am–10am"
+  ],
+  [
+   "Sun, Nov 1",
+   "6am–10am"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "3220 Shawnee Road, Bridgman, MI 49106",
+   "where": "(camared!) Marked Ballot Box Located In East Parking Lot. drive Up For Your Convenience",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 W. Shawnee Rd, Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Berrien County Clerk (Early Voting page; WSJM, 8 Oct 2026); site from Michigan Voter Information Center"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Township Hall",
+   "address": "3220 Shawnee Rd., Bridgman, MI 49106"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (PDF dated 13 Jan 2026)",
+ "dist": {
+  "cd": [
+   "5"
+  ],
+  "sd": [
+   "17"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://www.lake-township.org/elections",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "5"
+   ],
+   "sd": [
+    "17"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

@@ -1,0 +1,86 @@
+{
+ "name": "Covert Township",
+ "office": "Covert Township Clerk",
+ "clerk": "Wednesday Pritchard",
+ "address": "73943 Lake Street, Covert, MI 49043",
+ "mailing": "P.o. Box 35, Covert, MI 49043",
+ "phone": "(269) 764-5139",
+ "email": "clerk@coverttwp.com",
+ "hours": "Mon 10am–4pm; Wed–Thu 10am–4pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "10am–6pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "73943 E Lake St, Covert, MI 49043",
+   "where": "Election Related Drop Box Is Located To The Left Of The Entrance To The Township Hall",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Van Buren County Early Voting Site (Human Services West Building)",
+  "address": "57418 C.R. 681, Hartford, MI 49057",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "9am–5pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "12pm–8pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "9am–5pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Michigan Voter Information Center, Search by address (clerk office address), read 15 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Covert Township Hall",
+   "address": "73943 Lake Street, Covert, MI 49043"
+  }
+ ],
+ "pollsSource": "Van Buren County 2026 Voter Guide; Michigan Voter Information Center, Search by address, read 15 Oct 2026",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://coverttwp.com",
+ "county": {
+  "name": "Van Buren County Clerk",
+  "url": "https://vanburencountymi.gov/departments/departments-offices/clerk/elections/"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

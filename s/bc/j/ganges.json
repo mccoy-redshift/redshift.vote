@@ -1,0 +1,78 @@
+{
+ "name": "Ganges Township",
+ "office": "Ganges Township Clerk",
+ "clerk": "Robin Phelps",
+ "address": "1904 64th St, Fennville, MI 49408",
+ "mailing": "1904 64th St, Fennville, MI 49408",
+ "phone": "(269) 543-8316",
+ "email": "gangesclerk@gmail.com",
+ "hours": "Mon–Tue 8am–1pm; Thu 12pm–5pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "8am–4pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "1904 64th St, Fennville, MI 49408",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Fennville City Hall",
+  "address": "125 S Maple St, Fennville, MI 49408",
+  "hours": [
+   [
+    "Sat, Oct 24 – Sun, Nov 1",
+    "8am–4pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Michigan Voter Information Center, Search by address (clerk office address), read 15 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Ganges Township Hall",
+   "address": "1904 64th St, Fennville, MI 49408"
+  }
+ ],
+ "pollsSource": "Michigan Voter Information Center, Search by address, read 15 Oct 2026; Allegan County Clerk, Polling Locations page (Douglas: City of Douglas Elections page; the county page still lists the old City Hall)",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://gangestownship.org",
+ "county": {
+  "name": "Allegan County Clerk",
+  "url": "https://allegancounty.org/departments/elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

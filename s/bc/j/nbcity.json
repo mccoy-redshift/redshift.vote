@@ -1,0 +1,91 @@
+{
+ "name": "City of New Buffalo",
+ "office": "New Buffalo City Clerk",
+ "clerk": "Amy Fidler",
+ "address": "224 West Buffalo Street, New Buffalo, MI 49117",
+ "mailing": "224 W Buffalo Street, New Buffalo, MI 49117",
+ "phone": "(269) 469-1500",
+ "email": "afidler@cityofnewbuffalomi.gov",
+ "hours": "Mon–Fri 8am–4pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "8am–4pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "224 W. Buffalo St., New Buffalo, MI 49117",
+   "where": "The Dropbox Is Located To The Right Of The Front Door Of City Hall. It Is In The Wall Of City Hall.",
+   "hours": "Open 24 hours, 7 days a week"
+  },
+  {
+   "address": "224 W. Buffalo St., New Buffalo, MI 49117",
+   "where": "We Have Added Another Dropbox By The Parking Lot Of City Hall.",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 W. Shawnee Rd, Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Berrien County Clerk (Early Voting page; WSJM, 8 Oct 2026); site from Michigan Voter Information Center"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "City Hall",
+   "address": "224 W. Buffalo St., New Buffalo, MI 49117"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (PDF dated 13 Jan 2026)",
+ "dist": {
+  "cd": [
+   "5"
+  ],
+  "sd": [
+   "17"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://cityofnewbuffalomi.gov",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "5"
+   ],
+   "sd": [
+    "17"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

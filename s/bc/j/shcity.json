@@ -1,0 +1,118 @@
+{
+ "name": "City of South Haven",
+ "office": "South Haven City Clerk",
+ "clerk": "Brittany Abrams",
+ "address": "539 Phoenix St, South Haven, MI 49090",
+ "mailing": "539 Phoenix St, South Haven, MI 49090",
+ "phone": "(269) 637-0750",
+ "email": "babrams@southhavenmi.gov",
+ "hours": "Mon–Fri 8am–5pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "8am–4pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "539 Phoenix St., South Haven, MI 49090",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Van Buren County Early Voting Site (Human Services West Building)",
+  "address": "57418 C.R. 681, Hartford, MI 49057",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "9am–5pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "12pm–8pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "9am–5pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Michigan Voter Information Center, Search by address (clerk office address), read 15 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "City of South Haven (City Hall)",
+   "address": "539 Phoenix St, South Haven, MI 49090"
+  },
+  {
+   "p": "2",
+   "place": "City of South Haven (City Hall)",
+   "address": "539 Phoenix St, South Haven, MI 49090"
+  },
+  {
+   "p": "3",
+   "place": "City of South Haven (City Hall)",
+   "address": "539 Phoenix St, South Haven, MI 49090"
+  }
+ ],
+ "pollsSource": "Van Buren County 2026 Voter Guide; Michigan Voter Information Center, Search by address, read 15 Oct 2026",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://www.southhavenmi.gov",
+ "county": {
+  "name": "Van Buren County Clerk",
+  "url": "https://vanburencountymi.gov/departments/departments-offices/clerk/elections/"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "2": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "3": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

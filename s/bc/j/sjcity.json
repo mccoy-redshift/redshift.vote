@@ -73,5 +73,46 @@
    "sjps"
   ]
  },
- "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters, Berrien_2330)"
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters, Berrien_2330)",
+ "web": "https://sjcity.com",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "2": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  },
+  "3": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
 }

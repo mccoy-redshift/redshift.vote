@@ -1,0 +1,86 @@
+{
+ "name": "New Buffalo Township",
+ "office": "New Buffalo Township Clerk",
+ "clerk": "Michelle Hannon",
+ "address": "17425 Red Arrow Hwy, New Buffalo, MI 49117",
+ "mailing": "17425 Red Arrow Highway, New Buffalo, MI 49117-9243",
+ "phone": "(269) 469-1011",
+ "email": "mhannon@newbuffalotownship.org",
+ "hours": "Mon–Fri 9am–12pm, 1pm–3:30pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "8am–4pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "17425 Red Arrow Hwy On The Building To The Left Of The Front Doors., New Buffalo, MI 49117",
+   "where": "",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Lake Charter Township Hall",
+  "address": "3220 W. Shawnee Rd, Bridgman, MI 49106",
+  "hours": [
+   [
+    "Sat, Oct 24 – Tue, Oct 27",
+    "8:30am–4:30pm"
+   ],
+   [
+    "Wed, Oct 28",
+    "11am–7pm"
+   ],
+   [
+    "Thu, Oct 29 – Sun, Nov 1",
+    "8:30am–4:30pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Berrien County Clerk (Early Voting page; WSJM, 8 Oct 2026); site from Michigan Voter Information Center"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Township Hall",
+   "address": "17425 Red Arrow Hwy., New Buffalo, MI 49117"
+  }
+ ],
+ "pollsSource": "Berrien County Clerk, Election Day Polling Locations 2026 (PDF dated 13 Jan 2026)",
+ "dist": {
+  "cd": [
+   "5"
+  ],
+  "sd": [
+   "17"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://newbuffalotownship.org/links-and-resources/election-voter-information",
+ "county": {
+  "name": "Berrien County Clerk",
+  "url": "https://www.berriencountymi.gov/156/Elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "5"
+   ],
+   "sd": [
+    "17"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "name": "City of Saugatuck",
+ "office": "Saugatuck City Clerk",
+ "clerk": "Jamie Wolters",
+ "address": "102 Butler St, Saugatuck, MI 49453",
+ "mailing": "PO Box 86, Saugatuck, MI 49453",
+ "phone": "(269) 857-2603",
+ "email": "jwolters@saugatuckcity.com",
+ "hours": "Mon–Fri 8:30am–12:30pm, 1pm–5pm",
+ "weekend": [
+  [
+   "Sat, Oct 31",
+   "7am–11am, 11:30am–3pm"
+  ]
+ ],
+ "boxes": [
+  {
+   "address": "102 Butler St, Saugatuck, MI 49453",
+   "where": "Locked 24 Hour Drop Box Located In One Of The Front Doors Of Our Building.",
+   "hours": "Open 24 hours, 7 days a week"
+  }
+ ],
+ "source": "Michigan Voter Information Center, read 15 Oct 2026",
+ "early": {
+  "site": "Douglas City Hall",
+  "address": "415 West Wiley Rd, Suite 103, Douglas, MI 49406",
+  "hours": [
+   [
+    "Sat, Oct 24 – Sun, Nov 1",
+    "8am–4pm"
+   ]
+  ],
+  "note": "Your early voting site.",
+  "source": "Michigan Voter Information Center, Search by address (clerk office address), read 15 Oct 2026"
+ },
+ "polls": [
+  {
+   "p": "1",
+   "place": "Saugatuck City Hall",
+   "address": "102 Butler Street, Saugatuck, MI 49453"
+  }
+ ],
+ "pollsSource": "Michigan Voter Information Center, Search by address, read 15 Oct 2026; Allegan County Clerk, Polling Locations page (Douglas: City of Douglas Elections page; the county page still lists the old City Hall)",
+ "dist": {
+  "cd": [
+   "4"
+  ],
+  "sd": [
+   "20"
+  ],
+  "hd": [
+   "38"
+  ],
+  "s": [
+   ""
+  ]
+ },
+ "distSource": "Voter file (RNC Data Center exports: 2026-General-HD-38 voters)",
+ "web": "https://www.saugatuckcity.com/clerk---elections--foia.html",
+ "county": {
+  "name": "Allegan County Clerk",
+  "url": "https://allegancounty.org/departments/elections"
+ },
+ "webSource": "Official websites checked 15 Oct 2026 (domain of the clerk's official email, or the site itself)",
+ "pd": {
+  "1": {
+   "cd": [
+    "4"
+   ],
+   "sd": [
+    "20"
+   ],
+   "hd": [
+    "38"
+   ]
+  }
+ }
+}
