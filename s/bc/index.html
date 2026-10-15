@@ -88,7 +88,7 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 </main>
 <footer>Berrien County GOP<span class="ct"><a href="tel:2699836303">(269) 983-6303</a> &middot; <a href="https://www.berriencountygop.org" target="_blank" rel="noopener">www.berriencountygop.org</a><br><a href="mailto:info@berriencountygop.org">info@berriencountygop.org</a></span></footer>
 <script>(function(){
-var P=new URLSearchParams(location.search),J=(P.get('j')||'').replace(/[^a-z0-9-]/g,''),PC=(P.get('p')||'').replace(/[^0-9a-z]/gi,''),ALL=['lincoln','sjcity','sjtwp'],KNOWN=ALL.concat(['niles','baroda']);
+var P=new URLSearchParams(location.search),J=(P.get('j')||'').replace(/[^a-z0-9-]/g,''),PC=(P.get('p')||'').replace(/[^0-9a-z]/gi,''),ALL=['lincoln','sjcity','sjtwp'],KNOWN=ALL.concat(['niles','baroda','benton','bhcity','bridgman','chikaming','hagar','lake','nbcity','nbtwp','casco','douglas','ganges','saugcity','saugtwp','covert','shcity','shtwp']);
 function $(i){return document.getElementById(i);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function get(k){return fetch('j/'+k+'.json').then(function(r){return r.ok?r.json():null;},function(){return null;});}
@@ -100,14 +100,19 @@ function fill(L){L=L.filter(Boolean);if(!L.length)return;var many=L.length>1;
  function boxes(d,lb){var G=[],M={};(d.boxes||[]).forEach(function(b){var g=M[b.address];if(!g){g=M[b.address]={a:b.address,w:[],h:b.hours};G.push(g);}if(b.where)g.w.push(b.where);});
   return G.map(function(g){return A(d,lb?'Drop box':'',esc(g.a),g.w.map(esc).join('<br>'));}).join('');}
  function poll(d){if(many||!PC)return '';var x=(d.polls||[]).filter(function(x){return x.p===PC;})[0];return x?A(d,'',esc(x.place)+'<br>'+esc(x.address),'Precinct '+esc(x.p)):'';}
+ function nt(d,re){return (d.missing||[]).filter(function(m){return re.test(m.what);}).map(function(m){return '<div class="addr"><small>'+esc(m.note)+'</small></div>';}).join('');}
  $('for').textContent='This data is for '+(L[0].name||'')+(PC?' Precinct '+PC:'');
  $('a-mail').innerHTML=L.map(function(d){return A(d,'',esc(d.office)+'<br>'+esc(d.mailing||d.address));}).join('');
  $('a-clerk').innerHTML=L.map(function(d){var wk=(d.weekend||[]).map(function(w){return esc(w[0])+' '+esc(w[1]);}).join(', ');
-  return A(d,'',esc(d.office)+'<br>'+esc(d.address),esc(d.hours)+(wk?'<br>Weekend before Election Day: '+wk:'')+'<br>'+tel(d)+' &middot; <a href="mailto:'+esc(d.email)+'">'+esc(d.email)+'</a>');}).join('');
- $('a-box').innerHTML=L.map(function(d){return boxes(d);}).join('');
- var E=L[0].early;if(E)$('a-early').innerHTML=A(L[0],'',esc(E.site)+'<br>'+esc(E.address),(E.hours||[]).map(function(h){return esc(h[0])+': '+esc(h[1]);}).join('<br>'));
+  return A(d,'',esc(d.office)+'<br>'+esc(d.address),esc(d.hours)+(wk?'<br>Weekend before Election Day: '+wk:'')+'<br>'+tel(d)+' &middot; <a href="mailto:'+esc(d.email)+'">'+esc(d.email)+'</a>')+nt(d,/office hours/);}).join('');
+ $('a-box').innerHTML=L.map(function(d){return boxes(d)+nt(d,/drop box/);}).join('');
+ var E=L[0].early;if(!E)$('a-early').innerHTML=nt(L[0],/early voting/);if(E)$('a-early').innerHTML=A(L[0],'',esc(E.site)+'<br>'+esc(E.address),(E.hours||[]).map(function(h){return esc(h[0])+': '+esc(h[1]);}).join('<br>'));
  // At your polling place (Rich, 14 Oct): the voter's one polling place only; drop box and clerk have their own sections
- $('a-where').innerHTML=L.map(poll).join('');
+ function chk(d){var lc=d.web?'<a href="'+esc(d.web)+'" target="_blank" rel="noopener">your local clerk</a>':'<a href="tel:'+String(d.phone||'').replace(/[^0-9]/g,'')+'">your local clerk</a>';
+  var cc=d.county&&d.county.url?'<a href="'+esc(d.county.url)+'" target="_blank" rel="noopener">your county clerk</a>':'your county clerk';
+  return '<div class="addr chk"><small>Hours and locations can change. Before you go, check with '+lc+', '+cc+', or <a href="https://mvic.sos.state.mi.us/Voter/Index" target="_blank" rel="noopener">Michigan.gov/Vote</a>.</small></div>';}
+ $('a-where').innerHTML=L.map(function(d){return poll(d)||(many?'':nt(d,/polling place/));}).join('')+(L.length===1?chk(L[0]):'');
+ if(L.length===1)$('a-early').innerHTML+=chk(L[0]);
  $('a-tel').innerHTML=L.map(function(d){return '<li>Call your clerk'+(many?' ('+esc(d.name)+')':'')+': '+tel(d)+'</li>';}).join('');
 }
 // Rich, 14 Oct: the page shows the one voter's data from the link the text app makes (j = town, p = precinct, plus districts); no link, no town data
@@ -116,7 +121,7 @@ if(P.get('emb')==='1'){var ON={ret:'ret',rec:'rec',vg:'vg',sv:'poll'}[P.get('onl
  var eh=function(){try{parent.postMessage({rsBc:1,h:Math.ceil(document.body.getBoundingClientRect().height)},'*');}catch(e){}};window.addEventListener('load',eh);document.addEventListener('toggle',eh,true);try{new ResizeObserver(eh).observe(document.body);}catch(e){}}
 var KS=(J&&KNOWN.indexOf(J)>=0?[J]:[]);
 Promise.all(KS.map(get)).then(function(L){fill(L);return fetch('j/vg.json').then(function(r){return r.json();}).then(function(G){rec(G,L.filter(Boolean));});}).catch(function(){});
-function rec(G,L){var V={};['cd','sd','hd','s','v','w'].forEach(function(k){if(P.has(k)){V[k]=[String(P.get(k)).toLowerCase()];return;}var a=[];L.forEach(function(d){(d.dist&&d.dist[k]||[]).forEach(function(x){if(a.indexOf(x)<0)a.push(x);});});V[k]=a;});
+function rec(G,L){var V={};['cd','sd','hd','s','v','w'].forEach(function(k){if(P.get(k)){V[k]=[String(P.get(k)).toLowerCase()];return;}var a=[];L.forEach(function(d){((PC&&d.pd&&d.pd[PC]&&d.pd[PC][k])||(d.dist&&d.dist[k])||[]).forEach(function(x){if(a.indexOf(x)<0)a.push(x);});});V[k]=a;});
  V.j=KS.slice();
  if(J==='niles'&&!P.get('w')&&PC){var pl=(L[0].polls||[]).filter(function(x){return x.p===PC;})[0];if(pl&&pl.w)V.w=['niles-'+pl.w];}
  function ok(r){if(!r['if'])return true;return Object.keys(r['if']).every(function(k){return (V[k]||[]).indexOf(r['if'][k])>=0;});}
