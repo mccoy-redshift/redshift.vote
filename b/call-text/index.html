@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Red Shift: Your Call/Text Book</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Red Shift">
+<meta property="og:title" content="Red Shift: Your Call/Text Book">
+<meta property="og:description" content="Tap to open it in Red Shift.">
+<meta property="og:image" content="https://redshift.vote/b/call-text/card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://redshift.vote/b/call-text/">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../../logo.webp">
+<style>html,body{margin:0;background:#030a2e;color:#fff;font:18px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}main{padding:32px 20px;text-align:center}img{width:96px}a{color:#9fd3ff}</style>
+</head>
+<body>
+<main><img src="../../logo.webp" alt="Red Shift"><p id="m">Opening your book...</p></main>
+<script>
+// The text card for a Call/Text book (99h linklife.js): ?t=<pass> opens the book's own page (only that book, no sign-in)
+(function(){
+  var Q=new URLSearchParams(location.search),t=Q.get("t")||"",go="";
+  var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec";
+  if(/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(t))go=APP+"/b?t="+encodeURIComponent(t);
+  if(go)location.replace(go);
+  else document.getElementById("m").innerHTML='This link is not complete. <a href="/">Open Red Shift</a>';
+})();
+</script>
+</body>
+</html>
