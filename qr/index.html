@@ -30,7 +30,7 @@ button{font:inherit}
 .label{font-weight:700;font-size:24px;letter-spacing:-.3px;display:block}
 .sub{display:block;font-weight:500;font-size:15.5px;color:var(--gray);margin-top:3px;letter-spacing:0}
 .ic{width:58px;height:58px;flex:0 0 58px}.ic svg{width:100%;height:100%}
-.bc{margin:0 18px 6px;padding:12px 16px;border-radius:16px;background:#fff;display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:space-between;align-items:center;box-shadow:0 2px 0 var(--line)}.bc label{font-size:16px;font-weight:700;color:#0B1A4F;display:flex;align-items:center;gap:8px}.bc input{width:20px;height:20px;accent-color:#C8102E}.bcs{font-size:14px;font-weight:600;color:#0B1A4F}body.wide .bc{margin-left:6%;margin-right:6%}
+.bc{margin:0 18px 18px;padding:12px 16px;border-radius:16px;background:#fff;box-shadow:0 2px 0 var(--line)}.tgh{display:flex;width:100%;justify-content:space-between;align-items:center;background:none;border:0;padding:0;font:inherit;color:#0B1A4F;text-align:left;cursor:pointer}.tgh small{display:block;font-size:12px;font-weight:600;color:#5A6585;text-transform:uppercase;letter-spacing:.04em}.tgh span span{font-size:16px;font-weight:700}.tgh i{font-style:normal;font-size:20px;transition:transform .2s}.bc.open .tgh i{transform:rotate(180deg)}.bcs{margin:10px 0 0;padding:0 0 0 18px;font-size:14px;color:#0B1A4F;line-height:1.5}.bcs ul{margin:2px 0 6px;padding-left:18px;font-weight:500}.bcs b{font-weight:700}body.wide .bc{margin-left:6%;margin-right:6%}
 .note{margin:0 18px 6px;padding:12px 16px;border-radius:16px;background:#fff;font-size:14px;font-weight:500;box-shadow:0 2px 0 var(--line)}
 .note.bad{color:var(--red)}
 .reg{margin-top:auto;padding:18px 26px max(22px,env(safe-area-inset-bottom));text-align:center}.reg a{display:inline-block;color:var(--navy);font-weight:700;font-size:16px;text-decoration:none;padding:9px 26px;border:2px solid #C5CCDD;border-radius:22px;background:#fff}
@@ -156,7 +156,7 @@ function show(id){window.scrollTo(0,0);
  if(!S.adm&&id!=="links")id="new";
  if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine")+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
  if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
-  return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+bcBox()+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k];return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>',S.act,S.act?"New Books":"");}
+  return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k];return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  if(id==="mine")return frame(S.books.length?'<div class="list">'+S.books.map(function(b){return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.mode==="door"?b.doors+" doors":b.people+" people"));}).join("")+'</div>'
   :'<div class="note">No books yet on this phone.</div><div class="list">'+card("new","New Books","new")+'</div>',true,"My Books");
  if(id==="dash"){frame('<div class="list"><div class="spin"></div></div>',true,"Dashboard");return call("vDash",[PID,PASS]).then(dash,function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Dashboard");});}
@@ -179,7 +179,7 @@ function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn
 function tap(m){if(!S.adm){location.href=S.regUrl||"/admin/";return;}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
  if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><p>Preview it, or take it as yours?</p><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take this book</button>');
-  $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,!!S.bc,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.href=r.launch;},function(e){oops(e.message);});};
+  $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,false,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.href=r.launch;},function(e){oops(e.message);});};
   $("tk").onclick=function(){shut();if(!S.named)return nameSheet(function(){build(m);});build(m);};return;}
  if(!S.named)return nameSheet(function(){tap(m);});build(m);}
 function nameSheet(then){BUSY=0;
@@ -195,12 +195,19 @@ function nameSheet(then){BUSY=0;
    $("ty").onclick=function(){tie(true);};$("tn").onclick=function(){tie(false);};
   },function(e){$("nm").textContent=e.message;$("ngo").disabled=false;});};}
 // Rich, 19 Oct: "on the C W T page, put a checkbox for Ballot Chase. and put a Stat for XX contact YY Not Contacted"; "the check box switches the XX and YY totals"
-function statTxt(){var t=S.stat;if(!t)return "";var o=S.bc?t.AB:t.nonAB,n=function(x){return (Number(x)||0).toLocaleString("en-US");};return n(o.c)+" contacted \u00b7 "+n(o.n)+" not contacted \u00b7 "+n(o.u)+" unclaimed";}
-function bcBox(){return '<div class="bc"><label><input type="checkbox" id="bcx"'+(S.bc?" checked":"")+'>Ballot Chase</label><span class="bcs" id="bcs">'+statTxt()+'</span></div>';}
-function statGet(){if(S.statAsk)return;S.statAsk=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){S.stat=r;var e=$("bcs");if(e)e.innerHTML=statTxt();}},function(){S.statAsk=0;});}
-document.addEventListener("change",function(e){if(e.target&&e.target.id==="bcx"){S.bc=e.target.checked;var x=$("bcs");if(x)x.innerHTML=statTxt();}});
+// Rich, 19 Oct: "on the New Books page you will put one of those down up arrows that expands an info pane. It wil lbe called the Targets: The title
+// will be Krieger Targets inside SJPS and then you will list the stats as bullets. So drop the checkbox ... But it starts with the total pool"
+function statTxt(){var t=S.stat;if(!t||!t.u)return '<li>Loading...</li>';var n=function(x){return (Number(x)||0).toLocaleString("en-US");},K=t.query==="38-sjps";
+ var wct=function(X){return '<li>Walk: '+n(X.w)+' knocked (incl. lit drops)</li><li>Call: '+n(X.c)+' called</li><li>Text: '+n(X.t)+' texted</li><li>'+n(X.att)+' attempted · '+n(X.n-X.att)+' not yet</li><li>'+n(X.cl)+' claimed · '+n(X.ok)+' claimable</li>';};
+ var grp=function(lb,G){return '<li><b>'+lb+': '+n(G.n)+'</b><ul><li>'+n(G.n-G.att)+' remaining</li></ul></li>';};
+ return '<li><b>'+(K?"Krieger Universe":"Campaign")+': '+n(t.u.n)+'</b><ul>'+wct(t.u)+'</ul></li>'+
+  '<li><b>'+(K?"Krieger + SJPS":"This list")+': '+n(t.q.n)+'</b><ul>'+wct(t.q)+grp("Absentee voters",t.q.ab)+grp("Not absentee",t.q.nab)+'</ul></li>';}
+function tgTitle(){var q=S.stat&&S.stat.query||S.q||"";return q==="38-sjps"?"Krieger Targets":"Targets"+(q?": "+q:"");}
+function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="button" class="tgh" id="tgh" aria-expanded="'+(S.tgo?"true":"false")+'"><span><small>Targets</small><span id="tgt">'+esc(tgTitle())+'</span></span><i aria-hidden="true">&#9662;</i></button><ul class="bcs" id="bcs"'+(S.tgo?'':' hidden')+'>'+statTxt()+'</ul></div>';}
+function statGet(){if(S.statAsk)return;S.statAsk=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){S.stat=r;var e=$("bcs");if(e)e.innerHTML=statTxt();var h=$("tgt");if(h)h.textContent=tgTitle();}},function(){S.statAsk=0;});}
+document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
 function build(m){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
- call("vNew",[PID,m,QN,!!S.bc]).then(function(r){
+ call("vNew",[PID,m,QN]).then(function(r){
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m);});}
   if(r.reg){location.href=S.regUrl||"/admin/";return;}
   if(!r.ok)return oops(r.msg||"Please try again.");
