@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Shift</title>
+<meta name="description" content="Technology by the Grassroots, for the Grassroots.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://redshift.vote/">
+<meta property="og:title" content="Redshift"><meta property="og:description" content="Technology by the Grassroots, for the Grassroots.">
+<meta property="og:image" content="https://redshift.vote/share-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://redshift.vote/share-card.png">
+<link rel="icon" href="/logo.webp">
+<!-- No version label on the splash (Rich, 6 Oct: "drop the splash version. i think it is done for awhile"); SIB still prefixes the
+     app's version on the main screen.
+     Red Shift's front door, redshift.vote itself (Rich, 6 Oct: "i want redshift.vote to be the url. i dont want users to have to type in /main.html"; Sign in with Google, 0 Main 45 gsi.js). Google's own button and account
+     chooser give a signed ID token for the Red Shift client; the app checks it with Google and opens the session. Every later screen
+     and save goes to 0 Main without the browser's Google cookies, so a browser holding several Google accounts works. -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>body{font:16px system-ui,sans-serif;margin:0;color:#eee;background:#000}
+#bar{background:#b71c1c;color:#fff;padding:10px 14px;font-weight:700;font-size:18px}main{padding:14px;max-width:560px;margin:auto}
+button{width:100%;padding:14px;margin-top:10px;font-size:16px;border:0;border-radius:10px;background:#c62828;color:#fff}
+#gsi-box{position:fixed;left:0;right:0;bottom:12%;z-index:50;display:flex;flex-direction:column;align-items:center;gap:12px}
+#gsi-box.in{position:absolute;bottom:auto}#gsi-box[hidden]{display:none}
+/* Sign-in geometry (Rich, 6 Oct: the button was landing on the splash): the button takes the loading bar's place in the
+   splash's middle group, and the splash fits the screen height so title, logo, button and sponsor line never overlap. */
+/* Sized to the MEASURED visible screen (--H, set by fitH below; the landing screen's method, 39 landing.js), not to 100vh, which on a
+   phone is taller than what shows (Rich, 6 Oct: "the spash is too long so you have to scroll ... you are suppose to be sizing to the
+   measured screen"). */
+body.fit #spw #rs{min-height:0;height:var(--H,100vh);padding:max(12px,calc(var(--H,100vh)*.05)) 20px max(8px,calc(var(--H,100vh)*.03))}
+body.fit #spw #rs h1{font-size:clamp(28px,min(calc((100vw - 64px) / 5.7),calc(var(--H,100vh)*.11)),128px)}   /* the title stays inside the side stripes */
+body.fit #spw #rs .tg{margin-top:min(10px,calc(var(--H,100vh)*.012))}
+body.fit #spw #rs .lg{width:min(58vw,280px,calc(var(--H,100vh)*.30))}
+body.fit #spw #rs .sb b{font-size:clamp(16px,min(6vw,calc(var(--H,100vh)*.042)),30px)}
+body.fit.short #spw #rs .lg{width:calc(var(--H,100vh)*.22)}body.fit.short #spw #rs .tg{line-height:1.35}body.fit.short #spw #rs .sb span{font-size:10px}
+body.fit #spw #rs .ld{margin-top:min(34px,calc(var(--H,100vh)*.045))}
+#spw.ok #rs h1 span,#spw.ok #rs .tg,#spw.ok #rs .lg,#spw.ok #rs .sb{animation:none}#spw.ok #rs h1 b{animation:rsglitch 4.5s steps(1) infinite}
+body.gsi #spw #rs .ld{display:none}#gsi-sp{margin-top:min(34px,calc(var(--H,100vh)*.045));width:1px}</style>
+</head><body class="gsi fit">
+<div id="app"><div id="spw"><div style="height:var(--H,100vh);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%);color:#fff;font:700 40px Impact,'Arial Narrow',sans-serif;letter-spacing:.04em;font-style:italic">RED <span style="color:#ff2b3d;margin-left:.3em">SHIFT</span></div></div></div>
+<div id="gsi-box"><div id="gsi-btn"></div></div>
+<script>
+var API="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",OLD="https://script.google.com/macros/s/AKfycbwvFA-j99bWDVCkRkEWJh5sfL8YY_Y3uinJB65amHkh6C-MpZQAXw6gJ03qogIhmhrj/exec",CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",SIB="W1.3",SPF="1CbXFQlj7QkQTyhfyUQWHyZCr6r-If4OZ",DK="AIzaSyCvm-_NB3jtiHuiK9PxYXQaAJiWhPFBjM8";
+var Q=new URLSearchParams(location.search),REF=(Q.get("ref")||"").replace(/[^A-Za-z0-9]/g,"").slice(0,20),PG=(Q.get("pg")||"").slice(0,300),TOK="";
+
+(function(){// W1.3 (Rich, 11 Oct: "the redshift title comes from the left one or two times then settles"): the title's slide-in replayed each time
+// the splash was redrawn: the phone's copy, then the same splash again from Drive, then again when it moved over the app. Now the Drive
+// copy is drawn only when it differs, and once the slide-in has played the entry animations are switched off (class "ok"), so the move
+// cannot replay them. The stars, ring, glow, glitch and loading bar keep running.
+var K="rsSplash",cur="",okT=null,put=function(h){var w=document.getElementById("spw");if(!w||!h||h===cur)return;cur=h;w.innerHTML=h;if(!okT)okT=setTimeout(function(){w.classList.add("ok");},1600);}; try{put(localStorage.getItem(K));}catch(e){} fetch("https://www.googleapis.com/drive/v3/files/"+SPF+"?alt=media&key="+DK).then(function(r){return r.ok?r.text():null;}) .then(function(h){if(!h)return;try{if(localStorage.getItem(K)!==h)localStorage.setItem(K,h);}catch(e){}put(h);},function(){});})();
+var MODE="POST",T0=Date.now();// No fixed cut-off on background calls (Rich, 6 Oct: "as long as we are not hung up we should let it rip"); Google's error page is
+// retried once for reads (lostAnswer).
+function call(fn,args,ms,how){var md=how||MODE,body=JSON.stringify({fn:fn,args:args||[]}),o={method:"POST",body:body,credentials:"omit"},tm=null; if(ms&&window.AbortController){var ac=new AbortController();o.signal=ac.signal;tm=setTimeout(function(){ac.abort();},ms);} var p=md==="GET"?fetch(API+"?q="+encodeURIComponent(body),tm?{signal:o.signal,credentials:"omit"}:{credentials:"omit"}):fetch(API,o); if(tm)p=p.then(function(r){clearTimeout(tm);return r;},function(e){clearTimeout(tm);if(e&&e.name==="AbortError"){var x=new Error("No answer in "+Math.round(ms/1000)+" s");x.busy=1;throw x;}throw e;}); return p.then(function(r){return r.text();}).then(function(t){try{return JSON.parse(t);}catch(e){var m=/<title[^>]*>([^<]*)/i.exec(t);  var x=new Error("Google sent a page, not data: "+((m&&m[1].trim())||String(t).slice(0,60)));x.busy=1;throw x;}});}function RUN(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;}, rpc:function(fn,args){call(fn,args).then(function(j){if(j&&j.ok){if(ok)ok(j.result);}else if(no)no(new Error((j&&j.error)||"Server error"));},  function(e){if(no)no(e);});}};return o;}function show(html){var a=document.getElementById("app");a.innerHTML=html; a.querySelectorAll("script").forEach(function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});}function oops(m){try{trailOff();}catch(e){}document.getElementById("app").innerHTML='<div id="bar">Red Shift</div><main><p>Could not open Red Shift ('+ String(m).replace(/</g,"&lt;")+').</p><button onclick="retry()">Try again</button></main>';}// Rich, 6 Oct: "an overwriting status line ... caching: xxx, yyy, zzz and as long as we are not hung up we should let it rip ... a cache
+// progress bar". (Until W1.1, 11 Oct: the asks below are gone.) The sign-in carries a start-up id (BID); the loader (0 Main v7) writes each start-up step under it and answered
+// "bootStatus" from its cache once a second while the sign-in runs. No fixed timeout: the sign-in is given up and sent again only when
+// the server reports no progress for 30 s (or, with a loader that does not report, after 90 s).
+var BID=(Math.random().toString(36).slice(2,10)+Date.now().toString(36)).replace(/[^a-z0-9]/g,"").slice(0,24);
+// The status: "reading: <name>" for every name the server reads, played as fast as they came (Rich, 6 Oct: "a ripping text string for
+// the file names ... it should just say 'reading:' name.ext"), and the progress bar.
+// "reading:" stays in place and the name runs to the right (Rich, 6 Oct: "you are recentering each paint which is no good").
+var IDS={},Q=[],PT=null,POLL=null,BK=0;IDS[BID]=0;
+function stEl(){var ld=document.querySelector("#rs .ld");if(!ld)return null;var s=document.getElementById("rs-st");
+ if(!s){s=document.createElement("div");s.id="rs-st";s.style.cssText="margin-top:10px;min-height:1.3em;font:500 13px/1.3 ui-monospace,Menlo,Consolas,monospace;color:#9fdcff;text-align:left;width:min(84vw,340px);margin-left:auto;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";ld.parentNode.insertBefore(s,ld.nextSibling);}return s;}
+function bar(p){var i=document.querySelector("#rs .ld i");if(!i||typeof p!=="number")return;i.style.animation="none";i.style.left="0";i.style.transition="width .5s ease";i.style.width=Math.max(3,Math.min(100,p*100))+"%";}
+function play(){if(PT)return;(function nx(){var n=Q.shift();if(n===undefined){PT=null;return;}var s=stEl();window.LASTN=n;if(s)s.textContent="reading: "+n;PT=setTimeout(nx,Math.max(25,Math.min(250,900/Math.max(1,Q.length+1))));})();}
+function take(id,b){if(!b)return false;var last=IDS[id]||0,got=false;(b.names||[]).forEach(function(m){if(m[0]>last){last=m[0];if(m[1])Q.push(m[1]);got=true;}});IDS[id]=last;if(got)play();return got;}
+// One status ask at a time (Rich, 6 Oct: "still hung on do more"): asks sent every second whether or not the last had answered piled up
+// on Google's server (single asks took up to 31 s) and held up the real work; the next ask now goes only after the last one answers.
+var PIN=0;
+// W1.1 (Rich, 11 Oct, B219 item 3: "we need to get rid of the progress checks as they are"): no more status asks (bootStatus) while
+// signing in; a sign-in with no answer in 90 s is sent again (up to 4 times).
+function enter(){var tries=0,done=false,ac=null,t0=Date.now();window.BEAT=0;trailOn();
+ function finish(){done=true;}
+ function go(){tries++;t0=Date.now();window.BEAT=0;IDS[BID]=0;ac=window.AbortController?new AbortController():null;
+  var o={method:"POST",body:JSON.stringify({fn:"enter",args:[TOK,REF,PG,BID]}),credentials:"omit"};if(ac)o.signal=ac.signal;if(SU0&&!SU0.go)SU0.go=performance.now();
+  fetch(API,o).then(function(r){return r.text();}).then(function(t){if(SU0&&!SU0.back)SU0.back=performance.now();var j;try{j=JSON.parse(t);}catch(e){var m=/<title[^>]*>([^<]*)/i.exec(t);throw new Error("Google sent a page, not data: "+((m&&m[1].trim())||String(t).slice(0,60)));}
+   finish();if(j&&j.ok){MODE="POST";if(/Sign-in not accepted/.test(String(j.result||""))){tokDrop();if(USED)return passRefused();}hold(j.result);}else{stopPoll();oops(j&&j.error);}},
+  function(e){if(done)return;if(tries<4)return setTimeout(go,2000);finish();stopPoll();oops(e&&e.message||e);});}
+ POLL=setInterval(function(){if(!done&&ac&&Date.now()-t0>90000)ac.abort();},1000);
+ bar(0.02);go();}
+function stopPoll(){clearInterval(POLL);POLL=null;}
+// Crash trail (Rich, 6 Oct: Safari on some iPhones shows "A problem repeatedly occurred"): from sign-in until a minute after the
+// splash goes, the page notes on the phone once a second where it is (the last name read, the screen, the browser). If Safari kills
+// the page, the next load sends the last note to Perf (rpc lostAnswer, "CRASH") and clears it; a page that lives clears it itself.
+var TRK="rsTrail",TRN=0,TRT=null,TRS="splash";
+function trail(){try{localStorage.setItem(TRK,JSON.stringify({s:TRS+": "+(window.LASTN||""),t:Date.now()-T0,n:++TRN,ua:navigator.userAgent.slice(0,160),w:innerWidth+"x"+innerHeight}));}catch(e){}}
+function trailOn(){if(!TRT){trail();TRT=setInterval(trail,1000);}}
+function trailOff(){clearInterval(TRT);TRT=null;try{localStorage.removeItem(TRK);}catch(e){}}
+try{var TO=JSON.parse(localStorage.getItem(TRK)||"null");if(TO){localStorage.removeItem(TRK);call("lostAnswer",["","CRASH",TO.s+" | "+TO.w+" | "+TO.n+" s | "+TO.ua,TO.t]).then(null,function(){});}}catch(e){}
+var GB=document.getElementById("gsi-box"),GT=setInterval(gsiPlace,250);setTimeout(function(){clearInterval(GT);},15000);
+// Holds the loading bar's place for the button: a spacer of the button's height in the splash's middle group, and the button laid over it.
+function gsiPlace(){if(GB.hidden)return;var w=document.getElementById("spw"),ld=w&&w.querySelector("#rs .ld");if(!ld){GB.classList.remove("in");return;}
+ var sp=document.getElementById("gsi-sp");if(!sp){sp=document.createElement("div");sp.id="gsi-sp";ld.parentNode.insertBefore(sp,ld);}
+ var h=GB.offsetHeight+"px";if(sp.style.height!==h)sp.style.height=h;var r=sp.getBoundingClientRect();GB.classList.add("in");GB.style.top=(r.top+scrollY)+"px";}
+try{new MutationObserver(gsiPlace).observe(document.getElementById("spw"),{childList:true,subtree:true});}catch(e){}
+// The visible height, measured (visualViewport, else innerHeight; a frame that reports more than the whole screen gets the screen less
+// the browser's bars), as on the landing screen.
+function fitH(){var vv=window.visualViewport,h=Math.round((vv&&vv.height)||window.innerHeight||0),S=screen.height||h;if(!h||h>S)h=(screen.availHeight||S)-100;h=Math.max(300,h);
+ document.documentElement.style.setProperty("--H",h+"px");document.body.classList.toggle("short",h<480);try{gsiPlace();}catch(e){}}
+fitH();addEventListener("resize",fitH);addEventListener("orientationchange",function(){setTimeout(fitH,250);});try{visualViewport.addEventListener("resize",fitH);}catch(e){}
+addEventListener("resize",gsiPlace);try{document.fonts.ready.then(gsiPlace);}catch(e){}gsiPlace();
+// Rich, 6 Oct ("all caching is done before spash screen transitions"; the middle ground): the splash stays over the main screen until
+// the main screen's tiles have their data (0 Main sends "rsready"); a screen with no tiles (registration, landing) shows at once.
+// No time cap (Rich, 6 Oct: "let it rip"; "i want the full dashboard cached before splash is done").
+// The status asks stop 3 s after the splash goes, on every screen (Rich, 6 Oct: the landing screen, which has no tiles and so no
+// "rsready", kept asking every second forever).
+function hold(html){var w=document.getElementById("spw"),o=document.createElement("div");o.id="rs-hold";
+ o.style.cssText="position:fixed;inset:0;z-index:9999;overflow:hidden;transition:opacity .4s";if(w)o.appendChild(w);document.body.appendChild(o);
+ var gone=0,off=function(){if(gone)return;gone=1;var tt=document.getElementById("rs-tt");if(tt)tt.remove();window.HOLD=0;delete window.BOOTB;setTimeout(stopPoll,3000);TRS=window.RSAHEAD?"main":"landing";setTimeout(trailOff,60000);o.style.opacity="0";setTimeout(function(){o.remove();},450);};
+ window.HOLD=1;window.BOOTB=function(){var id=BID+"b"+(++BK);IDS[id]=0;return id;};
+ addEventListener("rsready",function(){delete window.BOOTB;setTimeout(stopPoll,3000);off();});addEventListener("rsprog",function(e){var d=e.detail||{};if(d.total)bar(0.6+0.4*(d.total-d.left)/d.total);});show(html);if(!window.RSAHEAD||window.RSREADY)off();}
+// Rich, 6 Oct: "after try again, i have to log in again. seems not right". Google's sign-in (a signed token, good for about an hour)
+// is kept for this browser tab (sessionStorage): Try again sends it again instead of reloading, and a reload within the hour reuses it.
+// The server checks it every time (45 gsi.js); a token it refuses is dropped, and the Google button shows again.
+var TK="rsTok";function tokExp(t){try{var p=JSON.parse(atob(t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));return Number(p.exp)*1000;}catch(e){return 0;}}
+function tokKeep(t){try{sessionStorage.setItem(TK,t);}catch(e){}}function tokDrop(){try{sessionStorage.removeItem(TK);}catch(e){}}
+function tokOk(t){return !!t&&tokExp(t)>Date.now()+60000;}
+function retry(){if(!tokOk(TOK)){tokDrop();return location.reload();}document.getElementById("app").innerHTML='<div id="bar">Red Shift</div><main><p>Opening Red Shift...</p></main>';T0=Date.now();enter();}
+function signedIn(r){if(!r||!r.credential)return;TOK=r.credential;tokKeep(TOK);GB.hidden=true;document.body.classList.remove("gsi");var sp=document.getElementById("gsi-sp");if(sp)sp.remove();clearInterval(GT);try{history.replaceState(null,"",location.pathname);}catch(e){}enter();}
+function gsiStart(){if(!window.google||!google.accounts||!google.accounts.id)return setTimeout(gsiStart,150);
+ google.accounts.id.initialize({client_id:CID,callback:signedIn,auto_select:true,cancel_on_tap_outside:false,itp_support:true,use_fedcm_for_prompt:true});
+ google.accounts.id.renderButton(document.getElementById("gsi-btn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",logo_alignment:"left",width:Math.max(200,Math.min(320,innerWidth-48))});
+ google.accounts.id.prompt();}
+// W1.1 (Rich, 11 Oct, B219 item 6: "24 hr on any tab and survives through browser", from "last use"): the app's own pass (rsPass,
+// localStorage; made by 0 Main 76 rspass.js after a sign-in and renewed while the app is in use) signs in without asking Google.
+// A refused pass is dropped and Google's button shows.
+var PK="rsPass",USED=0;
+function passGet(){try{var t=localStorage.getItem(PK)||"",f=atob(t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")).split("|");return f[0]==="rsp1"&&Number(f[2])+86400000>Date.now()+60000?t:"";}catch(e){return "";}}
+function passDrop(){try{localStorage.removeItem(PK);}catch(e){}}
+function passIn(t){TOK=t;USED=1;GB.hidden=true;document.body.classList.remove("gsi");clearInterval(GT);enter();}
+function passRefused(){USED=0;TOK="";passDrop();stopPoll();try{trailOff();}catch(e){}GB.hidden=false;document.body.classList.add("gsi");clearInterval(GT);GT=setInterval(gsiPlace,250);setTimeout(function(){clearInterval(GT);},15000);gsiStart();}
+// The start-up table's first rows, live from the first moment (B219 item 8; the Owner only, "me for now": this browser remembers it,
+// rsOwner, from the main screen). 0 Main's table (72 startup.js) takes over when the main screen arrives. AS:Wait = the time at
+// Google's servers (queue + our code), split into AS:Queue and AS:Server by 0 Main's table.
+// W1.2 (Rich, 11 Oct): "a show hide selection (very subtle) on the splash so if a client is having slow issues, i can have them do a
+// 'show' and then they can screen shot to us. remember the show hide setting"; "just call it show log". rsTimer = show | hide (the
+// Owner sees it unless he hid it). 0 Main's table (72 startup.js) follows the same setting.
+var SU0={go:0,back:0,load:0},TMK="rsTimer";addEventListener("load",function(){SU0.load=performance.now();});
+function suOn(){var m="";try{m=localStorage.getItem(TMK)||"";}catch(e){}if(m==="show")return true;if(m==="hide")return false;try{return localStorage.getItem("rsOwner")==="1";}catch(e){return false;}}
+function suStart(){if(document.getElementById("rs-su0"))return;var b=document.createElement("div");b.id="rs-su0";
+ b.style.cssText="position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:10001;background:rgba(0,0,0,.78);border:1px solid #444;border-radius:10px;padding:8px 12px;font:500 13px/1.35 ui-monospace,Menlo,Consolas,monospace;color:#ddd;min-width:220px;pointer-events:none";
+ document.body.appendChild(b);var s2=function(ms){return(Math.max(0,ms)/1000).toFixed(2);},td="padding:0 4px",row=function(l,v,on){return '<tr'+(on?' style="color:#9fdcff"':'')+'><td style="'+td+'">'+l+'</td><td style="'+td+';text-align:right">'+v+'</td></tr>';};
+ var T=setInterval(function(){if(!b.parentNode)return clearInterval(T);var n=performance.now(),L=SU0.load,G=SU0.go,B=SU0.back;
+  b.innerHTML='<table style="border-collapse:collapse;width:100%">'+row("Page",s2(L||n)+(L?"":"\u2026"),!L)+row("Login",L?s2((G||n)-L)+(G?"":"\u2026"):"",L&&!G)+row("AS:Wait",G?s2((B||n)-G)+(B?"":"\u2026"):"",G&&!B)+
+   '<tr><td style="'+td+';border-top:1px solid #555;color:#fff;font-weight:700">Total</td><td style="'+td+';border-top:1px solid #555;color:#fff;font-weight:700;text-align:right">'+s2(n)+'\u2026</td></tr></table>';},50);}
+function suStop(){["rs-su0","rs-su"].forEach(function(i){var x=document.getElementById(i);if(x)x.remove();});}
+(function(){var t=document.createElement("a");t.id="rs-tt";t.href="#";
+ t.style.cssText="position:fixed;left:10px;bottom:8px;z-index:10002;font:11px system-ui,sans-serif;color:#fff;opacity:.3;text-decoration:none;padding:6px";
+ var lab=function(){t.textContent=suOn()?"hide log":"show log";};lab();
+ t.onclick=function(e){e.preventDefault();var on=!suOn();try{localStorage.setItem(TMK,on?"show":"hide");}catch(x){}if(on)suStart();else suStop();lab();};
+ document.body.appendChild(t);})();
+if(suOn())suStart();
+(function(){var o=new URLSearchParams(location.search).get("otp")||"";if(/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(o)){try{history.replaceState(null,"",location.pathname);}catch(e){}return passIn(o);}var p=passGet();if(p)return passIn(p);var t=null;try{t=sessionStorage.getItem(TK);}catch(e){}if(tokOk(t))signedIn({credential:t});else{tokDrop();gsiStart();}})();
+</script></body></html>
