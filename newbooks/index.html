@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Red Shift</title>
+<meta name="description" content="Technology by the Grassroots, for the Grassroots.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://redshift.vote/">
+<meta property="og:title" content="Redshift"><meta property="og:description" content="Technology by the Grassroots, for the Grassroots.">
+<meta property="og:image" content="https://redshift.vote/share-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://redshift.vote/share-card.png">
+<link rel="icon" href="/logo.webp">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<!-- redshift.vote for volunteers (Rich, 19 Oct; claude/QR_DESIGN.md 7): no sign-in. This one page is every volunteer address: /, /qr,
+     /qr/<list>, /newbooks[/<list>], /mybooks, /dashboard, /links (GitHub Pages serves it as 404.html for any other path, and as each
+     folder's index.html). Sign-in links (?ref, ?pg, ?otp) go on to /admin, the signed-in app. The phone keeps a random ID (rs_pid). -->
+<style>
+:root{--red:#C8102E;--navy:#0B1A4F;--gray:#8A94B3;--page:#EEF1F6;--line:#E3E7EF;--H:100vh}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--navy);font-family:Poppins,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+button{font:inherit}
+#app{min-height:var(--H);display:flex;flex-direction:column;max-width:560px;margin:0 auto}
+.top{padding:max(28px,calc(var(--H)*.05)) 26px 14px;display:flex;align-items:flex-end;justify-content:space-between}
+.word{font-weight:800;font-size:clamp(34px,11vw,44px);letter-spacing:-1px;line-height:1}
+.word .r{color:var(--red)}.word .s{color:var(--navy)}
+.bk{border:0;background:none;color:var(--gray);font-weight:600;font-size:14px;padding:6px 0;cursor:pointer}
+.ttl{padding:0 26px 6px;font-weight:700;font-size:20px}
+.list{padding:6px 18px 20px;display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border-radius:22px;padding:20px 20px 20px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 0 var(--line),0 6px 18px rgba(11,26,79,.06);text-decoration:none;color:var(--navy);border:0;width:100%;text-align:left;cursor:pointer}
+.card:active{transform:scale(.99)}
+.label{font-weight:700;font-size:24px;letter-spacing:-.3px;display:block}
+.sub{display:block;font-weight:500;font-size:13px;color:var(--gray);margin-top:2px;letter-spacing:0}
+.ic{width:58px;height:58px;flex:0 0 58px}.ic svg{width:100%;height:100%}
+.note{margin:0 18px 6px;padding:12px 16px;border-radius:16px;background:#fff;font-size:14px;font-weight:500;box-shadow:0 2px 0 var(--line)}
+.note.bad{color:var(--red)}
+.foot{margin-top:auto;padding:14px 26px 24px;display:flex;justify-content:center}
+.foot a{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+.foot img{width:36px;height:36px;object-fit:contain}
+.foot .sp{display:flex;flex-direction:column;line-height:1.2}.foot .sp span{color:var(--gray);font-weight:500;font-size:12px}.foot .sp b{color:var(--navy);font-weight:700;font-size:14px}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:6px 18px 20px}
+.stat div{background:#fff;border-radius:22px;padding:18px 20px;box-shadow:0 2px 0 var(--line),0 6px 18px rgba(11,26,79,.06)}
+.stat b{display:block;font-size:32px;font-weight:800;line-height:1.1}.stat span{font-size:13px;color:var(--gray);font-weight:600}
+.lk{background:#fff;border-radius:18px;margin:0 18px 10px;padding:14px 18px;box-shadow:0 2px 0 var(--line)}
+.lk a{color:var(--navy);font-weight:700;text-decoration:none;word-break:break-all}.lk p{margin:4px 0 0;font-size:13px;color:var(--gray)}.lk i{font-style:normal;font-size:11px;font-weight:700;color:var(--red);margin-left:6px}
+#dashf{border:0;width:100%;flex:1;min-height:calc(var(--H) - 120px);background:#001638}
+/* laptop: a 16:9 stage, the cards side by side (Rich, 19 Oct: "phone sized (measured) and a 16:9") */
+body.wide #app{max-width:none;width:min(100vw,calc(var(--H)*16/9));height:var(--H);min-height:0;overflow:auto}
+body.wide .top{padding:calc(var(--H)*.06) 6% 2%}body.wide .ttl{padding:0 6% 8px}
+body.wide .list{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;padding:2% 6%}
+body.wide .card{flex-direction:column-reverse;align-items:flex-start;padding:26px;min-height:calc(var(--H)*.26)}
+body.wide .ic{width:76px;height:76px;flex-basis:76px}body.wide .label{font-size:28px}
+body.wide .stat{grid-template-columns:repeat(4,1fr);padding:2% 6%}body.wide .lk,body.wide .note{margin-left:6%;margin-right:6%}
+/* sheets */
+#sh{position:fixed;inset:0;z-index:60;background:rgba(11,26,79,.45);display:flex;align-items:flex-end;justify-content:center}
+#sh[hidden]{display:none}
+#sh .box{background:#fff;border-radius:26px 26px 0 0;padding:24px 22px max(24px,env(safe-area-inset-bottom));width:100%;max-width:520px;box-shadow:0 -10px 40px rgba(11,26,79,.2)}
+body.wide #sh{align-items:center}body.wide #sh .box{border-radius:26px}
+#sh h3{margin:0 0 6px;font-size:22px;font-weight:800}#sh p{margin:0 0 14px;color:#4a5578;font-size:15px}
+#sh label{display:block;font-size:13px;font-weight:600;color:var(--gray);margin:10px 0 4px}
+#sh input{width:100%;font:500 17px Poppins,system-ui,sans-serif;padding:12px 14px;border:2px solid var(--line);border-radius:14px;color:var(--navy);outline:none}
+#sh input:focus{border-color:var(--navy)}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:15px;font-weight:700;font-size:17px;background:var(--navy);color:#fff;margin-top:12px;cursor:pointer}
+.btn.alt{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.btn.red{background:var(--red)}
+.msg{min-height:1.2em;font-size:14px;color:var(--red);margin-top:8px}
+.spin{width:44px;height:44px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--red);animation:sp 1s linear infinite;margin:6px auto 14px}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* the route pop-up (Rich, 19 Oct: Approve, or Change order: the map, pinch and scroll, above Address | Order | New order) */
+#rt{position:fixed;inset:0;z-index:70;background:#fff;display:flex;flex-direction:column;height:var(--H)}
+#rt[hidden]{display:none}
+#rt .rh{padding:16px 20px 10px;display:flex;justify-content:space-between;align-items:baseline}#rt .rh b{font-size:20px;font-weight:800}#rt .rh span{color:var(--gray);font-weight:600;font-size:14px}
+#rmap{flex:1 1 auto;min-height:160px;background:#dfe3ea}
+#rt.ch #rmap{flex:0 0 40%}
+#rt .ra{padding:12px 18px max(16px,env(safe-area-inset-bottom));display:flex;gap:10px}#rt .ra[hidden]{display:none}#rt .ra .btn{margin:0}
+#rtc{flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line)}
+#rtc[hidden]{display:none}
+#rtc table{width:100%;border-collapse:collapse;font-size:15px}
+#rtc th{position:sticky;top:0;background:#fff;text-align:left;font-size:12px;color:var(--gray);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+#rtc td{padding:8px 10px;border-bottom:1px solid var(--line)}#rtc td.n{width:56px;text-align:center;color:var(--gray);font-weight:600}
+#rtc input{width:62px;font:600 16px Poppins,system-ui,sans-serif;padding:6px;border:2px solid var(--line);border-radius:10px;text-align:center;color:var(--navy)}
+.pin{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;border:2px solid #fff;font:700 12px/22px Poppins,system-ui,sans-serif;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.pin.f{background:var(--red)}
+/* the splash (the same markup as /admin, from Drive), sized to the measured screen */
+#spw{position:fixed;inset:0;z-index:100;transition:opacity .6s;background:#030a2e}
+#spw.out{opacity:0;pointer-events:none}
+#spw #rs{min-height:0!important;height:var(--H,100vh);padding:max(12px,calc(var(--H,100vh)*.05)) 20px max(8px,calc(var(--H,100vh)*.03))}
+#spw #rs h1{font-size:clamp(28px,min(calc((100vw - 64px) / 5.7),calc(var(--H,100vh)*.11)),128px)}
+#spw #rs .tg{margin-top:min(10px,calc(var(--H,100vh)*.012))}
+#spw #rs .lg{width:min(58vw,280px,calc(var(--H,100vh)*.30))}
+#spw #rs .sb b{font-size:clamp(16px,min(6vw,calc(var(--H,100vh)*.042)),30px)}
+#spw #rs .ld{margin-top:min(34px,calc(var(--H,100vh)*.045))}
+#pit:empty{display:none}
+</style>
+</head><body>
+<div id="spw"><div style="height:var(--H,100vh);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%);color:#fff;font:700 40px Impact,'Arial Narrow',sans-serif;letter-spacing:.04em;font-style:italic">RED <span style="color:#ff2b3d;margin-left:.3em">SHIFT</span></div></div>
+<div id="pit"></div>
+<div id="app"></div>
+<div id="sh" hidden><div class="box" id="shb"></div></div>
+<div id="rt" hidden></div>
+<script>
+(function(){
+var API="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",SPF="1CbXFQlj7QkQTyhfyUQWHyZCr6r-If4OZ",DK="AIzaSyCvm-_NB3jtiHuiK9PxYXQaAJiWhPFBjM8";
+if(window.RS_TEST)API=window.RS_TEST;
+// sign-in links belong to /admin (dashboard shares, invites, event links, one-time passes)
+var Q0=new URLSearchParams(location.search);
+if(Q0.get("ref")||Q0.get("pg")||Q0.get("otp")){location.replace("/admin/"+location.search);return;}
+var $=function(i){return document.getElementById(i);};
+var esc=function(t){return String(t===null||t===undefined?"":t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});};
+var LS={get:function(k){try{return localStorage.getItem(k);}catch(e){return null;}},set:function(k,v){try{localStorage.setItem(k,v);}catch(e){}},del:function(k){try{localStorage.removeItem(k);}catch(e){}}};
+// ---- the phone's ID: localStorage, else the cookie; a new one if neither
+function pidOf(){var p=LS.get("rs_pid");if(!/^[a-f0-9]{32}$/.test(p||"")){var m=document.cookie.match(/(?:^|; )rs_pid=([a-f0-9]{32})/);p=m?m[1]:"";}
+ if(!p){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}p=Array.prototype.map.call(a,function(x){return("0"+x.toString(16)).slice(-2);}).join("");}
+ LS.set("rs_pid",p);try{document.cookie="rs_pid="+p+"; max-age=63072000; path=/; SameSite=Lax; Secure";}catch(e){}return p;}
+var PID=pidOf(),PASS=LS.get("rsPass")||"";
+// ---- the server (the same answer shape as /admin)
+function call(fn,args){return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[]}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){throw new Error("Red Shift is busy. Please try again.");}if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
+window.RUN=function(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;},rpc:function(fn,a){call(fn,a).then(function(r){if(ok)ok(r);},function(e){if(no)no(e);});}};return o;};
+// ---- the measured screen; phone or laptop
+function fit(){var vv=window.visualViewport,h=Math.round((vv&&vv.height)||innerHeight||0),S=screen.height||h;if(!h||h>S)h=(screen.availHeight||S)-100;h=Math.max(320,h);
+ document.documentElement.style.setProperty("--H",h+"px");
+ var fine=false;try{fine=matchMedia("(pointer:fine)").matches;}catch(e){}
+ document.body.classList.toggle("wide",innerWidth>innerHeight&&innerWidth>=900&&fine);}
+fit();addEventListener("resize",fit);try{visualViewport.addEventListener("resize",fit);}catch(e){}addEventListener("orientationchange",function(){setTimeout(fit,250);});
+// ---- the address
+function where(){var p=location.pathname.replace(/\/+$/,"").replace(/^\/+/,"").split("/"),a=(p[0]||"").toLowerCase(),q=p.slice(1).join("/");
+ try{q=decodeURIComponent(q);}catch(e){}
+ if(a==="qr")return{land:1,page:"new",q:q};if(a==="newbooks")return{page:"new",q:q};if(a==="mybooks")return{page:"mine"};if(a==="dashboard")return{page:"dash"};if(a==="links")return{page:"links"};
+ return{land:1,page:"home",q:""};}
+var W=where(),S={act:false,books:[],named:false,first:"",q:""};
+if(W.q!==undefined&&W.page==="new"){if(W.q)LS.set("rs_q",W.q);else LS.del("rs_q");}
+var QN=W.q||LS.get("rs_q")||"";
+// ---- icons (the approved mockups, 19 Oct)
+var IC={dash:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10 54h44" stroke="#0B1A4F" stroke-width="5"/><path d="M16 46V32M28 46V22" stroke="#0B1A4F" stroke-width="6"/><path d="M40 46V12" stroke="#C8102E" stroke-width="6"/><path d="M52 46V28" stroke="#0B1A4F" stroke-width="6"/></svg>',
+ mine:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="10" width="40" height="48" rx="6" stroke="#0B1A4F" stroke-width="5"/><rect x="24" y="5" width="16" height="9" rx="3" fill="#C8102E"/><path d="M22 35l7 7 14-15" stroke="#C8102E" stroke-width="5"/></svg>',
+ "new":'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="10" width="40" height="48" rx="6" stroke="#0B1A4F" stroke-width="5"/><rect x="24" y="5" width="16" height="9" rx="3" fill="#C8102E"/><path d="M32 26v20M22 36h20" stroke="#C8102E" stroke-width="5"/></svg>',
+ door:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30L32 10l24 20" stroke="#0B1A4F" stroke-width="5"/><path d="M15 26v28h34V26" stroke="#0B1A4F" stroke-width="5"/><rect x="27" y="36" width="10" height="18" rx="2" fill="#C8102E"/></svg>',
+ call:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="6" width="28" height="52" rx="6" stroke="#0B1A4F" stroke-width="5"/><path d="M28 48h8" stroke="#C8102E" stroke-width="5"/></svg>',
+ text:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14h44v28H30l-12 10V42h-8z" stroke="#0B1A4F" stroke-width="5"/><path d="M22 28h2M32 28h2M42 28h2" stroke="#C8102E" stroke-width="5"/></svg>'};
+var ML={door:"Walk",call:"Call",text:"Text"};
+function card(id,label,ic,sub){return '<button class="card" data-go="'+esc(id)+'"><span><span class="label">'+esc(label)+'</span>'+(sub?'<span class="sub">'+esc(sub)+'</span>':"")+'</span><span class="ic">'+IC[ic]+'</span></button>';}
+// the sponsor line (the party's web address is still to come: D6)
+var FOOT='<div class="foot"><a href="#bcgop" onclick="return false"><img alt="" src="/bcgop.png"><div class="sp"><span>Sponsored by</span><b>Berrien County GOP</b></div></a></div>';
+function frame(inner,back,title){$("app").innerHTML='<div class="top"><div class="word"><span class="r">Red</span><span class="s">shift</span></div>'+(back?'<button class="bk" data-go="home">&lsaquo; Home</button>':"")+'</div>'+(title?'<div class="ttl">'+esc(title)+'</div>':"")+inner+FOOT;
+ [].forEach.call(document.querySelectorAll("#app [data-go]"),function(b){b.onclick=function(){go(b.getAttribute("data-go"));};});}
+var PATHS={home:"/",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/links"};
+function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id))return openBook(id.slice(2));
+ if(PATHS[id]){var p=PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");if(location.pathname!==p)history.pushState({p:id},"",p);show(id);}}
+addEventListener("popstate",function(){W=where();show(W.page);});
+var NOTE="";
+function show(id){window.scrollTo(0,0);
+ if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine")+card("new","New Books","new")+'</div>');
+ if(id==="new"){var have={};S.books.forEach(function(b){have[b.mode]=b;});
+  return frame((S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k];return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>',S.act,S.act?"New Books":"");}
+ if(id==="mine")return frame(S.books.length?'<div class="list">'+S.books.map(function(b){return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.mode==="door"?b.doors+" doors":b.people+" people"));}).join("")+'</div>'
+  :'<div class="note">No books yet on this phone.</div><div class="list">'+card("new","New Books","new")+'</div>',true,"My Books");
+ if(id==="dash"){frame('<div class="list"><div class="spin"></div></div>',true,"Dashboard");return call("vDash",[PID,PASS]).then(dash,function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Dashboard");});}
+ if(id==="links"){frame('<div class="list"><div class="spin"></div></div>',true,"Links");return call("vLinks",[PASS]).then(function(r){
+  frame(r.links.map(function(l){var real=l.path.indexOf("<")<0;return '<div class="lk">'+(real?'<a href="'+esc(l.path)+'">redshift.vote'+esc(l.path)+'</a>':'<b>redshift.vote'+esc(l.path)+'</b>')+(l.admin?'<i>ADMIN</i>':"")+'<p>'+esc(l.what)+'</p></div>';}).join(""),true,"Links");},function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Links");});}
+ show("home");}
+function dash(r){
+ if(r.full){frame('<iframe id="dashf" title="Dashboard"></iframe>',true,"Dashboard");var f=$("dashf");f.setAttribute("sandbox","allow-scripts allow-popups");f.srcdoc=r.html;return;}
+ var m=r.mine||{},n=function(x,d){x=Number(x)||0;return d?(Math.round(x*10)/10).toLocaleString("en-US"):Math.round(x).toLocaleString("en-US");};
+ frame('<div class="stat"><div><b>'+n(m.doors)+'</b><span>Doors</span></div><div><b>'+n(m.con)+'</b><span>Talked to</span></div><div><b>'+n(m.votes,1)+'</b><span>Votes</span></div><div><b>'+n((m.mins||0)/60,1)+'</b><span>Hours</span></div></div>'+
+  '<div class="note">Your own numbers. The whole dashboard opens once you register and are approved, or are marked Trusted.</div>',true,"Dashboard");}
+// ---- sheets
+function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
+function shut(){$("sh").hidden=true;$("shb").innerHTML="";}
+$("sh").onclick=function(e){if(e.target===$("sh")&&!BUSY)shut();};
+var BUSY=0;
+function busy(t){BUSY=1;sheet('<div class="spin"></div><p style="text-align:center">'+esc(t)+'</p>');}
+function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn" id="sx">OK</button>');$("sx").onclick=shut;}
+// ---- New Books: a name first (first name, last name, last 4 of the phone), then the book
+function tap(m){if(!S.named)return nameSheet(function(){tap(m);});build(m);}
+function nameSheet(then){BUSY=0;
+ sheet('<h3>Your name</h3><p>So your work counts for you.</p><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
+ $("nf").focus();$("ngo").onclick=function(){var f=$("nf").value.trim(),l=$("nl").value.trim(),p=$("n4").value.replace(/\D/g,"");
+  if(!f){$("nm").textContent="Add your first name.";return;}if(p.length!==4){$("nm").textContent="Add the last 4 digits of your phone number.";return;}
+  this.disabled=true;call("vName",[PID,f,l,p]).then(function(r){
+   if(!r.ok){$("nm").textContent=r.msg;$("ngo").disabled=false;return;}
+   if(!r.ask){S.named=true;S.first=f;shut();return then();}
+   // Rich, 19 Oct: "make the match and them pop up to confirm"; the wording: "perfect"
+   sheet('<h3>Welcome back!</h3><p>Continue as '+esc(r.ask)+'?</p><button class="btn" id="ty">That\'s me</button><button class="btn alt" id="tn">Not me</button>');
+   var tie=function(yes){busy("One moment...");call("vTie",[PID,r.k,r.s,yes,f,l,p]).then(function(x){if(!x.ok)return oops(x.msg);S.named=true;S.first=(yes?x.name:f).split(" ")[0];shut();then();},function(e){oops(e.message);});};
+   $("ty").onclick=function(){tie(true);};$("tn").onclick=function(){tie(false);};
+  },function(e){$("nm").textContent=e.message;$("ngo").disabled=false;});};}
+function build(m){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
+ call("vNew",[PID,m,QN]).then(function(r){
+  if(r.need==="name"){S.named=false;return nameSheet(function(){build(m);});}
+  if(!r.ok)return oops(r.msg||"Please try again.");
+  var b=r.book;S.books=S.books.filter(function(x){return x.id!==b.id;}).concat([b]);S.act=true;
+  if(k==="door"&&r.fresh){BUSY=0;shut();return route(b);}
+  openBook(b.id);
+ },function(e){oops(e.message);});}
+function openBook(id){busy("Opening your book...");call("vOpen",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg);location.href=r.launch;},function(e){oops(e.message);});}
+// ---- the route pop-up
+var LF=null;
+function leaflet(done){if(window.L&&L.map)return done();if(LF)return LF.push(done);LF=[done];
+ var c=document.createElement("link");c.rel="stylesheet";c.href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css";document.head.appendChild(c);
+ var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js";s.onload=function(){var f=LF;LF=null;f.forEach(function(x){x();});};s.onerror=function(){var f=LF;LF=null;f.forEach(function(x){x(true);});};document.head.appendChild(s);}
+function route(b){var R=$("rt"),ord=b.stops.slice(),mk=[],line=null,map=null;
+ R.className="";R.hidden=false;
+ R.innerHTML='<div class="rh"><b>Your route</b><span>'+ord.length+' doors</span></div><div id="rmap"></div><div id="rtc" hidden></div>'+
+  '<div class="ra" id="ra1"><button class="btn red" id="rok">Approve</button><button class="btn alt" id="rch">Change order</button></div>'+
+  '<div class="ra" id="ra2" hidden><button class="btn" id="rsv">Save</button><button class="btn alt" id="rcx">Cancel</button></div>';
+ function pins(){if(!map)return;mk.forEach(function(m){map.removeLayer(m);});mk=[];if(line)map.removeLayer(line);var pts=[];
+  ord.forEach(function(s,i){if(!s[2]||!s[3])return;pts.push([s[2],s[3]]);mk.push(L.marker([s[2],s[3]],{icon:L.divIcon({className:"",html:'<div class="pin'+(i===0?" f":"")+'">'+(i+1)+'</div>',iconSize:[26,26],iconAnchor:[13,13]})}).addTo(map));});
+  line=L.polyline(pts,{color:"#0B1A4F",weight:3,opacity:.55}).addTo(map);return pts;}
+ leaflet(function(bad){if(bad){$("rmap").innerHTML='<p style="padding:20px;color:#4a5578">The map could not load. The order is below.</p>';return;}
+  map=L.map("rmap",{zoomControl:true,tap:true});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+  var pts=pins();if(pts&&pts.length)map.fitBounds(pts,{padding:[24,24]});else map.setView([42.06,-86.5],13);});
+ function chart(){$("rtc").innerHTML='<table><thead><tr><th>Address</th><th>Order</th><th>New order</th></tr></thead><tbody>'+
+   ord.map(function(s,i){return '<tr><td>'+esc(s[1])+'</td><td class="n">'+s[0]+'</td><td><input inputmode="numeric" data-i="'+i+'" value="'+(i+1)+'"></td></tr>';}).join("")+'</tbody></table>';
+  [].forEach.call(document.querySelectorAll("#rtc [data-i]"),function(x){x.onchange=function(){var i=Number(x.getAttribute("data-i")),n=Math.round(Number(x.value));
+   if(!(n>=1))n=1;if(n>ord.length)n=ord.length;var s=ord.splice(i,1)[0];ord.splice(n-1,0,s);chart();pins();};});}
+ $("rok").onclick=function(){R.hidden=true;openBook(b.id);};
+ $("rch").onclick=function(){R.className="ch";$("rtc").hidden=false;$("ra1").hidden=true;$("ra2").hidden=false;chart();setTimeout(function(){if(map)map.invalidateSize();},60);};
+ $("rcx").onclick=function(){ord=b.stops.slice();R.className="";$("rtc").hidden=true;$("ra1").hidden=false;$("ra2").hidden=true;pins();setTimeout(function(){if(map)map.invalidateSize();},60);};
+ $("rsv").onclick=function(){var btn=this;btn.disabled=true;btn.textContent="Saving...";
+  call("vOrder",[PID,b.id,ord.map(function(s){return s[4];})]).then(function(r){btn.disabled=false;btn.textContent="Save";
+   if(!r.ok){alertIn(r.msg);return;}b=r.book||b;ord=b.stops.slice();R.className="";$("rtc").hidden=true;$("ra1").hidden=false;$("ra2").hidden=true;pins();setTimeout(function(){if(map)map.invalidateSize();},60);},
+   function(e){btn.disabled=false;btn.textContent="Save";alertIn(e.message);});};
+ function alertIn(t){var p=document.createElement("p");p.style.cssText="margin:0 18px;color:#C8102E;font-size:14px";p.textContent=t;R.insertBefore(p,$("ra2"));setTimeout(function(){p.remove();},4000);}}
+// ---- the splash (every load), then New Books (a new phone), or the pit stop and home
+var T0=Date.now(),SPL=null;
+(function(){var put=function(h){if(!h||h===SPL)return;SPL=h;var w=$("spw");if(w&&!w.classList.contains("out"))w.innerHTML=h;};put(LS.get("rsSplash"));
+ if(!window.RS_TEST)fetch("https://www.googleapis.com/drive/v3/files/"+SPF+"?alt=media&key="+DK).then(function(r){return r.ok?r.text():null;}).then(function(h){if(h){LS.set("rsSplash",h);put(h);}},function(){});})();
+function splashOff(){var w=$("spw");if(!w)return;w.classList.add("out");setTimeout(function(){if(w.parentNode)w.parentNode.removeChild(w);},700);}
+function pit(r){var p=$("pit");p.innerHTML=r.html;
+ [].forEach.call(p.querySelectorAll("script"),function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});
+ var rg=$("lnd-rg");if(rg)rg.onclick=function(){location.href=r.reg||"/admin/";};}
+var home=call("vHome",[PID,QN]);
+home.then(function(r){S=r;S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return W.land&&r.act?call("vPit",[PID]).then(null,function(){return null;}):null;}).then(function(pr){
+ setTimeout(function(){
+  if(W.land&&!S.act)show("new");
+  else{show(W.land?"home":W.page);if(W.land&&pr&&pr.html)pit(pr);}
+  splashOff();},Math.max(0,2200-(Date.now()-T0)));
+},function(e){setTimeout(function(){frame('<div class="note bad">Red Shift could not be reached ('+esc(e.message)+'). Check your signal and reload.</div>');splashOff();},Math.max(0,1500-(Date.now()-T0)));});
+})();
+</script>
+</body></html>
