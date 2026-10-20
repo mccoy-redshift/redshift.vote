@@ -30,7 +30,7 @@ button{font:inherit}
 .label{font-weight:700;font-size:24px;letter-spacing:-.3px;display:block}
 .sub{display:block;font-weight:500;font-size:15.5px;color:var(--gray);margin-top:3px;letter-spacing:0}
 .ic{width:58px;height:58px;flex:0 0 58px}.ic svg{width:100%;height:100%}
-.bc{margin:0 18px 18px;padding:12px 16px;border-radius:16px;background:#fff;box-shadow:0 2px 0 var(--line)}.tgh{display:flex;width:100%;justify-content:space-between;align-items:center;background:none;border:0;padding:0;font:inherit;color:#0B1A4F;text-align:left;cursor:pointer}.tgh small{display:block;font-size:12px;font-weight:600;color:#5A6585;text-transform:uppercase;letter-spacing:.04em}.tgh span span{font-size:16px;font-weight:700}.tgh i{font-style:normal;font-size:20px;transition:transform .2s}.bc.open .tgh i{transform:rotate(180deg)}.tgx{text-align:center;font-size:16px;font-weight:700;color:#0B1A4F;margin:0 0 4px}.bcs{margin:10px 0 0;padding:0;font-size:14px;color:#0B1A4F;line-height:1.5}.bcs ul{margin:2px 0 6px;padding-left:18px;font-weight:500}.bcs b{font-weight:700}body.wide .bc{margin-left:6%;margin-right:6%}
+.bc{margin:0 18px 18px}.bc .bcs{padding:12px 16px;border-radius:16px;background:#fff;box-shadow:0 2px 0 var(--line)}.tgh{display:flex;width:100%;justify-content:center;align-items:center;gap:8px;background:none;border:0;padding:6px 0;font:inherit;color:#0B1A4F;text-align:center;cursor:pointer;box-shadow:none}.tgh small{display:block;font-size:12px;font-weight:600;color:#5A6585;text-transform:uppercase;letter-spacing:.04em}.tgh span span{font-size:16px;font-weight:700}.tgh i{font-style:normal;font-size:20px;transition:transform .2s}.bc.open .tgh i{transform:rotate(180deg)}.tgx{text-align:center;font-size:16px;font-weight:700;color:#0B1A4F;margin:0 0 4px}.bcs{margin:10px 0 0;padding:0;font-size:14px;color:#0B1A4F;line-height:1.5}.bcs ul{margin:2px 0 6px;padding-left:18px;font-weight:500}.bcs b{font-weight:700}body.wide .bc{margin-left:6%;margin-right:6%}
 .note{margin:0 18px 6px;padding:12px 16px;border-radius:16px;background:#fff;font-size:14px;font-weight:500;box-shadow:0 2px 0 var(--line)}
 .note.bad{color:var(--red)}
 .reg{margin-top:auto;padding:18px 26px max(22px,env(safe-area-inset-bottom));text-align:center}.reg a{display:inline-block;color:var(--navy);font-weight:700;font-size:16px;text-decoration:none;padding:9px 26px;border:2px solid #C5CCDD;border-radius:22px;background:#fff}
@@ -93,7 +93,7 @@ body.wide #sh{align-items:center}body.wide #sh .box{border-radius:26px}
 #spw #rs .ld{margin-top:min(34px,calc(var(--H,100vh)*.045))}
 #pit:empty{display:none}
 .tv{height:var(--H);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3vh}.tv .word{font-size:clamp(40px,7vh,96px)}.tvq{background:#fff;border-radius:28px;padding:2.5vh;box-shadow:0 2px 0 var(--line),0 6px 18px rgba(11,26,79,.06)}.tvq svg{display:block;width:min(64vh,80vw);height:min(64vh,80vw)}.tvn{color:var(--gray);font-weight:600;font-size:clamp(16px,2.4vh,28px)}
-body.tvm #app{max-width:none;width:100%}
+body.tvm #app{max-width:none;width:100%}.tvb{position:fixed;top:12px;left:18px;right:18px;display:flex;justify-content:space-between;z-index:3}.qri{display:block;width:40px;height:40px;margin-left:auto}.qri svg{width:100%;height:100%}.gbtn{display:flex;justify-content:center;margin:18px}
 </style>
 </head><body>
 <div id="spw"><div style="height:var(--H,100vh);display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#030a2e 0%,#0a1a6e 55%,#02061c 100%);color:#fff;font:700 40px Impact,'Arial Narrow',sans-serif;letter-spacing:.04em;font-style:italic">RED <span style="color:#ff2b3d;margin-left:.3em">SHIFT</span></div></div>
@@ -115,9 +115,12 @@ var LS={get:function(k){try{return localStorage.getItem(k);}catch(e){return null
 function pidOf(){var p=LS.get("rs_pid");if(!/^[a-f0-9]{32}$/.test(p||"")){var m=document.cookie.match(/(?:^|; )rs_pid=([a-f0-9]{32})/);p=m?m[1]:"";}
  if(!p){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}p=Array.prototype.map.call(a,function(x){return("0"+x.toString(16)).slice(-2);}).join("");}
  LS.set("rs_pid",p);try{document.cookie="rs_pid="+p+"; max-age=63072000; path=/; SameSite=Lax; Secure";}catch(e){}return p;}
-var PID=pidOf(),PASS=LS.get("rsPass")||"";
+// the Red Shift pass (rsPass): only a live one (24 h from its stamp, as /admin reads it)
+function passOk(t){try{var f=atob(String(t).split(".")[1].replace(/-/g,"+").replace(/_/g,"/")).split("|");return f[0]==="rsp1"&&Number(f[2])+86400000>Date.now()+60000;}catch(e){return false;}}
+var PID=pidOf(),PASS=LS.get("rsPass")||"";if(PASS&&!passOk(PASS))PASS="";
+function passSet(t){if(!t)return;PASS=t;LS.set("rsPass",t);}
 // ---- the server (the same answer shape as /admin)
-function call(fn,args){return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[]}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){throw new Error("Red Shift is busy. Please try again.");}if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
+function call(fn,args){return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[],p:PASS}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){throw new Error("Red Shift is busy. Please try again.");}if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
 window.RUN=function(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;},rpc:function(fn,a){call(fn,a).then(function(r){if(ok)ok(r);},function(e){if(no)no(e);});}};return o;};
 // ---- the measured screen; phone or laptop
 function fit(){var vv=window.visualViewport,h=Math.round((vv&&vv.height)||innerHeight||0),S=screen.height||h;if(!h||h>S)h=(screen.availHeight||S)-100;h=Math.max(320,h);
@@ -140,7 +143,9 @@ var IC={dash:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke
  "new":'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="10" width="40" height="48" rx="6" stroke="#0B1A4F" stroke-width="5"/><rect x="24" y="5" width="16" height="9" rx="3" fill="#C8102E"/><path d="M32 26v20M22 36h20" stroke="#C8102E" stroke-width="5"/></svg>',
  door:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30L32 10l24 20" stroke="#0B1A4F" stroke-width="5"/><path d="M15 26v28h34V26" stroke="#0B1A4F" stroke-width="5"/><rect x="27" y="36" width="10" height="18" rx="2" fill="#C8102E"/></svg>',
  call:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="6" width="28" height="52" rx="6" stroke="#0B1A4F" stroke-width="5"/><path d="M28 48h8" stroke="#C8102E" stroke-width="5"/></svg>',
- text:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14h44v28H30l-12 10V42h-8z" stroke="#0B1A4F" stroke-width="5"/><path d="M22 28h2M32 28h2M42 28h2" stroke="#C8102E" stroke-width="5"/></svg>'};
+ text:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14h44v28H30l-12 10V42h-8z" stroke="#0B1A4F" stroke-width="5"/><path d="M22 28h2M32 28h2M42 28h2" stroke="#C8102E" stroke-width="5"/></svg>',
+ // Rich, 20 Oct: "a small icon of a QR with a door or arrow that is clickable to goto the QR page" (the Owner's home page)
+ qr:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="18" height="18" rx="3" stroke="#0B1A4F" stroke-width="4"/><rect x="12" y="12" width="6" height="6" fill="#0B1A4F"/><rect x="40" y="6" width="18" height="18" rx="3" stroke="#0B1A4F" stroke-width="4"/><rect x="46" y="12" width="6" height="6" fill="#0B1A4F"/><rect x="6" y="40" width="18" height="18" rx="3" stroke="#0B1A4F" stroke-width="4"/><rect x="12" y="46" width="6" height="6" fill="#0B1A4F"/><path d="M33 49h21M46 41l8 8-8 8" stroke="#C8102E" stroke-width="5"/></svg>'};
 var ML={door:"Walk",call:"Call",text:"Text"};
 function card(id,label,ic,sub){return '<button class="card" data-go="'+esc(id)+'"><span><span class="label">'+esc(label)+'</span>'+(sub?'<span class="sub">'+esc(sub)+'</span>':"")+'</span><span class="ic">'+IC[ic]+'</span></button>';}
 var FOOT='';   // no sponsor line under the screens (Rich, 19 Oct: "since we have the splash.  remove the BCGOP stuff from the bottom")
@@ -155,7 +160,7 @@ addEventListener("popstate",function(){W=where();show(W.page);});
 var NOTE="";
 function show(id){window.scrollTo(0,0);
  if(!S.adm&&id!=="links")id="new";
- if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine")+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
+ if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine")+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>'),qrIcon();
  if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
   return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k];return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  if(id==="mine")return frame(S.books.length?'<div class="list">'+S.books.map(function(b){return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.mode==="door"?b.doors+" doors":b.people+" people"));}).join("")+'</div>'
@@ -199,14 +204,15 @@ function nameSheet(then){BUSY=0;
 // Rich, 19 Oct: "on the C W T page, put a checkbox for Ballot Chase. and put a Stat for XX contact YY Not Contacted"; "the check box switches the XX and YY totals"
 // Rich, 19 Oct: "on the New Books page you will put one of those down up arrows that expands an info pane. It wil lbe called the Targets: The title
 // will be Krieger Targets inside SJPS and then you will list the stats as bullets. So drop the checkbox ... But it starts with the total pool"
-function statTxt(){var t=S.stat;if(!t||!t.q)return '';var n=function(x){return (Number(x)||0).toLocaleString("en-US");};
+function statTxt(){var t=STAT;if(!t||!t.q)return '';var n=function(x){return (Number(x)||0).toLocaleString("en-US");};
  var wct=function(X){return '<div class="wct"><div><b>'+n(X.d)+'</b><span>Doors</span></div><div><b>'+n(X.c)+'</b><span>Calls</span></div><div><b>'+n(X.t)+'</b><span>Texts</span></div></div>';};
  var hd=function(lb,X){return '<h4>'+lb+' = '+n(X.n)+'</h4><p class="cn">Contacted <b>'+n(X.att)+'</b> · Not contacted <b>'+n(X.n-X.att)+'</b></p>';};
  return '<div class="tgx">'+esc(tgTitle())+'</div><div class="sec">'+hd("Target Voters",t.q)+wct(t.q)+'</div><div class="sec">'+hd("AB Target Voters",t.qa)+wct(t.qa)+'</div>';}
-function tgTitle(){var q=S.stat&&S.stat.query||S.q||"";return (S.stat&&S.stat.query||S.q||"")==="38-sjps"?"SJPS within HD-38":"Target Voters";}
+function tgTitle(){return (STAT&&STAT.query||S.q||"")==="38-sjps"?"SJPS within HD-38":"Target Voters";}
 // Rich, 20 Oct: "if collapsed. only show target voters. The second line is the title of the expanded section, centered"
 function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="button" class="tgh" id="tgh" aria-expanded="'+(S.tgo?"true":"false")+'"><span><span>Target Voters</span></span><i aria-hidden="true">&#9662;</i></button><div class="bcs" id="bcs"'+(S.tgo?'':' hidden')+'>'+statTxt()+'</div></div>';}
-function statGet(){if(S.statAsk)return;S.statAsk=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){S.stat=r;var e=$("bcs");if(e)e.innerHTML=statTxt()}},function(){S.statAsk=0;});}
+// Rich, 20 Oct: "this needs to be cached during spash": asked for while the splash shows, kept in the page (no new cache)
+var STAT=null,STATASK=0;function statGet(){if(STATASK)return;STATASK=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){STAT=r;var e=$("bcs");if(e)e.innerHTML=statTxt();}else STATASK=0;},function(){STATASK=0;});}
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
 function build(m){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
  call("vNew",[PID,m,QN]).then(function(r){
@@ -254,21 +260,46 @@ function splashOff(){var w=$("spw");if(!w)return;w.classList.add("out");setTimeo
 function pit(r){var p=$("pit");p.innerHTML=r.html;
  [].forEach.call(p.querySelectorAll("script"),function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});
  var rg=$("lnd-rg");if(rg)rg.onclick=function(){location.href=r.reg||"/admin/";};}
-if(location.pathname.replace(/\/+$/,"")==="/qr"||/^\/qr\//.test(location.pathname))if(PASS&&!CODE){call("qrTv",[PASS,W.q||"",1]).then(function(r){if(r&&r.ok)return tv(r);boot();},boot);}else boot();else boot();
-function boot(){var home=call("vHome",[PID,QN,PASS,CODE]);
-home.then(function(r){S=r;S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return W.land&&r.act&&r.adm?call("vPit",[PID]).then(null,function(){return null;}):null;}).then(function(pr){
+// ---- Google sign-in on the volunteer pages (Rich, 20 Oct: the front door): no live pass -> the browser's Google account, the same check as /admin
+var CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",GSIQ=null,GSIDONE=null,GSITRIED=0;
+function gsiLoad(cb){if(window.google&&google.accounts&&google.accounts.id)return cb(true);if(GSIQ)return GSIQ.push(cb);GSIQ=[cb];
+ var s=document.createElement("script");s.src="https://accounts.google.com/gsi/client";s.async=true;
+ s.onload=function(){var q=GSIQ;GSIQ=null;q.forEach(function(f){f(true);});};s.onerror=function(){var q=GSIQ;GSIQ=null;q.forEach(function(f){f(false);});};document.head.appendChild(s);}
+function gsiInit(){google.accounts.id.initialize({client_id:CID,callback:gsiCred,auto_select:true,cancel_on_tap_outside:false,itp_support:true,use_fedcm_for_prompt:true});}
+function gsiCred(c){call("vPass",[c&&c.credential||""]).then(function(r){if(!r||!r.ok)return;passSet(r.pass);if(GSIDONE){var d=GSIDONE;GSIDONE=null;d();}else location.reload();},function(){});}
+function gsi(done){var fired=0,fin=function(){if(fired)return;fired=1;GSIDONE=null;done();};GSIDONE=fin;setTimeout(fin,5000);
+ gsiLoad(function(ok){if(!ok)return fin();try{gsiInit();google.accounts.id.prompt();}catch(e){fin();}});}
+// ---- /qr: the Owner's event code; a browser not signed in is told so, with Google's button (Rich, 20 Oct)
+var ISQR=location.pathname.replace(/\/+$/,"")==="/qr"||/^\/qr\//.test(location.pathname);
+function qrTry(){call("qrTv",[PASS,W.q||"",1]).then(function(r){if(r&&r.ok)return tv(r);if(r&&r.why==="signin"){PASS="";LS.del("rsPass");return qrSign();}boot();},boot);}
+function qrSign(){splashOff();frame('<div class="note">This browser is not signed in to Red Shift.</div><div id="gbtn" class="gbtn"></div>',true);
+ gsiLoad(function(ok){if(!ok)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});}catch(e){}});}
+statGet();
+if(ISQR&&!CODE){if(PASS)qrTry();else gsi(function(){if(PASS)qrTry();else qrSign();});}else boot();
+// ---- Confirm your info (a guest or a precinct delegate matched by the signed-in email; Rich, 20 Oct)
+function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First name</label><input value="'+esc(c.first)+'" readonly><label>Last name</label><input value="'+esc(c.last)+'" readonly><div class="msg" id="cm"></div><button class="btn" id="cy">That\'s me</button><button class="btn alt" id="cn">Not me</button>');
+ var on=function(x){$("cy").disabled=$("cn").disabled=!x;};
+ var ans=function(yes){on(false);call("vConfirm",[PID,yes,c.k,c.s]).then(function(r){if(!r.ok){$("cm").textContent=r.msg;on(true);return;}BUSY=0;shut();
+   if(yes){location.reload();return;}if(!r.in){location.href=S.regUrl||"/admin/";return;}nameSheet(function(){location.reload();});},function(e){$("cm").textContent=e.message;on(true);});};
+ $("cy").onclick=function(){ans(true);};$("cn").onclick=function(){ans(false);};}
+function qrIcon(){if(!S.owner)return;var t=document.querySelector("#app .top");if(t)t.insertAdjacentHTML("beforeend",'<a class="qri" href="/qr?from=home" aria-label="Event QR code">'+IC.qr+'</a>');}
+function boot(){var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
+ if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){gsi(function(){res(PASS?null:r);});});}return r;});
+home.then(function(r){if(!r){boot();return "re";}S=r;S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return W.land&&r.act&&r.adm?call("vPit",[PID]).then(null,function(){return null;}):null;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
 if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
   else{show(W.land?"home":W.page);if(W.land&&pr&&pr.html)pit(pr);}
-  splashOff();},Math.max(0,2200-(Date.now()-T0)));
+  splashOff();if(S.confirm)confirmSheet(S.confirm);},Math.max(0,2200-(Date.now()-T0)));
 },function(e){setTimeout(function(){frame('<div class="note bad">Red Shift could not be reached ('+esc(e.message)+'). Check your signal and reload.</div>');splashOff();},Math.max(0,1500-(Date.now()-T0)));});}
 // the Owner's TV page (Rich, 19 Oct: "it will be rendered on a TV from my laptop"; "scan and burn"): one code on screen; when a phone uses it,
 // a new one comes up within about 2 seconds
 function tv(r){var QRC=null;try{QRC=new Function(r.lib+";return qrcode;")();}catch(e){}
  splashOff();document.body.classList.add("tvm");
+ var nav=Q0.get("from")||(document.referrer&&document.referrer.indexOf(location.origin)===0)?'<div class="tvb"><button class="bk" id="tvbk">&lsaquo; Back</button><button class="bk" id="tvhm">Home</button></div>':"";
  var draw=function(x){var svg="";try{var q=QRC(0,"M");q.addData(x.url);q.make();svg=q.createSvgTag({cellSize:8,margin:2,scalable:true});}catch(e){svg='<p>'+esc(x.url)+'</p>';}
-  $("app").innerHTML='<div class="tv"><div class="word"><span class="r">Red</span><span class="s">shift</span></div><div class="tvq">'+svg+'</div><div class="tvn">'+x.joined+(x.joined===1?' volunteer':' volunteers')+' today</div></div>';};
+  $("app").innerHTML=nav+'<div class="tv"><div class="word"><span class="r">Red</span><span class="s">shift</span></div><div class="tvq">'+svg+'</div><div class="tvn">'+x.joined+(x.joined===1?' volunteer':' volunteers')+' today</div></div>';navOn();};
+ var navOn=function(){var b=$("tvbk"),h=$("tvhm");if(b)b.onclick=function(){if(history.length>1)history.back();else location.href="/";};if(h)h.onclick=function(){location.href="/";};};
  var cur=r;draw(cur);
  var tick=function(){call("qrTvSeen",[PASS,cur.code]).then(function(s){if(s&&s.used)return call("qrTv",[PASS,W.q||"",0]).then(function(n){if(n&&n.ok){cur=n;draw(cur);}});},function(){}).then(function(){setTimeout(tick,2000);},function(){setTimeout(tick,2000);});};
  setTimeout(tick,2000);}
