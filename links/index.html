@@ -30,7 +30,7 @@ button{font:inherit}
 .label{font-weight:700;font-size:24px;letter-spacing:-.3px;display:block}
 .sub{display:block;font-weight:500;font-size:15.5px;color:var(--gray);margin-top:3px;letter-spacing:0}
 .ic{width:58px;height:58px;flex:0 0 58px}.ic svg{width:100%;height:100%}
-.bc{margin:0 18px 18px;padding:12px 16px;border-radius:16px;background:#fff;box-shadow:0 2px 0 var(--line)}.tgh{display:flex;width:100%;justify-content:space-between;align-items:center;background:none;border:0;padding:0;font:inherit;color:#0B1A4F;text-align:left;cursor:pointer}.tgh small{display:block;font-size:12px;font-weight:600;color:#5A6585;text-transform:uppercase;letter-spacing:.04em}.tgh span span{font-size:16px;font-weight:700}.tgh i{font-style:normal;font-size:20px;transition:transform .2s}.bc.open .tgh i{transform:rotate(180deg)}.bcs{margin:10px 0 0;padding:0 0 0 18px;font-size:14px;color:#0B1A4F;line-height:1.5}.bcs ul{margin:2px 0 6px;padding-left:18px;font-weight:500}.bcs b{font-weight:700}body.wide .bc{margin-left:6%;margin-right:6%}
+.bc{margin:0 18px 18px;padding:12px 16px;border-radius:16px;background:#fff;box-shadow:0 2px 0 var(--line)}.tgh{display:flex;width:100%;justify-content:space-between;align-items:center;background:none;border:0;padding:0;font:inherit;color:#0B1A4F;text-align:left;cursor:pointer}.tgh small{display:block;font-size:12px;font-weight:600;color:#5A6585;text-transform:uppercase;letter-spacing:.04em}.tgh span span{font-size:16px;font-weight:700}.tgh i{font-style:normal;font-size:20px;transition:transform .2s}.bc.open .tgh i{transform:rotate(180deg)}.tgx{text-align:center;font-size:16px;font-weight:700;color:#0B1A4F;margin:0 0 4px}.bcs{margin:10px 0 0;padding:0;font-size:14px;color:#0B1A4F;line-height:1.5}.bcs ul{margin:2px 0 6px;padding-left:18px;font-weight:500}.bcs b{font-weight:700}body.wide .bc{margin-left:6%;margin-right:6%}
 .note{margin:0 18px 6px;padding:12px 16px;border-radius:16px;background:#fff;font-size:14px;font-weight:500;box-shadow:0 2px 0 var(--line)}
 .note.bad{color:var(--red)}
 .reg{margin-top:auto;padding:18px 26px max(22px,env(safe-area-inset-bottom));text-align:center}.reg a{display:inline-block;color:var(--navy);font-weight:700;font-size:16px;text-decoration:none;padding:9px 26px;border:2px solid #C5CCDD;border-radius:22px;background:#fff}
@@ -184,7 +184,8 @@ function tap(m){if(!S.adm){location.href=S.regUrl||"/admin/";return;}
   $("tk").onclick=function(){shut();if(!S.named)return nameSheet(function(){build(m);});build(m);};return;}
  if(!S.named)return nameSheet(function(){tap(m);});build(m);}
 function nameSheet(then){BUSY=0;
- sheet('<h3>Your name</h3><p>So your work counts for you.</p><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
+ // Rich, 20 Oct: "do not add cute shit like that. Title that page as: Your info"
+ sheet('<h3>Your info</h3><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
  $("nf").focus();$("ngo").onclick=function(){var f=$("nf").value.trim(),l=$("nl").value.trim(),p=$("n4").value.replace(/\D/g,"");
   if(!f){$("nm").textContent="Add your first name.";return;}if(p.length!==4){$("nm").textContent="Add the last 4 digits of your phone number.";return;}
   this.disabled=true;call("vName",[PID,f,l,p]).then(function(r){
@@ -201,10 +202,11 @@ function nameSheet(then){BUSY=0;
 function statTxt(){var t=S.stat;if(!t||!t.q)return '';var n=function(x){return (Number(x)||0).toLocaleString("en-US");};
  var wct=function(X){return '<div class="wct"><div><b>'+n(X.d)+'</b><span>Doors</span></div><div><b>'+n(X.c)+'</b><span>Calls</span></div><div><b>'+n(X.t)+'</b><span>Texts</span></div></div>';};
  var hd=function(lb,X){return '<h4>'+lb+' = '+n(X.n)+'</h4><p class="cn">Contacted <b>'+n(X.att)+'</b> · Not contacted <b>'+n(X.n-X.att)+'</b></p>';};
- return '<div class="sec">'+hd("Target Voters",t.q)+wct(t.q)+'</div><div class="sec">'+hd("AB Target Voters",t.qa)+wct(t.qa)+'</div>';}
+ return '<div class="tgx">'+esc(tgTitle())+'</div><div class="sec">'+hd("Target Voters",t.q)+wct(t.q)+'</div><div class="sec">'+hd("AB Target Voters",t.qa)+wct(t.qa)+'</div>';}
 function tgTitle(){var q=S.stat&&S.stat.query||S.q||"";return (S.stat&&S.stat.query||S.q||"")==="38-sjps"?"SJPS within HD-38":"Target Voters";}
-function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="button" class="tgh" id="tgh" aria-expanded="'+(S.tgo?"true":"false")+'"><span><small>Target Voters</small><span id="tgt">'+esc(tgTitle())+'</span></span><i aria-hidden="true">&#9662;</i></button><ul class="bcs" id="bcs"'+(S.tgo?'':' hidden')+'>'+statTxt()+'</div></div>';}
-function statGet(){if(S.statAsk)return;S.statAsk=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){S.stat=r;var e=$("bcs");if(e)e.innerHTML=statTxt();var h=$("tgt");if(h)h.textContent=tgTitle();}},function(){S.statAsk=0;});}
+// Rich, 20 Oct: "if collapsed. only show target voters. The second line is the title of the expanded section, centered"
+function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="button" class="tgh" id="tgh" aria-expanded="'+(S.tgo?"true":"false")+'"><span><span>Target Voters</span></span><i aria-hidden="true">&#9662;</i></button><div class="bcs" id="bcs"'+(S.tgo?'':' hidden')+'>'+statTxt()+'</div></div>';}
+function statGet(){if(S.statAsk)return;S.statAsk=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){S.stat=r;var e=$("bcs");if(e)e.innerHTML=statTxt()}},function(){S.statAsk=0;});}
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
 function build(m){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
  call("vNew",[PID,m,QN]).then(function(r){
@@ -256,7 +258,8 @@ if(location.pathname.replace(/\/+$/,"")==="/qr"||/^\/qr\//.test(location.pathnam
 function boot(){var home=call("vHome",[PID,QN,PASS,CODE]);
 home.then(function(r){S=r;S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return W.land&&r.act&&r.adm?call("vPit",[PID]).then(null,function(){return null;}):null;}).then(function(pr){
  setTimeout(function(){
-  if(!S.adm||(W.land&&!S.act))show("new");
+  // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
+if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
   else{show(W.land?"home":W.page);if(W.land&&pr&&pr.html)pit(pr);}
   splashOff();},Math.max(0,2200-(Date.now()-T0)));
 },function(e){setTimeout(function(){frame('<div class="note bad">Red Shift could not be reached ('+esc(e.message)+'). Check your signal and reload.</div>');splashOff();},Math.max(0,1500-(Date.now()-T0)));});}
@@ -272,4 +275,10 @@ function tv(r){var QRC=null;try{QRC=new Function(r.lib+";return qrcode;")();}cat
 })();
 </script>
 </body></html>
+
+
+
+
+
+
 
