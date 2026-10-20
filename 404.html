@@ -38,6 +38,7 @@ button{font:inherit}
 .foot a{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
 .foot img{width:36px;height:36px;object-fit:contain}
 .foot .sp{display:flex;flex-direction:column;line-height:1.2}.foot .sp span{color:var(--gray);font-weight:500;font-size:12px}.foot .sp b{color:var(--navy);font-weight:700;font-size:14px}
+.wct{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0}.wct div{background:#F3F5FA;border-radius:14px;padding:10px 8px;text-align:center}.wct b{display:block;font-size:24px;font-weight:800;line-height:1.1;color:#0B1A4F}.wct span{font-size:12px;color:#5A6585;font-weight:600}.sec{border-top:2px solid #E1E5EF;margin-top:12px;padding-top:4px}.sec h4{margin:10px 0 2px;font-size:16px;color:#0B1A4F}.sec h5{margin:12px 0 2px;font-size:14px;color:#0B1A4F}.cn{margin:2px 0 4px;font-size:14px;color:#0B1A4F}.bcs{padding:0}
 .stat{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:6px 18px 20px}
 .stat div{background:#fff;border-radius:22px;padding:18px 20px;box-shadow:0 2px 0 var(--line),0 6px 18px rgba(11,26,79,.06)}
 .stat b{display:block;font-size:32px;font-weight:800;line-height:1.1}.stat span{font-size:13px;color:var(--gray);font-weight:600}
@@ -197,13 +198,12 @@ function nameSheet(then){BUSY=0;
 // Rich, 19 Oct: "on the C W T page, put a checkbox for Ballot Chase. and put a Stat for XX contact YY Not Contacted"; "the check box switches the XX and YY totals"
 // Rich, 19 Oct: "on the New Books page you will put one of those down up arrows that expands an info pane. It wil lbe called the Targets: The title
 // will be Krieger Targets inside SJPS and then you will list the stats as bullets. So drop the checkbox ... But it starts with the total pool"
-function statTxt(){var t=S.stat;if(!t||!t.u)return '<li>Loading...</li>';var n=function(x){return (Number(x)||0).toLocaleString("en-US");},K=t.query==="38-sjps";
- var wct=function(X){return '<li>Walk: '+n(X.w)+' knocked (incl. lit drops)</li><li>Call: '+n(X.c)+' called</li><li>Text: '+n(X.t)+' texted</li><li>'+n(X.att)+' attempted · '+n(X.n-X.att)+' not yet</li><li>'+n(X.cl)+' claimed · '+n(X.ok)+' claimable</li>';};
- var grp=function(lb,G){return '<li><b>'+lb+': '+n(G.n)+'</b><ul><li>'+n(G.n-G.att)+' remaining</li></ul></li>';};
- return '<li><b>'+(K?"Krieger Universe":"Campaign")+': '+n(t.u.n)+'</b><ul>'+wct(t.u)+'</ul></li>'+
-  '<li><b>'+(K?"Krieger + SJPS":"This list")+': '+n(t.q.n)+'</b><ul>'+wct(t.q)+grp("Absentee voters",t.q.ab)+grp("Not absentee",t.q.nab)+'</ul></li>';}
-function tgTitle(){var q=S.stat&&S.stat.query||S.q||"";return q==="38-sjps"?"Krieger Targets":"Targets"+(q?": "+q:"");}
-function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="button" class="tgh" id="tgh" aria-expanded="'+(S.tgo?"true":"false")+'"><span><small>Targets</small><span id="tgt">'+esc(tgTitle())+'</span></span><i aria-hidden="true">&#9662;</i></button><ul class="bcs" id="bcs"'+(S.tgo?'':' hidden')+'>'+statTxt()+'</ul></div>';}
+function statTxt(){var t=S.stat;if(!t||!t.q)return '';var n=function(x){return (Number(x)||0).toLocaleString("en-US");};
+ var wct=function(X){return '<div class="wct"><div><b>'+n(X.d)+'</b><span>Doors</span></div><div><b>'+n(X.c)+'</b><span>Calls</span></div><div><b>'+n(X.t)+'</b><span>Texts</span></div></div>';};
+ var hd=function(lb,X){return '<h4>'+lb+' = '+n(X.n)+'</h4><p class="cn">Contacted <b>'+n(X.att)+'</b> · Not contacted <b>'+n(X.n-X.att)+'</b></p>';};
+ return '<div class="sec">'+hd("Target Voters",t.q)+wct(t.q)+'</div><div class="sec">'+hd("AB Target Voters",t.qa)+wct(t.qa)+'</div>';}
+function tgTitle(){var q=S.stat&&S.stat.query||S.q||"";return (S.stat&&S.stat.query||S.q||"")==="38-sjps"?"SJPS within HD-38":"Target Voters";}
+function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="button" class="tgh" id="tgh" aria-expanded="'+(S.tgo?"true":"false")+'"><span><small>Target Voters</small><span id="tgt">'+esc(tgTitle())+'</span></span><i aria-hidden="true">&#9662;</i></button><ul class="bcs" id="bcs"'+(S.tgo?'':' hidden')+'>'+statTxt()+'</div></div>';}
 function statGet(){if(S.statAsk)return;S.statAsk=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){S.stat=r;var e=$("bcs");if(e)e.innerHTML=statTxt();var h=$("tgt");if(h)h.textContent=tgTitle();}},function(){S.statAsk=0;});}
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
 function build(m){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
@@ -272,3 +272,5 @@ function tv(r){var QRC=null;try{QRC=new Function(r.lib+";return qrcode;")();}cat
 })();
 </script>
 </body></html>
+
+
