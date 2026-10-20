@@ -197,7 +197,7 @@ function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn
 // ---- New Books: a name first (first name, last name, last 4 of the phone), then the book
 function tap(m){if(!S.adm){location.href=S.regUrl||"/admin/";return;}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
- if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><p>Preview it, or take it as yours?</p><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take this book</button>');
+ if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take this book</button>');
   $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,false,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.href=r.launch;},function(e){oops(e.message);});};
   $("tk").onclick=function(){shut();if(!S.named)return nameSheet(function(){build(m);});build(m);};return;}
  if(!S.named)return nameSheet(function(){tap(m);});build(m);}
@@ -289,7 +289,7 @@ function qrTry(){call("qrTv",[PASS,W.q||"",1]).then(function(r){if(r&&r.ok)retur
 function qrSign(){splashOff();frame('<div class="note">This browser is not signed in to Red Shift.</div><div id="gbtn" class="gbtn"></div>',true);
  gsiLoad(function(ok){if(!ok)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});}catch(e){}});}
 // ---- the Perf Lab (Owner; redshift.vote/?lab): each mechanic 5 times cold and 5 times warm, best / middle / worst; Save keeps them
-function lab(){splashOff();var L=null,R=[],run=false;
+function lab(){splashOff();S.reg=true;var L=null,R=[],run=false;
  var draw=function(msg){frame('<div class="note">'+esc(msg||"Each mechanic runs 5 times cold (only its own kept copy dropped) and 5 times warm.")+'</div><div class="list"><button class="btn" id="lbgo"'+(run?" disabled":"")+'>Run</button>'+(R.length&&!run?'<button class="btn alt" id="lbsv">Save</button>':"")+'</div>'+
   (R.length?'<table class="lbt"><thead><tr><th>Mechanic</th><th></th><th>Best</th><th>Middle</th><th>Worst</th></tr></thead><tbody>'+R.map(function(r){return '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td><td>'+r[5]+'</td></tr>';}).join("")+'</tbody></table>':""),true,"Perf Lab");
   var g=$("lbgo");if(g)g.onclick=go;var v=$("lbsv");if(v)v.onclick=function(){v.disabled=true;call("perfLabSave",[PASS,R]).then(function(r){draw(r&&r.ok?"Saved to 1 Main > Perf Lab ("+r.n+" rows).":"Not saved.");});};};
