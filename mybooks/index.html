@@ -63,6 +63,8 @@ body.wide #sh{align-items:center}body.wide #sh .box{border-radius:26px}
 #sh input:focus{border-color:var(--navy)}
 .btn{display:block;width:100%;border:0;border-radius:16px;padding:15px;font-weight:700;font-size:17px;background:var(--navy);color:#fff;margin-top:12px;cursor:pointer}
 .btn.alt{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+#me{position:fixed;top:max(12px,env(safe-area-inset-top));right:14px;z-index:7;width:40px;height:40px;border-radius:50%;overflow:hidden;padding:0;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.3);background:#7b8494;color:#fff;font:700 15px Poppins,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer}#me[hidden]{display:none}#me.in{background:var(--navy)}#me img{width:100%;height:100%;object-fit:cover;display:block}
+.mew{display:flex;gap:14px;align-items:center;margin:4px 0 6px}.mew .mec{width:56px;height:56px;border-radius:50%;overflow:hidden;flex:0 0 56px;background:#7b8494;color:#fff;font:700 20px Poppins,system-ui,sans-serif;display:flex;align-items:center;justify-content:center}.mew .mec img{width:100%;height:100%;object-fit:cover}.mew b{display:block;font-size:18px}.mew span{display:block;color:#5a6270;font-size:14px;word-break:break-all}
 .btn.red{background:var(--red)}
 .msg{min-height:1.2em;font-size:14px;color:var(--red);margin-top:8px}
 .spin{width:44px;height:44px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--red);animation:sp 1s linear infinite;margin:6px auto 14px}
@@ -191,6 +193,23 @@ function dash(r){
  frame('<div class="stat"><div><b>'+n(m.doors)+'</b><span>Doors</span></div><div><b>'+n(m.con)+'</b><span>Talked to</span></div><div><b>'+n(m.votes,1)+'</b><span>Votes</span></div><div><b>'+n((m.mins||0)/60,1)+'</b><span>Hours</span></div></div>'+
   '<div class="note">Your own numbers. The whole dashboard opens once you register and are approved, or are marked Trusted.</div>',true,"Dashboard");}
 // ---- sheets
+// ---- Who the app thinks you are (Rich, 21 Oct: "it would be nice to know if it actually knows me.  should we put up a little provile circle
+// in the upper right w a pic?"; "build teh circle w sign out and i can test the round trip"): signed in with Google -> the Google photo
+// (kept from the sign-in) or initials; a guest let in -> grey initials; tap -> name, email, Sign out (or Sign in with Google)
+function meInfo(){var w=S.who||null,k=null;try{k=JSON.parse(LS.get("rsMe")||"null");}catch(e){}
+ if(PASS&&w&&w.email){var pic=k&&k.email===String(w.email).toLowerCase()?k.pic:"";return {signed:true,name:w.name||(k&&k.name)||w.email,email:w.email,pic:pic};}
+ if(S.adm)return {signed:false,name:S.name||S.first||"Guest",email:"",pic:""};return null;}
+function meIni(n){var p=String(n||"").replace(/@.*/,"").split(/[\s._-]+/).filter(Boolean);return ((p[0]||"G").charAt(0)+(p.length>1?p[p.length-1].charAt(0):"")).toUpperCase();}
+function meFace(m){return m.pic?'<img src="'+esc(m.pic)+'" alt="" referrerpolicy="no-referrer">':esc(meIni(m.name));}
+function meDraw(){var m=meInfo(),b=$("me");if(!m){if(b)b.hidden=true;return;}
+ if(!b){b=document.createElement("button");b.id="me";b.type="button";b.setAttribute("aria-label","Who is signed in");document.body.appendChild(b);b.onclick=mePanel;}
+ b.className=m.signed?"in":"";b.innerHTML=meFace(m);b.hidden=false;var im=b.querySelector("img");if(im)im.onerror=function(){b.textContent=meIni(m.name);};}
+function mePanel(){var m=meInfo();if(!m)return;
+ sheet('<div class="mew"><div class="mec"'+(m.signed?' style="background:var(--navy)"':'')+'>'+meFace(m)+'</div><div><b>'+esc(m.name)+'</b><span>'+(m.signed?esc(m.email)+'<br>Signed in with Google':'Guest on this phone')+'</span></div></div>'+
+  (m.signed?'<button class="btn" id="meo">Sign out</button>':'<button class="btn" id="mei">Sign in with Google</button>')+'<button class="btn alt" id="mex">Close</button>');
+ $("mex").onclick=shut;
+ if($("meo"))$("meo").onclick=function(){try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}LS.del("rsPass");LS.del("rsMe");PASS="";location.href="/";};
+ if($("mei"))$("mei").onclick=function(){shut();signIn(function(){location.reload();},false);};}
 function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
 function shut(){$("sh").hidden=true;$("shb").innerHTML="";}
 $("sh").onclick=function(e){if(e.target===$("sh")&&!BUSY)shut();};
@@ -201,7 +220,7 @@ function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn
 function tap(m){if(!S.adm){location.href=S.regUrl||"/admin/";return;}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
  if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take this book</button>');
-  $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,false,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.href=r.launch;},function(e){oops(e.message);});};
+  $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,false,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.replace(r.launch);},function(e){oops(e.message);});};
   $("tk").onclick=function(){shut();if(!S.named)return nameSheet(function(){build(m);});build(m);};return;}
  if(!S.named)return nameSheet(function(){tap(m);});build(m);}
 function nameSheet(then){BUSY=0;
@@ -239,7 +258,7 @@ function build(m){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...
   if(k==="door"&&r.fresh){BUSY=0;shut();return route(b);}
   openBook(b.id);
  },function(e){oops(e.message);});}
-function openBook(id){busy("Opening your book...");call("vOpen",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg);location.href=r.launch;},function(e){oops(e.message);});}
+function openBook(id){busy("Opening your book...");call("vOpen",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg);location.replace(r.launch);},function(e){oops(e.message);});}
 // ---- the route pop-up
 var LF=null;
 function leaflet(done){if(window.L&&L.map)return done();if(LF)return LF.push(done);LF=[done];
@@ -282,7 +301,7 @@ function gsiLoad(cb){if(window.google&&google.accounts&&google.accounts.id)retur
  var s=document.createElement("script");s.src="https://accounts.google.com/gsi/client";s.async=true;
  s.onload=function(){var q=GSIQ;GSIQ=null;q.forEach(function(f){f(true);});};s.onerror=function(){var q=GSIQ;GSIQ=null;q.forEach(function(f){f(false);});};document.head.appendChild(s);}
 function gsiInit(){google.accounts.id.initialize({client_id:CID,callback:gsiCred,auto_select:true,cancel_on_tap_outside:false,itp_support:true,use_fedcm_for_prompt:true});}
-function gsiCred(c){call("vPass",[c&&c.credential||""]).then(function(r){if(!r||!r.ok)return;passSet(r.pass);if(GSIDONE){var d=GSIDONE;GSIDONE=null;d();}else{GSITRIED=1;boot();}},function(){});}
+function gsiCred(c){try{var pl=JSON.parse(decodeURIComponent(escape(atob(String(c&&c.credential||"").split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));LS.set("rsMe",JSON.stringify({email:String(pl.email||"").toLowerCase(),name:pl.name||"",pic:pl.picture||""}));}catch(e){}call("vPass",[c&&c.credential||""]).then(function(r){if(!r||!r.ok)return;passSet(r.pass);if(GSIDONE){var d=GSIDONE;GSIDONE=null;d();}else{GSITRIED=1;boot();}},function(){});}
 // Rich, 20 Oct: "you are not blocking on the google login": the splash stays until Google answers (a sign-in, or its prompt skipped or closed)
 function gsi(done){var fired=0,fin=function(){if(fired)return;fired=1;GSIDONE=null;done();};GSIDONE=fin;setTimeout(fin,GSIWAIT);
  gsiLoad(function(ok){if(!ok)return fin();try{gsiInit();google.accounts.id.prompt(function(n){try{if(n.isSkippedMoment()||n.isDismissedMoment())setTimeout(function(){if(GSIDONE===fin)fin();},400);}catch(e){}});}catch(e){fin();}});}
@@ -325,7 +344,7 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
  $("cy").onclick=function(){ans(true);};$("cn").onclick=function(){ans(false);};}
 function boot(){var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
  if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){gsi(function(){res(PASS?null:r);});});}return r;});
-home.then(function(r){if(!r){boot();return "re";}S=r;S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return W.land&&r.act&&r.adm?call("vPit",[PID]).then(null,function(){return null;}):null;}).then(function(pr){if(pr==="re")return;
+home.then(function(r){if(!r){boot();return "re";}S=r;try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return W.land&&r.act&&r.adm?call("vPit",[PID]).then(null,function(){return null;}):null;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
 if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
