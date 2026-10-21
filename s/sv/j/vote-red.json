@@ -1,0 +1,35 @@
+{
+ "id": "vote-red",
+ "title": "A quick survey",
+ "hint": "",
+ "questions": [
+  {
+   "id": "t",
+   "type": "five",
+   "text": "Will you vote this November?"
+  },
+  {
+   "id": "r",
+   "type": "five",
+   "text": "Will you vote a straight Republican ticket?"
+  },
+  {
+   "id": "k|hd38",
+   "type": "five",
+   "text": "Will you vote for Mark Krieger?"
+  },
+  {
+   "id": "k|sjps",
+   "type": "five",
+   "text": "Will you vote for Brandon Sheskey?",
+   "if": {
+    "s": "sjps"
+   }
+  }
+ ],
+ "send": "Send",
+ "thanks": "Thank you! We can count on you.",
+ "post": "",
+ "source": "Red Shift call list survey for voters with no ballot out (99zzy scriptrules.js); the printed book's Will Vote / Straight Ticket / Vote 4 Krieger / Vote 4 Sheskey columns",
+ "note": "Rich, 21 Oct: \"this is a non ab script with an ab survey\""
+}
