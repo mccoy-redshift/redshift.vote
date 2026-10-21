@@ -145,6 +145,9 @@ function rec(G,L){var V={};['cd','sd','hd','s','v','w'].forEach(function(k){if(P
 // the one question (Rich, 14 Oct), by the voter's absentee status (ab): ballot out not back, not absentee, ballot back
 var VG={},CANDS=[],AN=0,ST=null,AB=(P.get('ab')||'').replace(/[^a-z]/g,''),BK=P.get('bk')||'',RK=P.get('rk')||'',SG=P.get('sg')||'';
 var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec";
+// Preview (21 Oct, Rich: "i clicked on the image and teh expander bars are not expanding"): a volunteer looking at this page from the Text
+// Script (?pv=1) can open and tap everything, but nothing is sent: STOP and the poll answer as if sent, and no record is made.
+if(new URLSearchParams(location.search).get('pv')==='1'){var _rsf=window.fetch;window.fetch=function(u,o){if(u===APP)return Promise.resolve({json:function(){return Promise.resolve({ok:true,result:{ok:true,preview:true}});}});return _rsf.apply(this,arguments);};}
 // Opt out (Rich, 15 Oct: "Reply STOP, or select STOP in our link, to opt out"): a signed link's STOP records it
 if(BK&&RK&&SG){$('stp').hidden=false;$('stpb').onclick=function(){var b=$('stpb'),m=$('stpm');b.disabled=true;m.textContent='Sending...';fetch(APP,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:'bcStop',args:[BK,RK,SG]})}).then(function(r){return r.json();}).then(function(r){var x=r&&r.ok?r.result:null;if(x&&x.ok){b.hidden=true;m.textContent='We have recorded your response.';}else{b.disabled=false;m.textContent=(x&&x.msg)||'Not sent. Try again.';}},function(){b.disabled=false;m.textContent='No connection. Try again.';});};}
 function poll(){var box=$('poll');box.hidden=false;
