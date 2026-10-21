@@ -38,6 +38,10 @@
   window.google=window.google||{};window.google.script={history:{replace:function(){},push:function(){},setChangeHandler:function(){}},host:{close:function(){},setHeight:function(){},setWidth:function(){}}};
   Object.defineProperty(window.google.script,"run",{get:run});
   var p={t:t};Q.forEach(function(v,k){if(k!=="t")p[k]=v;});
+  // this phone's id, the one redshift.vote keeps (rs_pid): the first score from this link ties the phone to the link's guest (Rich, 21 Oct)
+  p.pid=(function(){var x="";try{x=localStorage.getItem("rs_pid")||"";}catch(e){}if(!/^[a-f0-9]{32}$/.test(x)){var m=document.cookie.match(/(?:^|; )rs_pid=([a-f0-9]{32})/);x=m?m[1]:"";}
+   if(!x){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}x=Array.prototype.map.call(a,function(y){return("0"+y.toString(16)).slice(-2);}).join("");}
+   try{localStorage.setItem("rs_pid",x);}catch(e){}try{document.cookie="rs_pid="+x+"; max-age=63072000; path=/; SameSite=Lax; Secure";}catch(e){}return x;})();
   post("bookPage",[p]).then(function(r){
     if(!r||!r.ok){document.getElementById("m").textContent=(r&&r.msg)||"This link is not complete.";return;}
     if(r.title)document.title=r.title;
