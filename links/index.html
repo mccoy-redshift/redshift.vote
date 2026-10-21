@@ -305,14 +305,18 @@ function lab(){splashOff();S.reg=true;var L=null,R=[],run=false;
 // ---- Sign in (Rich, 21 Oct: "i want our app to always challenge for the google login. and allow the user to contine on as a guest wo it.
 // and when a user hits a qr: same thing"): a browser with no live pass gets Google's button and Continue as guest (Google's automatic
 // prompt alone does not work on iPhone: "the normal One Tap UX doesn't work on Chrome on iOS, Safari, or Firefox", Google's One Tap guide)
-function signIn(go){var done=0,fin=function(){if(done)return;done=1;GSIDONE=null;GSITRIED=1;go();};GSIDONE=fin;
+function signIn(go,guest){var done=0,fin=function(){if(done)return;done=1;GSIDONE=null;GSITRIED=1;go();};GSIDONE=fin;
  setTimeout(function(){if(done)return;splashOff();
-  frame('<div class="list"><div id="gbtn" class="gbtn" style="display:flex;justify-content:center;min-height:46px;margin-top:18px"></div><button class="btn alt" id="gsg">Continue as guest</button></div>',false);
-  $("gsg").onclick=fin;
+  frame('<div class="list"><div id="gbtn" class="gbtn" style="display:flex;justify-content:center;min-height:46px;margin-top:18px"></div>'+(guest?'<button class="btn alt" id="gsg">Continue as guest</button>':'')+'</div>',false);
+  if(guest)$("gsg").onclick=fin;
   gsiLoad(function(ok){if(!ok||done)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});google.accounts.id.prompt();}catch(e){}});
  },Math.max(0,1500-(Date.now()-T0)));}
 statGet();
-if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE){if(PASS)qrTry();else gsi(function(){if(PASS)qrTry();else qrSign();});}else if(!PASS&&!window.RS_TEST)signIn(boot);else boot();
+if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE){if(PASS)qrTry();else gsi(function(){if(PASS)qrTry();else qrSign();});}else if(!PASS&&!window.RS_TEST){
+ // Rich, 21 Oct: "i dont think univited guests should be able to get into redshift.vote.   they can only get in via a book link or a qr";
+ // "build that first": Continue as guest only with an event code, or on a phone a QR code or book link already let in
+ if(CODE)signIn(boot,true);else call("vHome",[PID,QN,PASS,CODE]).then(function(r){signIn(boot,!!(r&&r.adm));},function(){signIn(boot,false);});}
+else boot();
 // ---- Confirm your info (a guest or a precinct delegate matched by the signed-in email; Rich, 20 Oct)
 function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First name</label><input value="'+esc(c.first)+'" readonly><label>Last name</label><input value="'+esc(c.last)+'" readonly><div class="msg" id="cm"></div><button class="btn" id="cy">That\'s me</button><button class="btn alt" id="cn">Not me</button>');
  var on=function(x){$("cy").disabled=$("cn").disabled=!x;};
