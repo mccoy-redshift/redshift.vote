@@ -219,7 +219,7 @@ function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn
 // ---- New Books: a name first (first name, last name, last 4 of the phone), then the book
 function tap(m){if(!S.adm){location.href=S.regUrl||"/admin/";return;}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
- if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take this book</button>');
+ if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take a book</button>');
   $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,false,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.replace(r.launch);},function(e){oops(e.message);});};
   $("tk").onclick=function(){shut();if(!S.named)return nameSheet(function(){build(m);});build(m);};return;}
  if(!S.named)return nameSheet(function(){tap(m);});build(m);}
@@ -328,10 +328,10 @@ function signIn(go,guest){var done=0,fin=function(){if(done)return;done=1;GSIDON
  setTimeout(function(){if(done)return;splashOff();
   frame('<div class="list"><div id="gbtn" class="gbtn" style="display:flex;justify-content:center;min-height:46px;margin-top:18px"></div>'+(guest?'<button class="btn alt" id="gsg">Continue as guest</button>':'')+'</div>',false);
   if(guest)$("gsg").onclick=fin;
-  gsiLoad(function(ok){if(!ok||done)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});google.accounts.id.prompt();}catch(e){}});
+  gsiLoad(function(ok){if(!ok||done)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});google.accounts.id.cancel();}catch(e){}});   /* Rich, 21 Oct: one sign-in panel, ours; no Google prompt at the bottom */
  },Math.max(0,1500-(Date.now()-T0)));}
 statGet();
-if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE){if(PASS)qrTry();else gsi(function(){if(PASS)qrTry();else qrSign();});}else if(!PASS&&!window.RS_TEST){
+if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE){if(PASS)qrTry();else qrSign();}else if(!PASS&&!window.RS_TEST){
  // Rich, 21 Oct: "i dont think univited guests should be able to get into redshift.vote.   they can only get in via a book link or a qr";
  // "build that first": Continue as guest only with an event code, or on a phone a QR code or book link already let in
  if(CODE)signIn(boot,true);else call("vHome",[PID,QN,PASS,CODE]).then(function(r){signIn(boot,!!(r&&r.adm));},function(){signIn(boot,false);});}
@@ -343,7 +343,7 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
    if(yes){location.reload();return;}if(!r.in){location.href=S.regUrl||"/admin/";return;}nameSheet(function(){location.reload();});},function(e){$("cm").textContent=e.message;on(true);});};
  $("cy").onclick=function(){ans(true);};$("cn").onclick=function(){ans(false);};}
 function boot(){var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
- if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){gsi(function(){res(PASS?null:r);});});}return r;});
+ if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},false);});}return r;});   /* one sign-in panel (21 Oct) */
 home.then(function(r){if(!r){boot();return "re";}S=r;try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return W.land&&r.act&&r.adm?call("vPit",[PID]).then(null,function(){return null;}):null;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
