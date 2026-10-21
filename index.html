@@ -63,6 +63,7 @@ body.wide #sh{align-items:center}body.wide #sh .box{border-radius:26px}
 #sh input:focus{border-color:var(--navy)}
 .btn{display:block;width:100%;border:0;border-radius:16px;padding:15px;font-weight:700;font-size:17px;background:var(--navy);color:#fff;margin-top:12px;cursor:pointer}
 .btn.alt{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.card .ic{position:relative}.bub{position:absolute;top:-8px;right:-10px;min-width:24px;height:24px;padding:0 7px;box-sizing:border-box;border-radius:12px;background:#C8102E;color:#fff;font:700 13px/24px Poppins,system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px #fff}
 #me{position:fixed;top:max(12px,env(safe-area-inset-top));right:14px;z-index:7;width:40px;height:40px;border-radius:50%;overflow:hidden;padding:0;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.3);background:#7b8494;color:#fff;font:700 15px Poppins,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer}#me[hidden]{display:none}#me.in{background:var(--navy)}#me img{width:100%;height:100%;object-fit:cover;display:block}
 .mew{display:flex;gap:14px;align-items:center;margin:4px 0 6px}.mew .mec{width:56px;height:56px;border-radius:50%;overflow:hidden;flex:0 0 56px;background:#7b8494;color:#fff;font:700 20px Poppins,system-ui,sans-serif;display:flex;align-items:center;justify-content:center}.mew .mec img{width:100%;height:100%;object-fit:cover}.mew b{display:block;font-size:18px}.mew span{display:block;color:#5a6270;font-size:14px;word-break:break-all}
 .btn.red{background:var(--red)}
@@ -150,7 +151,7 @@ var IC={dash:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke
  // Rich, 20 Oct: "a small icon of a QR with a door or arrow that is clickable to goto the QR page" (the Owner's home page)
  qr:'<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="18" height="18" rx="3" stroke="#0B1A4F" stroke-width="4"/><rect x="12" y="12" width="6" height="6" fill="#0B1A4F"/><rect x="40" y="6" width="18" height="18" rx="3" stroke="#0B1A4F" stroke-width="4"/><rect x="46" y="12" width="6" height="6" fill="#0B1A4F"/><rect x="6" y="40" width="18" height="18" rx="3" stroke="#0B1A4F" stroke-width="4"/><rect x="12" y="46" width="6" height="6" fill="#0B1A4F"/><path d="M33 49h21M46 41l8 8-8 8" stroke="#C8102E" stroke-width="5"/></svg>'};
 var ML={door:"Walk",call:"Call",text:"Text"};
-function card(id,label,ic,sub){return '<button class="card" data-go="'+esc(id)+'"><span><span class="label">'+esc(label)+'</span>'+(sub?'<span class="sub">'+esc(sub)+'</span>':"")+'</span><span class="ic">'+IC[ic]+'</span></button>';}
+function card(id,label,ic,sub,n){return '<button class="card" data-go="'+esc(id)+'"><span><span class="label">'+esc(label)+'</span>'+(sub?'<span class="sub">'+esc(sub)+'</span>':"")+'</span><span class="ic">'+IC[ic]+(n?'<b class="bub">'+n+'</b>':"")+'</span></button>';}
 var FOOT='';   // no sponsor line under the screens (Rich, 19 Oct: "since we have the splash.  remove the BCGOP stuff from the bottom")
 // Register, subtle, at the foot of every screen for anyone not registered (Rich, 19 Oct: "put a subtle registere at the bottom for all non0registered")
 function foot(){return S.reg?'':'<div class="reg"><a href="'+esc(S.regUrl||"/admin/")+'">Register</a></div>';}
@@ -178,7 +179,7 @@ var NOTE="";
 function show(id){window.scrollTo(0,0);if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
  CUR=id;
- if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine")+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
+ if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
  if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
   return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k];return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  if(id==="mine")return frame(S.books.length?'<div class="list">'+S.books.map(function(b){return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.mode==="door"?b.doors+" doors":b.people+" people"));}).join("")+'</div>'
