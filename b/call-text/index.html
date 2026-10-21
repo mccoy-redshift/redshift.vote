@@ -14,18 +14,37 @@
 <meta property="og:url" content="https://redshift.vote/b/call-text/">
 <meta name="robots" content="noindex">
 <link rel="icon" href="../../logo.webp">
-<style>html,body{margin:0;background:#030a2e;color:#fff;font:18px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}main{padding:32px 20px;text-align:center}img{width:96px}a{color:#9fd3ff}</style>
+<style id="hs">html,body{margin:0;background:#030a2e;color:#fff;font:18px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}main{padding:32px 20px;text-align:center}img{width:96px}a{color:#9fd3ff}</style>
 </head>
 <body>
 <main><img src="../../logo.webp" alt="Red Shift"><p id="m">Opening your book...</p></main>
 <script>
-// The text card for a Call/Text book (99h linklife.js): ?t=<pass> opens the book's own page (only that book, no sign-in)
+// Book links on redshift.vote (21 Oct, 99zzzd bookhost.js; Rich: "i am getting the blue banner at the top of the app"): a book link's page is
+// drawn here, as /admin draws the app, so Google's banner never shows. The page's calls go to the app as /admin's do. If the app cannot be
+// reached this way, the link goes to the app's own address as before.
 (function(){
-  var Q=new URLSearchParams(location.search),t=Q.get("t")||"",go="";
+  var Q=new URLSearchParams(location.search),t=Q.get("t")||"",a=Q.get("a")||"",g=Q.get("g")||"",s=Q.get("s")||"";
   var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec";
-  if(/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(t))go=APP+"/b?t="+encodeURIComponent(t)+(/^(call|text|walk)$/.test(Q.get("m")||"")?"&m="+Q.get("m"):"");
-  if(go)location.replace(go);
-  else document.getElementById("m").innerHTML='This link is not complete. <a href="/">Open Red Shift</a>';
+  var BOOK=/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(t);
+  function direct(){var go="";
+    if(BOOK)go=APP+"/b?t="+encodeURIComponent(t)+(/^(call|text|walk)$/.test(Q.get("m")||"")?"&m="+Q.get("m"):"");
+    else if(/^[\w-]{1,40}$/.test(a)&&/^[\w-]{1,40}$/.test(g)&&/^[\w-]{1,60}=*$/.test(s))go=APP+"/g?a="+encodeURIComponent(a)+"&g="+encodeURIComponent(g)+"&s="+encodeURIComponent(s);
+    if(go)location.replace(go);else document.getElementById("m").innerHTML='This link is not complete. <a href="/">Open Red Shift</a>';}
+  if(!BOOK)return direct();
+  function post(fn,args){return fetch(APP,{method:"POST",body:JSON.stringify({fn:fn,args:args||[]}),credentials:"omit"}).then(function(r){return r.text();}).then(function(x){var j;try{j=JSON.parse(x);}catch(e){throw new Error("Red Shift could not be reached. Check your signal and try again.");}if(!j||!j.ok)throw new Error((j&&j.error)||"Server error");return j.result;});}
+  // the page's google.script.run, as the app's own address gives it
+  function run(){var ok=null,bad=null,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){bad=f;return o;},withUserObject:function(){return o;},
+    rpc:function(fn,args){post(fn,args).then(function(r){if(ok)ok(r);},function(e){if(bad)bad(e);});}};return o;}
+  window.google=window.google||{};window.google.script={history:{replace:function(){},push:function(){},setChangeHandler:function(){}},host:{close:function(){},setHeight:function(){},setWidth:function(){}}};
+  Object.defineProperty(window.google.script,"run",{get:run});
+  var p={t:t};Q.forEach(function(v,k){if(k!=="t")p[k]=v;});
+  post("bookPage",[p]).then(function(r){
+    if(!r||!r.ok){document.getElementById("m").textContent=(r&&r.msg)||"This link is not complete.";return;}
+    if(r.title)document.title=r.title;
+    var hs=document.getElementById("hs");if(hs)hs.parentNode.removeChild(hs);
+    var b=document.body;b.innerHTML=r.html;
+    [].forEach.call(b.querySelectorAll("script"),function(x){var n=document.createElement("script");n.text=x.text;x.parentNode.replaceChild(n,x);});
+  },function(){direct();});
 })();
 </script>
 </body>
