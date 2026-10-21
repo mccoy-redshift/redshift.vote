@@ -155,16 +155,18 @@ function foot(){return S.reg?'':'<div class="reg"><a href="'+esc(S.regUrl||"/adm
 function frame(inner,back,title){$("app").innerHTML='<div class="top"><div class="word"><span class="r">Red</span><span class="s">shift</span></div>'+'</div>'+(title?'<div class="ttl">'+esc(title)+'</div>':"")+inner+foot();
  [].forEach.call(document.querySelectorAll("#app [data-go]"),function(b){b.onclick=function(){go(b.getAttribute("data-go"));};});}
 // ---- the bottom bar (Rich, 20 Oct: "a tool bar similiar to chrome bottom bar"; "nice large and very simple outline icons"): Back, Home;
-// the Owner: the QR (not on the QR page); admins: Admin
+// the Owner: the QR (not on the QR page) and Tests (Rich, 21 Oct: "put a test page on the tool bar"); admins: Admin
 var TBI={back:'<path d="M15 4l-8 8 8 8"/>',home:'<path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10v10h13V10"/>',
  qr:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><path d="M13.5 13.5h3v3h-3zM19.5 13.5v.01M13.5 19.5h7"/>',
- admin:'<path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/>'};
-var NAVN=0,ONQR=false,TVID=0;
+ admin:'<path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/>',
+ test:'<path d="M9 3h6M10 3v6l-5 9.5c-.6 1.1.2 2.5 1.5 2.5h11c1.3 0 2.1-1.4 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/>'};
+var NAVN=0,ONQR=false,TVID=0,CUR="";
 function tbar(){var t=$("tb");if(!t)return;var b=function(k,lab,extra){return '<button type="button" data-tb="'+k+'" aria-label="'+lab+'"'+(extra||"")+'><svg viewBox="0 0 24 24">'+TBI[k]+'</svg></button>';};
- t.innerHTML=b("back","Back",NAVN>0?"":' class="off"')+b("home","Home")+(S.owner&&!ONQR?b("qr","Event QR code"):"")+(S.admin?'<a href="/admin/" data-tb="admin" aria-label="Admin"><svg viewBox="0 0 24 24">'+TBI.admin+'</svg></a>':"");
+ t.innerHTML=b("back","Back",NAVN>0?"":' class="off"')+b("home","Home",!ONQR&&(CUR==="home"||!S.adm&&CUR==="new")?' class="off"':"")+(S.owner&&!ONQR?b("qr","Event QR code"):"")+(S.owner?b("test","Tests"):"")+(S.admin?'<a href="/admin/" data-tb="admin" aria-label="Admin"><svg viewBox="0 0 24 24">'+TBI.admin+'</svg></a>':"");
  t.hidden=false;document.body.classList.add("tbon");}
 document.addEventListener("click",function(e){var x=e.target&&e.target.closest&&e.target.closest("#tb [data-tb]");if(!x)return;var k=x.getAttribute("data-tb");
- if(k==="back"){if(NAVN>0)history.back();}else if(k==="home")go("home");else if(k==="qr")go("qr");});
+ if(k==="back"){if(NAVN>0)history.back();}else if(k==="home")go("home");else if(k==="qr")go("qr");
+ else if(k==="test")call("testToken",[PASS]).then(function(tk){if(tk)location.href=API+"/tests?tk="+encodeURIComponent(tk);}).catch(function(){});});
 var PATHS={home:"/",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/links"};
 function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id))return openBook(id.slice(2));
  if(id==="qr"){if(location.pathname.replace(/\/+$/,"")!=="/qr"){history.pushState({p:"qr"},"","/qr");NAVN++;}return qrTry();}
@@ -173,6 +175,7 @@ addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();if(/^\/
 var NOTE="";
 function show(id){window.scrollTo(0,0);if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
+ CUR=id;
  if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine")+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
  if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
   return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k];return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
