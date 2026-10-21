@@ -302,8 +302,17 @@ function lab(){splashOff();S.reg=true;var L=null,R=[],run=false;
    var rep=function(){if(k>=5){var g=ms.filter(function(x){return x>=0;}).sort(function(a,b){return a-b;});R.push([name,how,g.length,g[0]||0,g[Math.floor(g.length/2)]||0,g[g.length-1]||0,ms.length-g.length?(ms.length-g.length)+" failed":""]);i++;return next();}
     one(name,how).then(function(x){ms.push(x);k++;rep();});};rep();};next();};
  call("perfLab",[PASS]).then(function(r){if(!r||!r.ok){frame('<div class="note bad">'+esc((r&&r.msg)||"For the Owner.")+'</div>',true,"Perf Lab");return;}L=r.list;draw();},function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Perf Lab");});}
+// ---- Sign in (Rich, 21 Oct: "i want our app to always challenge for the google login. and allow the user to contine on as a guest wo it.
+// and when a user hits a qr: same thing"): a browser with no live pass gets Google's button and Continue as guest (Google's automatic
+// prompt alone does not work on iPhone: "the normal One Tap UX doesn't work on Chrome on iOS, Safari, or Firefox", Google's One Tap guide)
+function signIn(go){var done=0,fin=function(){if(done)return;done=1;GSIDONE=null;GSITRIED=1;go();};GSIDONE=fin;
+ setTimeout(function(){if(done)return;splashOff();
+  frame('<div class="list"><div id="gbtn" class="gbtn" style="display:flex;justify-content:center;min-height:46px;margin-top:18px"></div><button class="btn alt" id="gsg">Continue as guest</button></div>',false);
+  $("gsg").onclick=fin;
+  gsiLoad(function(ok){if(!ok||done)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});google.accounts.id.prompt();}catch(e){}});
+ },Math.max(0,1500-(Date.now()-T0)));}
 statGet();
-if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE){if(PASS)qrTry();else gsi(function(){if(PASS)qrTry();else qrSign();});}else boot();
+if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE){if(PASS)qrTry();else gsi(function(){if(PASS)qrTry();else qrSign();});}else if(!PASS&&!window.RS_TEST)signIn(boot);else boot();
 // ---- Confirm your info (a guest or a precinct delegate matched by the signed-in email; Rich, 20 Oct)
 function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First name</label><input value="'+esc(c.first)+'" readonly><label>Last name</label><input value="'+esc(c.last)+'" readonly><div class="msg" id="cm"></div><button class="btn" id="cy">That\'s me</button><button class="btn alt" id="cn">Not me</button>');
  var on=function(x){$("cy").disabled=$("cn").disabled=!x;};
