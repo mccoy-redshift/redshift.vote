@@ -295,7 +295,11 @@ var T0=Date.now(),SPL=null;
 (function(){var put=function(h){if(!h||h===SPL)return;SPL=h;var w=$("spw");if(w&&!w.classList.contains("out"))w.innerHTML=h;};put(LS.get("rsSplash"));
  if(!window.RS_TEST)fetch("https://www.googleapis.com/drive/v3/files/"+SPF+"?alt=media&key="+DK).then(function(r){return r.ok?r.text():null;}).then(function(h){if(h){LS.set("rsSplash",h);put(h);}},function(){});})();
 function splashOff(){var w=$("spw");if(!w)return;w.classList.add("out");setTimeout(function(){if(w.parentNode)w.parentNode.removeChild(w);},700);}
-function pit(r){var p=$("pit");p.innerHTML=r.html;
+// 22 Oct (Rich: "the pitstop screen should listen to the dashboard proxy so it can update in realtime"): while the pit stop is up, its
+// doors, calls and texts are asked for every 15 s (pitLive) and put on screen
+var PITT=null;function pitLive(){clearTimeout(PITT);if(!$("lnd-k"))return;if(!document.hidden)call("pitLive",[]).then(function(x){if(!x||!x.ok)return;[["lnd-k",x.doors],["lnd-kc",x.calls],["lnd-kt",x.texts]].forEach(function(a){var e=$(a[0]);if(e)e.textContent=Math.max(0,Math.round(Number(a[1])||0)).toLocaleString("en-US");});},function(){});PITT=setTimeout(pitLive,15000);}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&$("lnd-k"))pitLive();});
+function pit(r){var p=$("pit");p.innerHTML=r.html;PITT=setTimeout(pitLive,15000);
  [].forEach.call(p.querySelectorAll("script"),function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});
  var rg=$("lnd-rg");if(rg)rg.onclick=function(){location.href=r.reg||"/admin/";};try{if(!window.PITMO){window.PITMO=new MutationObserver(function(){if(document.getElementById("lnd"))return;var de0=document.documentElement.style,bd0=document.body.style;if(!de0.background&&!bd0.background&&!bd0.height)return;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";});window.PITMO.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});}}catch(e){}}
 // ---- Google sign-in on the volunteer pages (Rich, 20 Oct: the front door): no live pass -> the browser's Google account, the same check as /admin
