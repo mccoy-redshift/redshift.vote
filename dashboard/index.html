@@ -176,7 +176,7 @@ function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id
  if(PATHS[id]){var p=PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");if(location.pathname!==p){history.pushState({p:id},"",p);NAVN++;}show(id);}}
 addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();if(/^\/qr\/?$/.test(location.pathname)&&S.owner)return qrTry();show(W.page);});
 var NOTE="";
-function show(id){window.scrollTo(0,0);if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
+function show(id){window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
  CUR=id;
  if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
@@ -295,7 +295,7 @@ var T0=Date.now(),SPL=null;
 function splashOff(){var w=$("spw");if(!w)return;w.classList.add("out");setTimeout(function(){if(w.parentNode)w.parentNode.removeChild(w);},700);}
 function pit(r){var p=$("pit");p.innerHTML=r.html;
  [].forEach.call(p.querySelectorAll("script"),function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});
- var rg=$("lnd-rg");if(rg)rg.onclick=function(){location.href=r.reg||"/admin/";};}
+ var rg=$("lnd-rg");if(rg)rg.onclick=function(){location.href=r.reg||"/admin/";};try{var mo=new MutationObserver(function(){if(document.getElementById("lnd"))return;mo.disconnect();var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";});mo.observe(document.body,{childList:true,subtree:true});}catch(e){}}
 // ---- Google sign-in on the volunteer pages (Rich, 20 Oct: the front door): no live pass -> the browser's Google account, the same check as /admin
 var CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",GSIQ=null,GSIDONE=null,GSITRIED=0,GSIWAIT=30000;
 function gsiLoad(cb){if(window.google&&google.accounts&&google.accounts.id)return cb(true);if(GSIQ)return GSIQ.push(cb);GSIQ=[cb];
