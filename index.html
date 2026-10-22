@@ -156,7 +156,9 @@ var FOOT='';   // no sponsor line under the screens (Rich, 19 Oct: "since we hav
 // Register, subtle, at the foot of every screen for anyone not registered (Rich, 19 Oct: "put a subtle registere at the bottom for all non0registered")
 function foot(){return S.reg?'':'<div class="reg"><a href="'+esc(S.regUrl||"/admin/")+'">Register</a></div>';}
 function frame(inner,back,title){$("app").innerHTML='<div class="top"><div class="word"><span class="r">Red</span><span class="s">shift</span></div>'+'</div>'+(title?'<div class="ttl">'+esc(title)+'</div>':"")+inner+foot();
- [].forEach.call(document.querySelectorAll("#app [data-go]"),function(b){b.onclick=function(){go(b.getAttribute("data-go"));};});}
+ // 22 Oct (Rich: "a 2nd click was qued and use went from QR to call book"): a tap made while the screen before was still up (a second tap
+ // on Continue as guest, or on the QR) lands on whatever is drawn under the finger next; the screen's buttons take no tap for its first 700 ms
+ var t0=Date.now();[].forEach.call(document.querySelectorAll("#app [data-go]"),function(b){b.onclick=function(){if(Date.now()-t0<700)return;go(b.getAttribute("data-go"));};});}
 // ---- the bottom bar (Rich, 20 Oct: "a tool bar similiar to chrome bottom bar"; "nice large and very simple outline icons"): Back, Home;
 // the Owner: the QR (not on the QR page) and Tests (Rich, 21 Oct: "put a test page on the tool bar"); admins: Admin
 var TBI={back:'<path d="M15 4l-8 8 8 8"/>',home:'<path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10v10h13V10"/>',
@@ -176,7 +178,7 @@ function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id
  if(PATHS[id]){var p=PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");if(location.pathname!==p){history.pushState({p:id},"",p);NAVN++;}show(id);}}
 addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();if(/^\/qr\/?$/.test(location.pathname)&&S.owner)return qrTry();show(W.page);});
 var NOTE="";
-function show(id){window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
+function show(id){QG++;window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
  CUR=id;
  if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
@@ -308,7 +310,11 @@ function gsi(done){var fired=0,fin=function(){if(fired)return;fired=1;GSIDONE=nu
  gsiLoad(function(ok){if(!ok)return fin();try{gsiInit();google.accounts.id.prompt(function(n){try{if(n.isSkippedMoment()||n.isDismissedMoment())setTimeout(function(){if(GSIDONE===fin)fin();},400);}catch(e){}});}catch(e){fin();}});}
 // ---- /qr: the Owner's event code; a browser not signed in is told so, with Google's button (Rich, 20 Oct)
 var ISQR=location.pathname.replace(/\/+$/,"")==="/qr"||/^\/qr\//.test(location.pathname);
-function qrTry(){call("qrTv",[PASS,W.q||"",1]).then(function(r){if(r&&r.ok)return tv(r);if(r&&r.why==="signin"){PASS="";LS.del("rsPass");return qrSign();}boot();},boot);}
+// 22 Oct (Rich: "while waiting on QR code to render first page, a 2nd click was qued and use went from QR to call book"): the screen under
+// the QR stayed up and could be tapped while the code was fetched; the wait now covers it, and an answer that comes after the person went
+// elsewhere is dropped
+var QG=0;
+function qrTry(){var g=++QG;frame('<div class="list"><div class="spin"></div></div>',true);call("qrTv",[PASS,W.q||"",1]).then(function(r){if(g!==QG)return;if(r&&r.ok)return tv(r);if(r&&r.why==="signin"){PASS="";LS.del("rsPass");return qrSign();}boot();},function(){if(g===QG)boot();});}
 function qrSign(){splashOff();frame('<div class="note">This browser is not signed in to Red Shift.</div><div id="gbtn" class="gbtn"></div>',true);
  gsiLoad(function(ok){if(!ok)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});}catch(e){}});}
 // ---- the Perf Lab (Owner; redshift.vote/?lab): each mechanic 5 times cold and 5 times warm, best / middle / worst; Save keeps them
@@ -328,14 +334,17 @@ function lab(){splashOff();S.reg=true;var L=null,R=[],run=false;
 function signIn(go,guest){var done=0,fin=function(){if(done)return;done=1;GSIDONE=null;GSITRIED=1;go();};GSIDONE=fin;
  setTimeout(function(){if(done)return;splashOff();
   frame('<div class="list"><div id="gbtn" class="gbtn" style="display:flex;justify-content:center;min-height:46px;margin-top:18px"></div>'+(guest?'<button class="btn alt" id="gsg">Continue as guest</button>':'')+'</div>',false);
-  if(guest)$("gsg").onclick=fin;
+  if(guest)$("gsg").onclick=function(){frame('<div class="list"><div class="spin"></div></div>',false);fin();};
   gsiLoad(function(ok){if(!ok||done)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});google.accounts.id.cancel();}catch(e){}});   /* Rich, 21 Oct: one sign-in panel, ours; no Google prompt at the bottom */
  },Math.max(0,1500-(Date.now()-T0)));}
 statGet();
-if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE){if(PASS)qrTry();else qrSign();}else if(!PASS&&!window.RS_TEST){
+// 22 Oct (Rich: "when user came in as guest and then hit arrow, it put him back at the spash and then login screen"): a guest let in by a
+// QR code who comes back to its address (/qr/<list>, e.g. Back from the book) got the Owner's QR sign-in; /qr is the event code only for a
+// signed-in browser, and anyone else comes in as on every other address
+if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE&&PASS){qrTry();}else if(!PASS&&!window.RS_TEST){
  // Rich, 21 Oct: "i dont think univited guests should be able to get into redshift.vote.   they can only get in via a book link or a qr";
  // "build that first": Continue as guest only with an event code, or on a phone a QR code or book link already let in
- if(CODE)signIn(boot,true);else call("vHome",[PID,QN,PASS,CODE]).then(function(r){signIn(boot,!!(r&&r.adm));},function(){signIn(boot,false);});}
+ var BT=function(){if(ISQR&&PASS)return qrTry();boot();};if(CODE)signIn(BT,true);else call("vHome",[PID,QN,PASS,CODE]).then(function(r){signIn(BT,!!(r&&r.adm));},function(){signIn(BT,false);});}
 else boot();
 // ---- Confirm your info (a guest or a precinct delegate matched by the signed-in email; Rich, 20 Oct)
 function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First name</label><input value="'+esc(c.first)+'" readonly><label>Last name</label><input value="'+esc(c.last)+'" readonly><div class="msg" id="cm"></div><button class="btn" id="cy">That\'s me</button><button class="btn alt" id="cn">Not me</button>');
@@ -365,4 +374,5 @@ function tv(r){var QRC=null;try{QRC=new Function(r.lib+";return qrcode;")();}cat
 })();
 </script>
 </body></html>
+
 
