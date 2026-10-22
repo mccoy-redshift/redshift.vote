@@ -35,7 +35,7 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 .vg img{width:100%;border-radius:12px;margin:8px 0;display:block}
 .vg .cap{background:#ff2b3d;font-weight:700;text-align:center;padding:10px;border-radius:10px}
 [hidden]{display:none!important}
-.rc{display:flex;align-items:center;gap:10px}.rc .tx{flex:1;min-width:0}.lt{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.08);padding:0;cursor:pointer}
+.rc{display:flex;align-items:center;gap:10px}/* Rich, 22 Oct: "on the Recommendations expander.  drop a vertical line and put How will you vote in small word wrap text over the voting circles" */.rcs{background:linear-gradient(rgba(255,255,255,.4),rgba(255,255,255,.4)) no-repeat;background-size:1px 100%;background-position:right 66px top}.rch{width:44px;margin:0 20px 4px auto;font-size:11px;line-height:1.15;text-align:center;color:#c9d6f5}.rc .tx{flex:1;padding-right:12px}.rc .tx{flex:1;min-width:0}.lt{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.08);padding:0;cursor:pointer}
 .lt.g{background:#22c55e;border-color:#bbf7d0;box-shadow:0 0 12px rgba(34,197,94,.7)}.lt.y{background:#facc15;border-color:#fef08a;box-shadow:0 0 12px rgba(250,204,21,.7)}.lt.r{background:#ef4444;border-color:#fecaca;box-shadow:0 0 12px rgba(239,68,68,.7)}
 .st1{display:flex;align-items:center;gap:10px;margin:8px 0;padding:10px 12px;border-radius:10px;background:rgba(255,43,61,.15);border:1px solid rgba(255,43,61,.6);font:700 18px Oswald,"Arial Narrow",sans-serif;letter-spacing:.04em}.st1 span{flex:1}
 #poll{background:rgba(10,26,110,.55);border:1px solid rgba(255,255,255,.18);border-radius:14px;margin:0 0 10px;padding:14px}#poll .pq{font:700 19px/1.25 Oswald,"Arial Narrow",sans-serif;letter-spacing:.03em;margin-bottom:10px}
@@ -86,7 +86,7 @@ a.btn{display:block;text-align:center;background:#ff2b3d;color:#fff;text-decorat
 <div class="tb"><a href="vg.pdf" download="Berrien County GOP voter guide.pdf" aria-label="Download"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>Download</a><button type="button" id="shr" aria-label="Share"><svg viewBox="0 0 24 24"><path d="M12 15V3m0 0L7 8m5-5l5 5M5 11v9h14v-9"/></svg>Share</button><a href="vg.html?print=1" target="_blank" rel="noopener" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print</a></div><div class="cap">Straight ticket does NOT cover judges or school board. Turn your ballot over.</div></div></details>
 <div id="poll" hidden><div class="pq" id="pq"></div><div class="pr" id="pr"></div><button type="button" id="pgo" hidden>Send</button><div id="pmsg"></div></div>
 
-<div id="stp" hidden style="text-align:center;margin:22px 0 6px"><button type="button" id="stpb" style="font:700 15px Arial,Helvetica,sans-serif;padding:8px 22px;border-radius:18px;border:1px solid #888;background:#fff;color:#333">STOP</button><div id="stpm" style="font-size:14px;color:#555;margin-top:6px"></div></div>
+<div id="stp" hidden style="text-align:center;margin:22px 0 6px"><label style="display:inline-flex;align-items:center;gap:8px;font:700 15px Arial,Helvetica,sans-serif;padding:8px 22px;border-radius:18px;border:1px solid #888;background:#fff;color:#333"><input type="checkbox" id="stpb" style="width:20px;height:20px;margin:0">STOP</label><div id="stpm" style="font-size:14px;color:#555;margin-top:6px"></div></div>
 </main>
 <footer>Berrien County GOP<span class="ct"><a href="tel:2699836303">(269) 983-6303</a> &middot; <a href="https://www.berriencountygop.org" target="_blank" rel="noopener">www.berriencountygop.org</a><br><a href="mailto:info@berriencountygop.org">info@berriencountygop.org</a></span></footer>
 <script>(function(){
@@ -134,7 +134,7 @@ function rec(G,L){var V={};['cd','sd','hd','s','v','w'].forEach(function(k){if(P
  // a light per race: tap for green, again yellow, again red, again off; Straight Ticket is red or green: green only while every Republican
  // Ticket race is green; tapping it green turns them all green; tapping it red leaves them
  var SEC=G.sections.map(function(S){return {t:S.t,st:!!S.straight,r:S.r.filter(ok)};}).filter(function(S){return S.r.length;});
- $('rec-b').innerHTML=SEC.map(function(S,si){return '<details'+(si===0?' open':'')+'><summary>'+esc(S.t)+'</summary><div class="ans">'+
+ $('rec-b').innerHTML=SEC.map(function(S,si){return '<details'+(si===0?' open':'')+'><summary>'+esc(S.t)+'</summary><div class="ans rcs"><div class="rch">How will you vote</div>'+
   (S.st?'<div class="st1"><span>Straight Ticket</span><button type="button" class="lt" data-st="1" aria-label="Straight Ticket"></button></div>':'')+
   S.r.map(function(r){return '<div class="addr rc"><div class="tx"><div class="o">'+esc(r.o)+'</div><div class="n">'+r.n.map(esc).join('<br>')+'</div></div><button type="button" class="lt" data-lt="'+esc(r.id)+'"'+(S.st?' data-rt="1"':'')+' aria-label="'+esc(r.o)+'"></button></div>';}).join('')+'</div></details>';}).join('');
  var L3=['','g','y','r'];ST=null;
@@ -153,7 +153,12 @@ var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X
 // Script (?pv=1) can open and tap everything, but nothing is sent: STOP and the poll answer as if sent, and no record is made.
 if(new URLSearchParams(location.search).get('pv')==='1'){var _rsf=window.fetch;window.fetch=function(u,o){if(u===APP)return Promise.resolve({json:function(){return Promise.resolve({ok:true,result:{ok:true,preview:true}});}});return _rsf.apply(this,arguments);};}
 // Opt out (Rich, 15 Oct: "Reply STOP, or select STOP in our link, to opt out"): a signed link's STOP records it
-if(BK&&RK&&SG){$('stp').hidden=false;$('stpb').onclick=function(){var b=$('stpb'),m=$('stpm');b.disabled=true;m.textContent='Sending...';fetch(APP,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:'bcStop',args:[BK,RK,SG]})}).then(function(r){return r.json();}).then(function(r){var x=r&&r.ok?r.result:null;if(x&&x.ok){b.hidden=true;m.textContent='We have recorded your response.';}else{b.disabled=false;m.textContent=(x&&x.msg)||'Not sent. Try again.';}},function(){b.disabled=false;m.textContent='No connection. Try again.';});};}
+// Rich, 22 Oct ("send it on change using momento and that if they uncheck it  ,you have protocol for that as well"): STOP and the poll are kept on the phone (an outbox) with their own id and sent until Red Shift confirms them ({ack}); unticking STOP opts back in (bcStart)
+var PO='rs_bc_out',POB=false,POCB={};function poGet(){try{return JSON.parse(localStorage.getItem(PO)||'[]');}catch(e){return [];}}function poPut(a){try{localStorage.setItem(PO,JSON.stringify(a));}catch(e){}}
+function poAdd(fn,args,cb){var rid=Date.now().toString(36)+Math.random().toString(36).slice(2,10);args.push({rid:rid});var a=poGet();a.push({rid:rid,fn:fn,args:args});poPut(a);POCB[rid]=cb;poFlush();}
+function poFlush(){if(POB)return;var a=poGet();if(!a.length)return;var e=a[0];POB=true;fetch(APP,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:e.fn,args:e.args})}).then(function(r){return r.json();}).then(function(r){POB=false;var x=r&&r.ok?r.result:null,cb=POCB[e.rid];if(x&&(x.ack===e.rid||x.ok===false||x.preview)){poPut(poGet().filter(function(y){return y.rid!==e.rid;}));delete POCB[e.rid];if(cb)cb(x);setTimeout(poFlush,30);}else setTimeout(poFlush,8000);},function(){POB=false;setTimeout(poFlush,15000);});}
+document.addEventListener('visibilitychange',function(){if(!document.hidden)poFlush();});setTimeout(poFlush,1000);
+if(BK&&RK&&SG){$('stp').hidden=false;var SK='rs_bc_stop:'+RK;try{$('stpb').checked=localStorage.getItem(SK)==='1';}catch(e){}$('stpb').onchange=function(){var b=$('stpb'),m=$('stpm'),on=b.checked;try{localStorage.setItem(SK,on?'1':'0');}catch(e){}m.textContent='Sending...';poAdd(on?'bcStop':'bcStart',[BK,RK,SG],function(x){if(x&&x.ok!==false)m.textContent='We have recorded your response.';else{b.checked=!on;try{localStorage.setItem(SK,on?'0':'1');}catch(e){}m.textContent=(x&&x.msg)||'Not sent. Try again.';}});};}
 function poll(){var box=$('poll');box.hidden=false;
  if(AB==='ret'){$('pq').textContent='Thank you, your ballot is in.';$('pr').innerHTML='';}
  else{$('pq').textContent=AB==='out'?'Will you return your ballot?':'Will you vote on Nov 3?';
@@ -167,8 +172,7 @@ function poll(){var box=$('poll');box.hidden=false;
   if(ST)a.r=ST==='g'?5:1;if(AN)a.t=AN;
   if(!Object.keys(a.vg).length&&!a.r&&!a.t){m.textContent='Pick an answer first.';return;}
   go.disabled=true;m.textContent='Sending...';
-  fetch(APP,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:'bcPoll',args:[BK,RK,SG,a]})}).then(function(r){return r.json();}).then(function(r){go.disabled=false;var x=r&&r.ok?r.result:null;
-   if(x&&x.ok){m.textContent='Thank you! We can count on you.';go.hidden=true;}else m.textContent=(x&&x.msg)||(r&&r.error)||'Not sent. Try again.';},function(){go.disabled=false;m.textContent='No connection. Try again.';});};}
+  poAdd('bcPoll',[BK,RK,SG,a],function(x){go.disabled=false;if(x&&x.ok){m.textContent='Thank you! We can count on you.';go.hidden=true;}else m.textContent=(x&&x.msg)||'Not sent. Try again.';});};}
 var T=$('trk');function go(n){T.scrollTo({left:n*T.clientWidth,behavior:'smooth'});}$('arl').onclick=function(){go(0);};$('arr').onclick=function(){go(1);};
 function arw(){var b=T.scrollLeft>T.clientWidth/2;$('arl').style.visibility=b?'visible':'hidden';$('arr').style.visibility=b?'hidden':'visible';}T.addEventListener('scroll',arw);arw();
 // a phone (touch screen) gets the phone's share sheet; a laptop or desktop gets Copy link with the copy icon
