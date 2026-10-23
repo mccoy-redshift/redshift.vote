@@ -106,9 +106,22 @@ body.tvm #app{max-width:none;width:100%}.tvb{position:fixed;top:12px;left:18px;r
 <div id="sh" hidden><div class="box" id="shb"></div></div>
 <div id="rt" hidden></div>
 <script>
+// RST (Rich, 23 Oct: "i m not sure why you are not 100 instrumented by now"): the phone's own timings, from the moment the page was asked for:
+// each mark, and each call to the app (start, end, and the app's own load and work time from its answer); sent once to the Perf log (perfPhone).
+window.RST=window.RST||(function(){var T=function(){return Math.round(performance.now());},R={ev:[],calls:[],sent:0,url:"",page:location.pathname,
+ mark:function(n){if(R.ev.length<60)R.ev.push([String(n).slice(0,40),T()]);},
+ call:function(fn){var s=T();return function(sv){if(R.calls.length<60)R.calls.push([String(fn).slice(0,30),s,T(),sv&&sv[0]||0,sv&&sv[1]||0]);};},
+ send:function(why){if(R.sent>=3||!R.url)return;R.sent++;var o={p:R.page,why:String(why||""),ev:R.ev.slice(),calls:R.calls.slice(),tap:-1,nav:0};
+  try{var n=performance.getEntriesByType("navigation")[0];if(n)o.nav=[Math.round(n.responseStart),Math.round(n.domInteractive),Math.round(n.domContentLoadedEventEnd)];}catch(e){}
+  try{var tp=sessionStorage.getItem("rs_tap");if(tp){o.tap=Math.max(-1,Date.now()-Number(tp)-T());sessionStorage.removeItem("rs_tap");}}catch(e){}
+  try{fetch(R.url,{method:"POST",body:JSON.stringify({fn:"perfPhone",args:[o]}),keepalive:true,credentials:"omit"}).catch(function(){});}catch(e){}}};
+ document.addEventListener("DOMContentLoaded",function(){R.mark("page ready");});
+ addEventListener("pagehide",function(){R.send("leave");});return R;})();
+</script>
+<script>
 (function(){
 var API="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",SPF="1CbXFQlj7QkQTyhfyUQWHyZCr6r-If4OZ",DK="AIzaSyCvm-_NB3jtiHuiK9PxYXQaAJiWhPFBjM8";
-if(window.RS_TEST)API=window.RS_TEST;
+if(window.RS_TEST)API=window.RS_TEST;window.RST.url=API;
 // sign-in links belong to /admin (dashboard shares, invites, event links, one-time passes)
 var Q0=new URLSearchParams(location.search);
 if(Q0.get("ref")||Q0.get("pg")||Q0.get("otp")){location.replace("/admin/"+location.search);return;}
@@ -124,7 +137,7 @@ function passOk(t){try{var f=atob(String(t).split(".")[1].replace(/-/g,"+").repl
 var PID=pidOf(),PASS=LS.get("rsPass")||"";if(PASS&&!passOk(PASS))PASS="";
 function passSet(t){if(!t)return;PASS=t;LS.set("rsPass",t);}
 // ---- the server (the same answer shape as /admin)
-function call(fn,args){return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[],p:PASS}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){throw new Error("Red Shift is busy. Please try again.");}if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
+function call(fn,args){var done=window.RST.call(fn);return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[],p:PASS}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){done(null);throw new Error("Red Shift is busy. Please try again.");}done(j.sv);if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
 window.RUN=function(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;},rpc:function(fn,a){call(fn,a).then(function(r){if(ok)ok(r);},function(e){if(no)no(e);});}};return o;};
 // ---- the measured screen; phone or laptop
 function fit(){var vv=window.visualViewport,h=Math.round((vv&&vv.height)||innerHeight||0),S=screen.height||h;if(!h||h>S)h=(screen.availHeight||S)-100;h=Math.max(320,h);
@@ -178,7 +191,7 @@ function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id
  if(PATHS[id]){var p=PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");if(location.pathname!==p){history.pushState({p:id},"",p);NAVN++;}show(id);}}
 addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();if(/^\/qr\/?$/.test(location.pathname)&&S.owner)return qrTry();show(W.page);});
 var NOTE="";
-function show(id){QG++;window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
+function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
  CUR=id;
  if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
@@ -261,7 +274,7 @@ function build(m){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...
   if(k==="door"&&r.fresh){BUSY=0;shut();return route(b);}
   openBook(b.id);
  },function(e){oops(e.message);});}
-function openBook(id){busy("Opening your book...");call("vOpen",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg);location.replace(r.launch);},function(e){oops(e.message);});}
+function openBook(id){busy("Opening your book...");window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}call("vOpen",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg);window.RST.mark("book link");window.RST.send("open book");location.replace(r.launch);},function(e){oops(e.message);});}
 // ---- the route pop-up
 var LF=null;
 function leaflet(done){if(window.L&&L.map)return done();if(LF)return LF.push(done);LF=[done];
@@ -294,12 +307,12 @@ function route(b){var R=$("rt"),ord=b.stops.slice(),mk=[],line=null,map=null;
 var T0=Date.now(),SPL=null;
 (function(){var put=function(h){if(!h||h===SPL)return;SPL=h;var w=$("spw");if(w&&!w.classList.contains("out"))w.innerHTML=h;};put(LS.get("rsSplash"));
  if(!window.RS_TEST)fetch("https://www.googleapis.com/drive/v3/files/"+SPF+"?alt=media&key="+DK).then(function(r){return r.ok?r.text():null;}).then(function(h){if(h){LS.set("rsSplash",h);put(h);}},function(){});})();
-function splashOff(){var w=$("spw");if(!w)return;w.classList.add("out");setTimeout(function(){if(w.parentNode)w.parentNode.removeChild(w);},700);}
+function splashOff(){window.RST.mark("splash off");setTimeout(function(){window.RST.send("home");},4000);var w=$("spw");if(!w)return;w.classList.add("out");setTimeout(function(){if(w.parentNode)w.parentNode.removeChild(w);},700);}
 // 22 Oct (Rich: "the pitstop screen should listen to the dashboard proxy so it can update in realtime"): while the pit stop is up, its
 // doors, calls and texts are asked for every 15 s (pitLive) and put on screen
 var PITT=null;function pitLive(){clearTimeout(PITT);if(!$("lnd-k"))return;if(!document.hidden)call("pitLive",[]).then(function(x){if(!x||!x.ok)return;[["lnd-k",x.doors],["lnd-kc",x.calls],["lnd-kt",x.texts]].forEach(function(a){var e=$(a[0]);if(e)e.textContent=Math.max(0,Math.round(Number(a[1])||0)).toLocaleString("en-US");});},function(){});PITT=setTimeout(pitLive,15000);}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&$("lnd-k"))pitLive();});
-function pit(r){var p=$("pit");p.innerHTML=r.html;PITT=setTimeout(pitLive,15000);
+function pit(r){window.RST.mark("pit stop");var p=$("pit");p.innerHTML=r.html;PITT=setTimeout(pitLive,15000);
  [].forEach.call(p.querySelectorAll("script"),function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});
  var rg=$("lnd-rg");if(rg)rg.onclick=function(){location.href=r.reg||"/admin/";};try{if(!window.PITMO){window.PITMO=new MutationObserver(function(){if(document.getElementById("lnd"))return;var de0=document.documentElement.style,bd0=document.body.style;if(!de0.background&&!bd0.background&&!bd0.height)return;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";});window.PITMO.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});}}catch(e){}}
 // ---- Google sign-in on the volunteer pages (Rich, 20 Oct: the front door): no live pass -> the browser's Google account, the same check as /admin
@@ -382,5 +395,4 @@ function tv(r){var QRC=null;try{QRC=new Function(r.lib+";return qrcode;")();}cat
 })();
 </script>
 </body></html>
-
 
