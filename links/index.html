@@ -356,13 +356,17 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
  var ans=function(yes){on(false);call("vConfirm",[PID,yes,c.k,c.s]).then(function(r){if(!r.ok){$("cm").textContent=r.msg;on(true);return;}BUSY=0;shut();
    if(yes){location.reload();return;}if(!r.in){location.href=S.regUrl||"/admin/";return;}nameSheet(function(){location.reload();});},function(e){$("cm").textContent=e.message;on(true);});};
  $("cy").onclick=function(){ans(true);};$("cn").onclick=function(){ans(false);};}
-function boot(){var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
+// Rich, 22 Oct night: "redshift.vote and /admin is the same sequence.   spash then pitstop  then contnet"; "all except the QR code": the pit stop
+// is asked for at once, beside Home, for everyone (not a QR code); the splash stays until both are in (the pit stop at most 8 s)
+function boot(){var pitP=ISQR?Promise.resolve(null):Promise.race([call("vPit",[PID]).then(null,function(){return null;}),new Promise(function(res){setTimeout(function(){res(null);},8000);})]);
+ var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
  if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},false);});}return r;});   /* one sign-in panel (21 Oct) */
-home.then(function(r){if(!r){boot();return "re";}S=r;try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return W.land&&r.act&&r.adm?call("vPit",[PID]).then(null,function(){return null;}):null;}).then(function(pr){if(pr==="re")return;
+home.then(function(r){if(!r){boot();return "re";}S=r;try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
 if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
-  else{show(W.land?"home":W.page);if(W.land&&pr&&pr.html)pit(pr);}
+  else show(W.land?"home":W.page);
+  if(pr&&pr.html&&!ISQR)pit(pr);
   splashOff();if(S.confirm)confirmSheet(S.confirm);},Math.max(0,2200-(Date.now()-T0)));
 },function(e){setTimeout(function(){frame('<div class="note bad">Red Shift could not be reached ('+esc(e.message)+'). Check your signal and reload.</div>');splashOff();},Math.max(0,1500-(Date.now()-T0)));});}
 // the Owner's TV page (Rich, 19 Oct: "it will be rendered on a TV from my laptop"; "scan and burn"): one code on screen; when a phone uses it,
