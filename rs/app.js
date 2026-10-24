@@ -94,9 +94,11 @@ function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oc
  CUR=id;
  if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
  if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
-  return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k];return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
- if(id==="mine")return frame(S.books.length?'<div class="list">'+S.books.map(function(b){return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.mode==="door"?b.doors+" doors":b.people+" people"));}).join("")+'</div>'
+  return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k]&&!have[k].done?have[k]:null;return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
+ // Rich, 24 Oct: finished books and "Give back this book" (99zzzye): each book shows Finished or how many are left, with a Give back button
+ if(id==="mine"){frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.mode==="door"?b.doors:b.people)+" "+u+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
   :'<div class="note">No books yet on this phone.</div><div class="list">'+card("new","New Books","new")+'</div>',true,"My Books");
+  [].forEach.call(document.querySelectorAll("[data-gb]"),function(x){x.onclick=function(){giveBack(x.getAttribute("data-gb"));};});return;}
  if(id==="dash"){frame('<div class="list"><div class="spin"></div></div>',true,"Dashboard");return call("vDash",[PID,PASS]).then(dash,function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Dashboard");});}
  if(id==="links"){frame('<div class="list"><div class="spin"></div></div>',true,"Links");return call("vLinks",[PASS]).then(function(r){
   frame(r.links.map(function(l){var real=l.path.indexOf("<")<0;return '<div class="lk">'+(real?'<a href="'+esc(l.path)+'">redshift.vote'+esc(l.path)+'</a>':'<b>redshift.vote'+esc(l.path)+'</b>')+(l.admin?'<i>ADMIN</i>':"")+'<p>'+esc(l.what)+'</p></div>';}).join(""),true,"Links");},function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Links");});}
@@ -140,7 +142,11 @@ function tap(m){if(!S.adm){if(PASS){location.href=S.regUrl||"/admin/";return;}re
 // Rich, 24 Oct: "add a selection of 5, 25, 50, 75, 100 and let people choose what size of book they want ... The size of 5 is to be inviting":
 // a book of this kind already held opens as before; otherwise the size first (the standard size, from the ready queue, is marked)
 var SZ=[5,25,50,75,100],SZD={door:25,call:100,text:100};
-function size(m){var k=m==="walk"?"door":m;if(S.books.some(function(b){return b.mode===k;}))return build(m);
+function size(m){var k=m==="walk"?"door":m,hb=S.books.filter(function(b){return b.mode===k&&!b.done;})[0];
+ // Rich, 24 Oct: one book of each kind at a time; New Books with an unfinished one asks: open it, or give it back and get a new one ("that is smart")
+ if(hb){sheet('<h3>Your '+esc(ML[k])+' book</h3><p style="text-align:center">'+(hb.left!=null?esc(hb.left+" "+(k==="door"?"doors":"people")+" left"):"")+'</p><button class="btn" id="hbo">Open my book</button><button class="btn alt" id="hbn">Give it back and get a new one</button>');
+  $("hbo").onclick=function(){shut();build(m);};
+  $("hbn").onclick=function(){busy("One moment...");call("vGiveBack",[PID,hb.id]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");S.books=S.books.filter(function(b){return b.id!==hb.id;});BUSY=0;shut();size(m);},function(e){oops(e.message);});};return;}
  sheet('<h3>'+esc(ML[k])+' book</h3><p style="text-align:center">'+(k==="door"?"How many doors?":"How many people?")+'</p><div class="szs">'+SZ.map(function(n){return '<button type="button" class="btn'+(n===SZD[k]?"":" alt")+'" data-sz="'+n+'">'+n+'</button>';}).join("")+'</div>');
  [].forEach.call(document.querySelectorAll("[data-sz]"),function(b){b.onclick=function(){shut();build(m,Number(b.getAttribute("data-sz")));};});}
 // a guest on a browser not let in yet: Your info -> vKnown (a guest let in before comes in; anyone else: scan the event QR code or sign in)
@@ -150,6 +156,9 @@ function knownSheet(done){BUSY=0;
  $("kgo").onclick=function(){var f=$("kf").value.trim(),l=$("kl").value.trim(),p=$("k4").value.replace(/\D/g,""),bt=this;
   if(!f){$("km").textContent="Add your first name.";return;}if(p.length!==4){$("km").textContent="Add the last 4 digits of your phone number.";return;}
   bt.disabled=true;call("vKnown",[PID,f,l,p]).then(function(r){if(!r.ok||!r.in){$("km").textContent=r.msg||"Please try again.";bt.disabled=false;return;}shut();done();},function(e){$("km").textContent=e.message;bt.disabled=false;});};}
+// give a book back (99zzzye vGiveBack): it comes off the phone and its voters not yet reached go back for other volunteers
+function giveBack(id){BUSY=0;sheet('<h3>Give back this book?</h3><p>The people you have not reached go back for other volunteers.</p><button class="btn" id="gby">Give it back</button><button class="btn alt" id="gbn">Keep it</button>');
+ $("gbn").onclick=shut;$("gby").onclick=function(){busy("One moment...");call("vGiveBack",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");S.books=S.books.filter(function(b){return b.id!==id;});BUSY=0;shut();show("mine");},function(e){oops(e.message);});};}
 function nameSheet(then){BUSY=0;
  // Rich, 20 Oct: "do not add cute shit like that. Title that page as: Your info"
  sheet('<h3>Your info</h3><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
