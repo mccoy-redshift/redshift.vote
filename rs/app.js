@@ -96,7 +96,7 @@ function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oc
  if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
   return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k]&&!have[k].done?have[k]:null;return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  // Rich, 24 Oct: finished books and "Give back this book" (99zzzye): each book shows Finished or how many are left, with a Give back button
- if(id==="mine"){frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.mode==="door"?b.doors:b.people)+" "+u+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
+ if(id==="mine"){frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
   :'<div class="note">No books yet on this phone.</div><div class="list">'+card("new","New Books","new")+'</div>',true,"My Books");
   [].forEach.call(document.querySelectorAll("[data-gb]"),function(x){x.onclick=function(){giveBack(x.getAttribute("data-gb"));};});return;}
  if(id==="dash"){frame('<div class="list"><div class="spin"></div></div>',true,"Dashboard");return call("vDash",[PID,PASS]).then(dash,function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Dashboard");});}
@@ -122,10 +122,20 @@ function meDraw(){var m=meInfo(),b=$("me");if(!m){if(b)b.hidden=true;return;}
  b.className=m.signed?"in":"";b.innerHTML=meFace(m);b.hidden=false;var im=b.querySelector("img");if(im)im.onerror=function(){b.textContent=meIni(m.name);};}
 function mePanel(){var m=meInfo();if(!m)return;
  sheet('<div class="mew"><div class="mec"'+(m.signed?' style="background:var(--navy)"':'')+'>'+meFace(m)+'</div><div><b>'+esc(m.name)+'</b><span>'+(m.signed?esc(m.email)+'<br>Signed in with Google':'Guest on this phone')+'</span></div></div>'+
-  (m.signed?'<button class="btn" id="meo">Sign out</button>':'<button class="btn" id="mei">Sign in with Google</button>')+'<button class="btn alt" id="mex">Close</button>');
- $("mex").onclick=shut;
+  (m.signed?'<button class="btn" id="meo">Sign out</button>':'<button class="btn" id="mei">Sign in with Google</button>')+'<button class="btn alt" id="meoc">Record DNC / DNT</button><button class="btn alt" id="mex">Close</button>');
+ $("mex").onclick=shut;$("meoc").onclick=optSheet;
  if($("meo"))$("meo").onclick=function(){try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}LS.del("rsPass");LS.del("rsMe");PASS="";location.href="/";};
  if($("mei"))$("mei").onclick=function(){shut();signIn(function(){location.reload();},false);};}
+// Rich, 24 Oct: "logging a DNC or DNT for a book the person no longer has ... a drop down even better so the user can enter their code";
+// "call it DNC and DNT" (99zzzyj optOutCode: the Ref code from the bottom of the text; DNC = no calls, DNT = no texts)
+function optSheet(){BUSY=0;sheet('<h3>Record DNC / DNT</h3><label>Ref code (at the bottom of the text)</label><input id="ocx" maxlength="5" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase"><div class="msg" id="ocm"></div><div class="szs"><button type="button" class="btn alt" data-oc="dnc">DNC</button><button type="button" class="btn alt" data-oc="dnt">DNT</button></div><button class="btn alt" id="ocb">Close</button>');
+ $("ocb").onclick=shut;$("ocx").focus();
+ [].forEach.call(document.querySelectorAll("[data-oc]"),function(b){b.onclick=function(){var kind=b.getAttribute("data-oc"),code=$("ocx").value.trim().toUpperCase(),L=kind==="dnc"?"DNC":"DNT";
+  if(!/^[A-Z0-9]{5}$/.test(code)){$("ocm").textContent="The Ref code is 5 letters and numbers.";return;}
+  busy("Looking up "+code+"...");call("optOutCode",[PID,code,kind,false]).then(function(r){if(!r.ok){optSheet();$("ocx").value=code;$("ocm").textContent=r.msg||"Please try again.";return;}
+   BUSY=0;sheet('<h3>'+esc(L)+' for '+esc(r.ask)+'?</h3><p style="text-align:center">Ref code '+esc(code)+'</p><button class="btn" id="ocy">Yes, record it</button><button class="btn alt" id="ocn">Cancel</button>');
+   $("ocn").onclick=shut;$("ocy").onclick=function(){busy("Recording...");call("optOutCode",[PID,code,kind,true]).then(function(x){if(!x.ok)return oops(x.msg||"Please try again.");BUSY=0;sheet(x.pending?'<h3>Sent for approval</h3><p style="text-align:center">'+esc(L)+' for '+esc(x.name)+' was sent to an admin to approve.</p><button class="btn" id="ocd">OK</button>':'<h3>Recorded</h3><p style="text-align:center">'+esc(L)+' for '+esc(x.name)+'.</p><button class="btn" id="ocd">OK</button>');$("ocd").onclick=shut;},function(e){oops(e.message);});};
+  },function(e){oops(e.message);});};});}
 function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
 function shut(){$("sh").hidden=true;$("shb").innerHTML="";}
 $("sh").onclick=function(e){if(e.target===$("sh")&&!BUSY)shut();};
@@ -144,7 +154,7 @@ function tap(m){if(!S.adm){if(PASS){location.href=S.regUrl||"/admin/";return;}re
 var SZ=[5,25,50,75,100],SZD={door:25,call:100,text:100};
 function size(m){var k=m==="walk"?"door":m,hb=S.books.filter(function(b){return b.mode===k&&!b.done;})[0];
  // Rich, 24 Oct: one book of each kind at a time; New Books with an unfinished one asks: open it, or give it back and get a new one ("that is smart")
- if(hb){sheet('<h3>Your '+esc(ML[k])+' book</h3><p style="text-align:center">'+(hb.left!=null?esc(hb.left+" "+(k==="door"?"doors":"people")+" left"):"")+'</p><button class="btn" id="hbo">Open my book</button><button class="btn alt" id="hbn">Give it back and get a new one</button>');
+ if(hb){sheet('<h3>Your '+esc(ML[k])+' book</h3><p style="text-align:center">'+(hb.left!=null?esc(hb.left+" "+(hb.unit||(k==="door"?"doors":"people"))+" left"):"")+'</p><button class="btn" id="hbo">Open my book</button><button class="btn alt" id="hbn">Give it back and get a new one</button>');
   $("hbo").onclick=function(){shut();build(m);};
   $("hbn").onclick=function(){busy("One moment...");call("vGiveBack",[PID,hb.id]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");S.books=S.books.filter(function(b){return b.id!==hb.id;});BUSY=0;shut();size(m);},function(e){oops(e.message);});};return;}
  sheet('<h3>'+esc(ML[k])+' book</h3><p style="text-align:center">'+(k==="door"?"How many doors?":"How many people?")+'</p><div class="szs">'+SZ.map(function(n){return '<button type="button" class="btn'+(n===SZD[k]?"":" alt")+'" data-sz="'+n+'">'+n+'</button>';}).join("")+'</div>');
