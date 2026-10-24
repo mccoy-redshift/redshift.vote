@@ -144,6 +144,14 @@ function ocDrain(){var q=ocQ();if(!q.length||OCB)return;OCB=1;
   if(bad.length){var x=bad[0];BUSY=0;sheet('<h3>Check the Ref code</h3><p style="text-align:center">'+esc(x.code)+': '+esc(x.msg||"That code was not found.")+'</p><button class="btn" id="ocr">Try again</button><button class="btn alt" id="ocz">Close</button>');$("ocz").onclick=shut;$("ocr").onclick=function(){optSheet();$("ocx").value=x.code;};}
  },function(){OCB=0;});}
 setTimeout(ocDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)ocDrain();});
+// Rich, 24 Oct: "fininished books should be auto released from mybooks"; "i had to go in and out for the CWT page to realize the book was
+// actually done": a book page on this phone flags its book done (rs_bookdone:<id>, 97q) the moment nobody is left to text; here the flagged
+// books leave this phone's list at once (and are let go on the server, 99zzzye vGiveBack), when the app opens or comes back to the front
+function doneSweep(quiet){if(!S||!S.books||!S.books.length)return;var gone=[];
+ S.books=S.books.filter(function(b){var k="rs_bookdone:"+b.id,f=null;try{f=localStorage.getItem(k);}catch(e){}if(!f)return true;gone.push(b.id);try{localStorage.removeItem(k);}catch(e){}return false;});
+ gone.forEach(function(id){call("vGiveBack",[PID,id]).then(function(){},function(){});});
+ if(gone.length&&!quiet&&CUR&&/^(home|new|mine)$/.test(CUR))show(CUR);}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)doneSweep();});addEventListener("pageshow",function(){doneSweep();});
 function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
 function shut(){$("sh").hidden=true;$("shb").innerHTML="";}
 $("sh").onclick=function(e){if(e.target===$("sh")&&!BUSY)shut();};
@@ -316,7 +324,7 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
 function boot(){var pitP=ISQR?Promise.resolve(null):Promise.race([call("vPit",[PID,PASS]).then(null,function(){return null;}),new Promise(function(res){setTimeout(function(){res(null);},8000);})]);
  var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
  if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},true,false);});}return r;});   /* one sign-in panel (21 Oct) */
-home.then(function(r){if(!r){boot();return "re";}S=r;try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
+home.then(function(r){if(!r){boot();return "re";}S=r;doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
 if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
