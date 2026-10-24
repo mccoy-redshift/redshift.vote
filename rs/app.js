@@ -127,15 +127,23 @@ function mePanel(){var m=meInfo();if(!m)return;
  if($("meo"))$("meo").onclick=function(){try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}LS.del("rsPass");LS.del("rsMe");PASS="";location.href="/";};
  if($("mei"))$("mei").onclick=function(){shut();signIn(function(){location.reload();},false);};}
 // Rich, 24 Oct: "logging a DNC or DNT for a book the person no longer has ... a drop down even better so the user can enter their code";
-// "call it DNC and DNT" (99zzzyj optOutCode: the Ref code from the bottom of the text; DNC = no calls, DNT = no texts)
+// "call it DNC and DNT"; then "take the number and write it to the outbox and be done" and a pop-up "no matter what screen the user is on" when
+// the server finds the code was not good (99zzzyk ocPost). DNC = no calls, DNT = no texts.
 function optSheet(){BUSY=0;sheet('<h3>Record DNC / DNT</h3><label>Ref code (at the bottom of the text)</label><input id="ocx" maxlength="5" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase"><div class="msg" id="ocm"></div><div class="szs"><button type="button" class="btn alt" data-oc="dnc">DNC</button><button type="button" class="btn alt" data-oc="dnt">DNT</button></div><button class="btn alt" id="ocb">Close</button>');
  $("ocb").onclick=shut;$("ocx").focus();
- [].forEach.call(document.querySelectorAll("[data-oc]"),function(b){b.onclick=function(){var kind=b.getAttribute("data-oc"),code=$("ocx").value.trim().toUpperCase(),L=kind==="dnc"?"DNC":"DNT";
+ [].forEach.call(document.querySelectorAll("[data-oc]"),function(b){b.onclick=function(){var kind=b.getAttribute("data-oc"),code=$("ocx").value.trim().toUpperCase().replace(/[^A-Z0-9]/g,""),L=kind==="dnc"?"DNC":"DNT";
   if(!/^[A-Z0-9]{5}$/.test(code)){$("ocm").textContent="The Ref code is 5 letters and numbers.";return;}
-  busy("Looking up "+code+"...");call("optOutCode",[PID,code,kind,false]).then(function(r){if(!r.ok){optSheet();$("ocx").value=code;$("ocm").textContent=r.msg||"Please try again.";return;}
-   BUSY=0;sheet('<h3>'+esc(L)+' for '+esc(r.ask)+'?</h3><p style="text-align:center">Ref code '+esc(code)+'</p><button class="btn" id="ocy">Yes, record it</button><button class="btn alt" id="ocn">Cancel</button>');
-   $("ocn").onclick=shut;$("ocy").onclick=function(){busy("Recording...");call("optOutCode",[PID,code,kind,true]).then(function(x){if(!x.ok)return oops(x.msg||"Please try again.");BUSY=0;sheet(x.pending?'<h3>Sent for approval</h3><p style="text-align:center">'+esc(L)+' for '+esc(x.name)+' was sent to an admin to approve.</p><button class="btn" id="ocd">OK</button>':'<h3>Recorded</h3><p style="text-align:center">'+esc(L)+' for '+esc(x.name)+'.</p><button class="btn" id="ocd">OK</button>');$("ocd").onclick=shut;},function(e){oops(e.message);});};
-  },function(e){oops(e.message);});};});}
+  var q=ocQ();q.push({id:(Date.now().toString(36)+Math.random().toString(36).slice(2,8)),code:code,kind:kind});ocSet(q);
+  sheet('<h3>Recorded</h3><p style="text-align:center">'+esc(L)+' for Ref code '+esc(code)+'.</p><button class="btn" id="ocd">OK</button>');$("ocd").onclick=shut;ocDrain();};});}
+function ocQ(){try{return JSON.parse(LS.get("rs_ocq")||"[]")||[];}catch(e){return [];}}
+function ocSet(q){try{if(q.length)LS.set("rs_ocq",JSON.stringify(q));else LS.del("rs_ocq");}catch(e){}}
+var OCB=0;
+function ocDrain(){var q=ocQ();if(!q.length||OCB)return;OCB=1;
+ call("ocPost",[PID,q.slice(0,20)]).then(function(r){OCB=0;var res=(r&&r.res)||[],done={},bad=[];res.forEach(function(x){if(x.ok||x.bad){done[x.id]=1;if(x.bad)bad.push(x);}});
+  ocSet(ocQ().filter(function(x){return !done[x.id];}));
+  if(bad.length){var x=bad[0];BUSY=0;sheet('<h3>Check the Ref code</h3><p style="text-align:center">'+esc(x.code)+': '+esc(x.msg||"That code was not found.")+'</p><button class="btn" id="ocr">Try again</button><button class="btn alt" id="ocz">Close</button>');$("ocz").onclick=shut;$("ocr").onclick=function(){optSheet();$("ocx").value=x.code;};}
+ },function(){OCB=0;});}
+setTimeout(ocDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)ocDrain();});
 function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
 function shut(){$("sh").hidden=true;$("shb").innerHTML="";}
 $("sh").onclick=function(e){if(e.target===$("sh")&&!BUSY)shut();};
