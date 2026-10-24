@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Red Shift: Your Walk Book</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Red Shift">
+<meta property="og:title" content="Red Shift: Your Walk Book">
+<meta property="og:description" content="Tap to open it in Red Shift.">
+<meta property="og:image" content="https://redshift.vote/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://redshift.vote/m/">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../logo.webp">
+<style id="hs">html,body{margin:0;background:#030a2e;color:#fff;font:18px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}main{padding:32px 20px;text-align:center}img{width:96px}a{color:#9fd3ff}</style>
+</head>
+<body>
+<script>
+// RST (Rich, 23 Oct: "i m not sure why you are not 100 instrumented by now"; "instrument that code so we can see what is the hold up"): the phone's
+// own timings, in ms from the moment the page was asked for: each mark, and each call to the app (start, end, and the app's own load and work
+// time from its answer). Sent to the Perf log (perfPhone) in parts: what is new since the last part, with the calls still waiting for an answer.
+window.RST=window.RST||(function(){var T=function(){return Math.round(performance.now());},R={ev:[],calls:[],fly:{},k:0,sent:0,e0:0,c0:0,url:"",page:location.pathname,id:Math.random().toString(36).slice(2,8),
+ mark:function(n){if(R.ev.length<400)R.ev.push([String(n).slice(0,80),T()]);},
+ call:function(fn){var s=T(),i=++R.k;R.fly[i]=[String(fn).slice(0,30),s];return function(sv){delete R.fly[i];if(R.calls.length<400)R.calls.push([String(fn).slice(0,30),s,T(),sv&&sv[0]||0,sv&&sv[1]||0]);};},
+ send:function(why){if(R.sent>=40||!R.url)return;if(R.e0>=R.ev.length&&R.c0>=R.calls.length&&why!=="leave")return;R.sent++;
+  var fly=[];for(var k in R.fly)fly.push([R.fly[k][0],R.fly[k][1]]);
+  var o={p:R.page,id:R.id,part:R.sent,why:String(why||""),now:T(),ev:R.ev.slice(R.e0),calls:R.calls.slice(R.c0),fly:fly,tap:-1,nav:0};R.e0=R.ev.length;R.c0=R.calls.length;
+  if(R.sent===1){try{var n=performance.getEntriesByType("navigation")[0];if(n)o.nav=[Math.round(n.responseStart),Math.round(n.domInteractive),Math.round(n.domContentLoadedEventEnd)];}catch(e){}
+   try{var tp=sessionStorage.getItem("rs_tap");if(tp){o.tap=Math.max(-1,Date.now()-Number(tp)-T());sessionStorage.removeItem("rs_tap");}}catch(e){}}
+  try{fetch(R.url,{method:"POST",body:JSON.stringify({fn:"perfPhone",args:[o]}),keepalive:true,credentials:"omit"}).catch(function(){});}catch(e){}}};
+ document.addEventListener("DOMContentLoaded",function(){R.mark("page ready");});
+ setInterval(function(){R.send("every 30 s");},30000);
+ addEventListener("pagehide",function(){R.send("leave");});return R;})();
+</script>
+<main><img src="../../logo.webp" alt="Red Shift"><p id="m">Opening your book...</p></main>
+<script>
+// Book links on redshift.vote (21 Oct, 99zzzd bookhost.js; Rich: "i am getting the blue banner at the top of the app"): a book link's page is
+// drawn here, as /admin draws the app, so Google's banner never shows. The page's calls go to the app as /admin's do. If the app cannot be
+// reached this way, the link goes to the app's own address as before.
+(function(){
+  var Q=new URLSearchParams(location.search),t=Q.get("t")||"",a=Q.get("a")||"",g=Q.get("g")||"",s=Q.get("s")||"";
+  var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec";window.RST.url=APP;
+  var BOOK=/^[A-Za-z0-9]{16,40}$/.test(Q.get("k")||"");
+  function direct(){if(BOOK)location.replace(APP+"/m"+location.search);else document.getElementById("m").innerHTML='This map link is not complete. <a href="/">Open Red Shift</a>';}
+  if(!BOOK)return direct();
+  function post(fn,args){var done=window.RST.call(fn);return fetch(APP,{method:"POST",body:JSON.stringify({fn:fn,args:args||[]}),credentials:"omit"}).then(function(r){return r.text();}).then(function(x){var j;try{j=JSON.parse(x);}catch(e){done(null);throw new Error("Red Shift could not be reached. Check your signal and try again.");}done(j&&j.sv);if(!j||!j.ok)throw new Error((j&&j.error)||"Server error");return j.result;});}
+  // the page's google.script.run, as the app's own address gives it
+  function run(){var ok=null,bad=null,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){bad=f;return o;},withUserObject:function(){return o;},
+    rpc:function(fn,args){post(fn,args).then(function(r){if(ok)ok(r);},function(e){if(bad)bad(e);});}};return o;}
+  window.google=window.google||{};window.google.script={history:{replace:function(){},push:function(){},setChangeHandler:function(){}},host:{close:function(){},setHeight:function(){},setWidth:function(){}}};
+  Object.defineProperty(window.google.script,"run",{get:run});
+  var p={t:t};Q.forEach(function(v,k){if(k!=="t")p[k]=v;});
+  // this phone's id, the one redshift.vote keeps (rs_pid): the first score from this link ties the phone to the link's guest (Rich, 21 Oct)
+  p.pid=(function(){var x="";try{x=localStorage.getItem("rs_pid")||"";}catch(e){}if(!/^[a-f0-9]{32}$/.test(x)){var m=document.cookie.match(/(?:^|; )rs_pid=([a-f0-9]{32})/);x=m?m[1]:"";}
+   if(!x){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}x=Array.prototype.map.call(a,function(y){return("0"+y.toString(16)).slice(-2);}).join("");}
+   try{localStorage.setItem("rs_pid",x);}catch(e){}try{document.cookie="rs_pid="+x+"; max-age=63072000; path=/; SameSite=Lax; Secure";}catch(e){}return x;})();
+  post("walkPage",[p]).then(function(r){
+    if(!r||!r.ok){document.getElementById("m").textContent=(r&&r.msg)||"This link is not complete.";return;}
+    if(r.title)document.title=r.title;
+    var hs=document.getElementById("hs");if(hs)hs.parentNode.removeChild(hs);
+    var b=document.body;b.innerHTML=r.html;window.RST.mark("walk html in");
+    [].forEach.call(b.querySelectorAll("script"),function(x){var n=document.createElement("script");n.text=x.text;x.parentNode.replaceChild(n,x);});window.RST.mark("walk scripts run");
+  },function(){direct();});
+})();
+</script>
+</body>
+</html>
