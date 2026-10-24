@@ -131,7 +131,7 @@ var BUSY=0;
 function busy(t){BUSY=1;sheet('<div class="spin"></div><p style="text-align:center">'+esc(t)+'</p>');}
 function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn" id="sx">OK</button>');$("sx").onclick=shut;}
 // ---- New Books: a name first (first name, last name, last 4 of the phone), then the book
-function tap(m){if(!S.adm){location.href=S.regUrl||"/admin/";return;}
+function tap(m){if(!S.adm){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
  if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take a book</button>');
   $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,false,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.replace(r.launch);},function(e){oops(e.message);});};
@@ -143,6 +143,13 @@ var SZ=[5,25,50,75,100],SZD={door:25,call:100,text:100};
 function size(m){var k=m==="walk"?"door":m;if(S.books.some(function(b){return b.mode===k;}))return build(m);
  sheet('<h3>'+esc(ML[k])+' book</h3><p style="text-align:center">'+(k==="door"?"How many doors?":"How many people?")+'</p><div class="szs">'+SZ.map(function(n){return '<button type="button" class="btn'+(n===SZD[k]?"":" alt")+'" data-sz="'+n+'">'+n+'</button>';}).join("")+'</div>');
  [].forEach.call(document.querySelectorAll("[data-sz]"),function(b){b.onclick=function(){shut();build(m,Number(b.getAttribute("data-sz")));};});}
+// a guest on a browser not let in yet: Your info -> vKnown (a guest let in before comes in; anyone else: scan the event QR code or sign in)
+function knownSheet(done){BUSY=0;
+ sheet('<h3>Your info</h3><label>First name</label><input id="kf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="kl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="k4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="km"></div><button class="btn" id="kgo">Continue</button><button class="btn alt" id="kgg">Sign in with Google</button>');
+ $("kgg").onclick=function(){location.href=S.regUrl||"/admin/";};
+ $("kgo").onclick=function(){var f=$("kf").value.trim(),l=$("kl").value.trim(),p=$("k4").value.replace(/\D/g,""),bt=this;
+  if(!f){$("km").textContent="Add your first name.";return;}if(p.length!==4){$("km").textContent="Add the last 4 digits of your phone number.";return;}
+  bt.disabled=true;call("vKnown",[PID,f,l,p]).then(function(r){if(!r.ok||!r.in){$("km").textContent=r.msg||"Please try again.";bt.disabled=false;return;}shut();done();},function(e){$("km").textContent=e.message;bt.disabled=false;});};}
 function nameSheet(then){BUSY=0;
  // Rich, 20 Oct: "do not add cute shit like that. Title that page as: Your info"
  sheet('<h3>Your info</h3><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
@@ -172,7 +179,7 @@ document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&
 function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
  call("vNew",[PID,m,QN,false,sz||SZD[k]]).then(function(r){
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
-  if(r.reg){location.href=S.regUrl||"/admin/";return;}
+  if(r.reg){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
   var b=r.book;S.books=S.books.filter(function(x){return x.id!==b.id;}).concat([b]);S.act=true;
   if(k==="door"&&r.fresh){BUSY=0;shut();return route(b);}
@@ -254,10 +261,12 @@ function lab(){splashOff();S.reg=true;var L=null,R=[],run=false;
 // ---- Sign in (Rich, 21 Oct: "i want our app to always challenge for the google login. and allow the user to contine on as a guest wo it.
 // and when a user hits a qr: same thing"): a browser with no live pass gets Google's button and Continue as guest (Google's automatic
 // prompt alone does not work on iPhone: "the normal One Tap UX doesn't work on Chrome on iOS, Safari, or Firefox", Google's One Tap guide)
-function signIn(go,guest){var done=0,fin=function(){if(done)return;done=1;GSIDONE=null;GSITRIED=1;go();};GSIDONE=fin;
+// Rich, 24 Oct: "always give them guest option and if they are a recognized guest, then they should never have to re-enter": Continue as guest
+// is always there; a browser not let in yet asks Your info and comes in when it matches a guest let in before (99zzzyd vKnown)
+function signIn(go,guest,inn){var done=0,fin=function(){if(done)return;done=1;GSIDONE=null;GSITRIED=1;go();};GSIDONE=fin;
  setTimeout(function(){if(done)return;splashOff();
   frame('<div class="list"><div id="gbtn" class="gbtn" style="display:flex;justify-content:center;min-height:46px;margin-top:18px"></div>'+(guest?'<button class="btn alt" id="gsg">Continue as guest</button>':'')+'</div>',false);
-  if(guest)$("gsg").onclick=function(){frame('<div class="list"><div class="spin"></div></div>',false);fin();};
+  if(guest)$("gsg").onclick=function(){var on=function(){frame('<div class="list"><div class="spin"></div></div>',false);fin();};if(inn===false)return knownSheet(on);on();};
   gsiLoad(function(ok){if(!ok||done)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});google.accounts.id.cancel();}catch(e){}});   /* Rich, 21 Oct: one sign-in panel, ours; no Google prompt at the bottom */
  },Math.max(0,1500-(Date.now()-T0)));}
 statGet();
@@ -267,7 +276,7 @@ statGet();
 if(W.splash){/* the splash only */}else if(W.pit){call("vPit",[PID,PASS]).then(function(pr){if(pr&&pr.html)pit(pr);splashOff();},function(){splashOff();frame('<div class="note bad">The pit stop could not be reached. Reload.</div>');});}else if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE&&PASS){qrTry();}else if(!PASS&&!window.RS_TEST){
  // Rich, 21 Oct: "i dont think univited guests should be able to get into redshift.vote.   they can only get in via a book link or a qr";
  // "build that first": Continue as guest only with an event code, or on a phone a QR code or book link already let in
- var BT=function(){if(ISQR&&PASS)return qrTry();boot();};if(CODE)signIn(BT,true);else call("vHome",[PID,QN,PASS,CODE]).then(function(r){signIn(BT,!!(r&&r.adm));},function(){signIn(BT,false);});}
+ var BT=function(){if(ISQR&&PASS)return qrTry();boot();};if(CODE)signIn(BT,true,true);else call("vHome",[PID,QN,PASS,CODE]).then(function(r){signIn(BT,true,!!(r&&r.adm));},function(){signIn(BT,true,false);});}
 else boot();
 // ---- Confirm your info (a guest or a precinct delegate matched by the signed-in email; Rich, 20 Oct)
 function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First name</label><input value="'+esc(c.first)+'" readonly><label>Last name</label><input value="'+esc(c.last)+'" readonly><div class="msg" id="cm"></div><button class="btn" id="cy">That\'s me</button><button class="btn alt" id="cn">Not me</button>');
@@ -279,7 +288,7 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
 // is asked for at once, beside Home, for everyone (not a QR code); the splash stays until both are in (the pit stop at most 8 s)
 function boot(){var pitP=ISQR?Promise.resolve(null):Promise.race([call("vPit",[PID,PASS]).then(null,function(){return null;}),new Promise(function(res){setTimeout(function(){res(null);},8000);})]);
  var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
- if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},false);});}return r;});   /* one sign-in panel (21 Oct) */
+ if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},true,false);});}return r;});   /* one sign-in panel (21 Oct) */
 home.then(function(r){if(!r){boot();return "re";}S=r;try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
