@@ -78,7 +78,7 @@ var TBI={back:'<path d="M15 4l-8 8 8 8"/>',home:'<path d="M3 11.5L12 4l9 7.5"/><
  test:'<path d="M9 3h6M10 3v6l-5 9.5c-.6 1.1.2 2.5 1.5 2.5h11c1.3 0 2.1-1.4 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/>'};
 var NAVN=0,ONQR=false,TVID=0,CUR="";
 function tbar(){var t=$("tb");if(!t)return;var b=function(k,lab,extra){return '<button type="button" data-tb="'+k+'" aria-label="'+lab+'"'+(extra||"")+'><svg viewBox="0 0 24 24">'+TBI[k]+'</svg></button>';};
- t.innerHTML=b("back","Back",NAVN>0?"":' class="off"')+b("home","Home",!ONQR&&(CUR==="home"||!S.adm&&CUR==="new")?' class="off"':"")+(S.owner&&!ONQR?b("qr","Event QR code"):"")+(S.owner?b("test","Tests"):"")+(S.admin?'<a href="/admin/" data-tb="admin" aria-label="Admin"><svg viewBox="0 0 24 24">'+TBI.admin+'</svg></a>':"");
+ t.innerHTML=b("back","Back",NAVN>0?"":' class="off"')+b("home","Home",!ONQR&&(CUR==="home"||!S.adm&&CUR==="new")?' class="off"':"")+((S.owner||S.qrm)&&!ONQR?b("qr","Event QR code"):"")+(S.owner?b("test","Tests"):"")+(S.admin?'<a href="/admin/" data-tb="admin" aria-label="Admin"><svg viewBox="0 0 24 24">'+TBI.admin+'</svg></a>':"");
  t.hidden=false;document.body.classList.add("tbon");}
 document.addEventListener("click",function(e){var x=e.target&&e.target.closest&&e.target.closest("#tb [data-tb]");if(!x)return;var k=x.getAttribute("data-tb");
  if(k==="back"){if(NAVN>0)history.back();}else if(k==="home")go("home");else if(k==="qr")go("qr");
@@ -87,7 +87,7 @@ var PATHS={home:"/",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/li
 function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id))return openBook(id.slice(2));
  if(id==="qr"){if(location.pathname.replace(/\/+$/,"")!=="/qr"){history.pushState({p:"qr"},"","/qr");NAVN++;}return qrTry();}
  if(PATHS[id]){var p=PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");if(location.pathname!==p){history.pushState({p:id},"",p);NAVN++;}show(id);}}
-addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();if(/^\/qr\/?$/.test(location.pathname)&&S.owner)return qrTry();show(W.page);});
+addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();if(/^\/qr\/?$/.test(location.pathname)&&(S.owner||S.qrm))return qrTry();show(W.page);});
 var NOTE="";
 function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
@@ -135,8 +135,14 @@ function tap(m){if(!S.adm){location.href=S.regUrl||"/admin/";return;}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
  if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take a book</button>');
   $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,false,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.replace(r.launch);},function(e){oops(e.message);});};
-  $("tk").onclick=function(){shut();if(!S.named)return nameSheet(function(){build(m);});build(m);};return;}
- if(!S.named)return nameSheet(function(){tap(m);});build(m);}
+  $("tk").onclick=function(){shut();if(!S.named)return nameSheet(function(){size(m);});size(m);};return;}
+ if(!S.named)return nameSheet(function(){tap(m);});size(m);}
+// Rich, 24 Oct: "add a selection of 5, 25, 50, 75, 100 and let people choose what size of book they want ... The size of 5 is to be inviting":
+// a book of this kind already held opens as before; otherwise the size first (the standard size, from the ready queue, is marked)
+var SZ=[5,25,50,75,100],SZD={door:25,call:100,text:100};
+function size(m){var k=m==="walk"?"door":m;if(S.books.some(function(b){return b.mode===k;}))return build(m);
+ sheet('<h3>'+esc(ML[k])+' book</h3><p style="text-align:center">'+(k==="door"?"How many doors?":"How many people?")+'</p><div class="szs">'+SZ.map(function(n){return '<button type="button" class="btn'+(n===SZD[k]?"":" alt")+'" data-sz="'+n+'">'+n+'</button>';}).join("")+'</div>');
+ [].forEach.call(document.querySelectorAll("[data-sz]"),function(b){b.onclick=function(){shut();build(m,Number(b.getAttribute("data-sz")));};});}
 function nameSheet(then){BUSY=0;
  // Rich, 20 Oct: "do not add cute shit like that. Title that page as: Your info"
  sheet('<h3>Your info</h3><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
@@ -163,9 +169,9 @@ function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="but
 // Rich, 20 Oct: "this needs to be cached during spash": asked for while the splash shows, kept in the page (no new cache)
 var STAT=null,STATASK=0;function statGet(){if(STATASK)return;STATASK=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){STAT=r;var e=$("bcs");if(e)e.innerHTML=statTxt();}else STATASK=0;},function(){STATASK=0;});}
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
-function build(m){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
- call("vNew",[PID,m,QN]).then(function(r){
-  if(r.need==="name"){S.named=false;return nameSheet(function(){build(m);});}
+function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
+ call("vNew",[PID,m,QN,false,sz||SZD[k]]).then(function(r){
+  if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
   if(r.reg){location.href=S.regUrl||"/admin/";return;}
   if(!r.ok)return oops(r.msg||"Please try again.");
   var b=r.book;S.books=S.books.filter(function(x){return x.id!==b.id;}).concat([b]);S.act=true;
