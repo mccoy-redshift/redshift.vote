@@ -258,7 +258,7 @@ statGet();
 // 22 Oct (Rich: "when user came in as guest and then hit arrow, it put him back at the spash and then login screen"): a guest let in by a
 // QR code who comes back to its address (/qr/<list>, e.g. Back from the book) got the Owner's QR sign-in; /qr is the event code only for a
 // signed-in browser, and anyone else comes in as on every other address
-if(W.splash){/* the splash only */}else if(W.pit){call("vPit",[PID]).then(function(pr){if(pr&&pr.html)pit(pr);splashOff();},function(){splashOff();frame('<div class="note bad">The pit stop could not be reached. Reload.</div>');});}else if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE&&PASS){qrTry();}else if(!PASS&&!window.RS_TEST){
+if(W.splash){/* the splash only */}else if(W.pit){call("vPit",[PID,PASS]).then(function(pr){if(pr&&pr.html)pit(pr);splashOff();},function(){splashOff();frame('<div class="note bad">The pit stop could not be reached. Reload.</div>');});}else if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE&&PASS){qrTry();}else if(!PASS&&!window.RS_TEST){
  // Rich, 21 Oct: "i dont think univited guests should be able to get into redshift.vote.   they can only get in via a book link or a qr";
  // "build that first": Continue as guest only with an event code, or on a phone a QR code or book link already let in
  var BT=function(){if(ISQR&&PASS)return qrTry();boot();};if(CODE)signIn(BT,true);else call("vHome",[PID,QN,PASS,CODE]).then(function(r){signIn(BT,!!(r&&r.adm));},function(){signIn(BT,false);});}
@@ -271,7 +271,7 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
  $("cy").onclick=function(){ans(true);};$("cn").onclick=function(){ans(false);};}
 // Rich, 22 Oct night: "redshift.vote and /admin is the same sequence.   spash then pitstop  then contnet"; "all except the QR code": the pit stop
 // is asked for at once, beside Home, for everyone (not a QR code); the splash stays until both are in (the pit stop at most 8 s)
-function boot(){var pitP=ISQR?Promise.resolve(null):Promise.race([call("vPit",[PID]).then(null,function(){return null;}),new Promise(function(res){setTimeout(function(){res(null);},8000);})]);
+function boot(){var pitP=ISQR?Promise.resolve(null):Promise.race([call("vPit",[PID,PASS]).then(null,function(){return null;}),new Promise(function(res){setTimeout(function(){res(null);},8000);})]);
  var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
  if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},false);});}return r;});   /* one sign-in panel (21 Oct) */
 home.then(function(r){if(!r){boot();return "re";}S=r;try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
