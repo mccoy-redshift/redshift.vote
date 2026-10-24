@@ -45,7 +45,7 @@ window.RST=window.RST||(function(){var T=function(){return Math.round(performanc
   var BOOK=/^[A-Za-z0-9]{16,40}$/.test(Q.get("k")||"");
   function direct(){if(BOOK)location.replace(APP+"/m"+location.search);else document.getElementById("m").innerHTML='This map link is not complete. <a href="/">Open Red Shift</a>';}
   if(!BOOK)return direct();
-  function post(fn,args){var done=window.RST.call(fn);return fetch(APP,{method:"POST",body:JSON.stringify({fn:fn,args:args||[]}),credentials:"omit"}).then(function(r){return r.text();}).then(function(x){var j;try{j=JSON.parse(x);}catch(e){done(null);throw new Error("Red Shift could not be reached. Check your signal and try again.");}done(j&&j.sv);if(!j||!j.ok)throw new Error((j&&j.error)||"Server error");return j.result;});}
+  function post(fn,args){var done=window.RST.call(fn);return fetch(APP,{method:"POST",body:JSON.stringify({fn:fn,args:args||[],p:(function(){try{return localStorage.getItem("rsPass")||"";}catch(e){return "";}})()}),credentials:"omit"}).then(function(r){return r.text();}).then(function(x){var j;try{j=JSON.parse(x);}catch(e){done(null);throw new Error("Red Shift could not be reached. Check your signal and try again.");}done(j&&j.sv);if(!j||!j.ok)throw new Error((j&&j.error)||"Server error");return j.result;});}
   // the page's google.script.run, as the app's own address gives it
   function run(){var ok=null,bad=null,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){bad=f;return o;},withUserObject:function(){return o;},
     rpc:function(fn,args){post(fn,args).then(function(r){if(ok)ok(r);},function(e){if(bad)bad(e);});}};return o;}
