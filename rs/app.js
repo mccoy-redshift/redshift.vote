@@ -223,6 +223,8 @@ function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book
   if(!r.ok)return oops(r.msg||"Please try again.");
   var b=r.book;S.books=S.books.filter(function(x){return x.id!==b.id;}).concat([b]);S.act=true;
   if(k==="door"&&r.fresh){BUSY=0;shut();return route(b);}
+  /* 25 Oct: a Call / Text book just handed out carries its link: straight to it (the open call was a second round trip, about 3 s) */
+  if(r.fresh&&b.launch){window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}window.RST.mark("book link");window.RST.send("open book");return location.replace(b.launch);}
   openBook(b.id);
  },function(e){oops(e.message);});}
 function openBook(id){busy("Opening your book...");window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}call("vOpen",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg);window.RST.mark("book link");window.RST.send("open book");location.replace(r.launch);},function(e){oops(e.message);});}
@@ -258,7 +260,7 @@ function route(b){var R=$("rt"),ord=b.stops.slice(),mk=[],line=null,map=null;
 var T0=Date.now(),SPL=null;
 (function(){var put=function(h){if(!h||h===SPL)return;SPL=h;var w=$("spw");if(w&&!w.classList.contains("out"))w.innerHTML=h;};put(LS.get("rsSplash"));
  if(!window.RS_TEST)fetch("https://www.googleapis.com/drive/v3/files/"+SPF+"?alt=media&key="+DK).then(function(r){return r.ok?r.text():null;}).then(function(h){if(h){LS.set("rsSplash",h);put(h);}},function(){});})();
-function splashOff(){if(W.splash)return;window.RST.mark("splash off");setTimeout(function(){window.RST.send("home");},4000);var w=$("spw");if(!w)return;w.classList.add("out");setTimeout(function(){if(w.parentNode)w.parentNode.removeChild(w);},700);}
+function splashOff(){if(W.splash)return;try{sessionStorage.setItem("rsSpl","1");}catch(e){}window.RST.mark("splash off");setTimeout(function(){window.RST.send("home");},4000);var w=$("spw");if(!w)return;w.classList.add("out");setTimeout(function(){if(w.parentNode)w.parentNode.removeChild(w);},700);}
 // 22 Oct (Rich: "the pitstop screen should listen to the dashboard proxy so it can update in realtime"): while the pit stop is up, its
 // doors, calls and texts are asked for every 15 s (pitLive) and put on screen
 var PITT=null,PITS=null;function pitLive(){clearTimeout(PITT);if(!$("lnd-k")){PITT=null;return;}if(!document.hidden)call("pitLive",[PITS]).then(function(x){if(!x||!x.ok)return;PITS=x.sig||null;clearTimeout(PITT);PITT=setTimeout(pitLive,x.held?50:15000);[["lnd-k",x.doors],["lnd-kc",x.calls],["lnd-kt",x.texts]].forEach(function(a){var e=$(a[0]);if(e)e.textContent=Math.max(0,Math.round(Number(a[1])||0)).toLocaleString("en-US");});},function(){clearTimeout(PITT);PITT=setTimeout(pitLive,15000);});PITT=setTimeout(pitLive,40000);}
