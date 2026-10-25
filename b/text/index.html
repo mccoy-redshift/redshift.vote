@@ -59,7 +59,8 @@ window.RST=window.RST||(function(){var T=function(){return Math.round(performanc
   p.pid=(function(){var x="";try{x=localStorage.getItem("rs_pid")||"";}catch(e){}if(!/^[a-f0-9]{32}$/.test(x)){var m=document.cookie.match(/(?:^|; )rs_pid=([a-f0-9]{32})/);x=m?m[1]:"";}
    if(!x){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}x=Array.prototype.map.call(a,function(y){return("0"+y.toString(16)).slice(-2);}).join("");}
    try{localStorage.setItem("rs_pid",x);}catch(e){}try{document.cookie="rs_pid="+x+"; max-age=63072000; path=/; SameSite=Lax; Secure";}catch(e){}return x;})();
-  post("bookPage",[p]).then(function(r){
+  var pre=null;try{var pk="rs_bp:"+t,ps=sessionStorage.getItem(pk);if(ps){sessionStorage.removeItem(pk);pre=JSON.parse(ps);}}catch(e){pre=null;}/* 25 Oct: the page that came with the book (redshift.vote New Books): no second trip */
+  (pre&&pre.ok&&pre.html?Promise.resolve(pre):post("bookPage",[p])).then(function(r){if(pre)window.RST.mark("book page with the book");
     if(!r||!r.ok){document.getElementById("m").textContent=(r&&r.msg)||"This link is not complete.";return;}
     if(r.title)document.title=r.title;
     var hs=document.getElementById("hs");if(hs)hs.parentNode.removeChild(hs);
