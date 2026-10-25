@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Red Shift</title>
+<meta name="description" content="Technology by the Grassroots, for the Grassroots.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://redshift.vote/r/">
+<meta property="og:title" content="Redshift"><meta property="og:description" content="Technology by the Grassroots, for the Grassroots.">
+<meta property="og:image" content="https://redshift.vote/share-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://redshift.vote/share-card.png">
+<link rel="icon" href="/logo.webp">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<!-- redshift.vote for volunteers (23 Oct: the page is in /rs/app.css and /rs/app.js; every address is this small page) (Rich, 19 Oct; claude/QR_DESIGN.md 7): no sign-in. This one page is every volunteer address: /, /qr,
+     /qr/<list>, /newbooks[/<list>], /mybooks, /dashboard, /links (GitHub Pages serves it as 404.html for any other path, and as each
+     folder's index.html). Sign-in links (?ref, ?pg, ?otp) go on to /admin, the signed-in app. The phone keeps a random ID (rs_pid). -->
+<style>html,body{margin:0;height:100%;background:#0B1A4F;color:#fff;font:600 18px Poppins,system-ui,sans-serif}#m{min-height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;box-sizing:border-box}</style>
+</head>
+<body>
+<div id="m">RED SHIFT</div>
+<script>
+// A sent book (25 Oct, 99zzzza booksend.js): redshift.vote/r/?s=<send>. The first phone to open it takes the book and goes straight to it.
+(function(){
+  var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec";
+  var s=(new URLSearchParams(location.search)).get("s")||"",m=document.getElementById("m");
+  var pid=(function(){var x="";try{x=localStorage.getItem("rs_pid")||"";}catch(e){}if(!/^[a-f0-9]{32}$/.test(x)){var c=document.cookie.match(/(?:^|; )rs_pid=([a-f0-9]{32})/);x=c?c[1]:"";}
+   if(!x){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}x=Array.prototype.map.call(a,function(y){return("0"+y.toString(16)).slice(-2);}).join("");}
+   try{localStorage.setItem("rs_pid",x);}catch(e){}try{document.cookie="rs_pid="+x+"; max-age=63072000; path=/; SameSite=Lax; Secure";}catch(e){}return x;})();
+  var p="";try{p=localStorage.getItem("rsPass")||"";}catch(e){}
+  fetch(APP,{method:"POST",body:JSON.stringify({fn:"vSendOpen",args:[pid,s],p:p}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){
+    var j=null;try{j=JSON.parse(t);}catch(e){}var r=j&&j.ok?j.result:null;
+    if(r&&r.ok&&r.launch)return location.replace(r.launch);
+    m.textContent=(r&&r.msg)||"Red Shift could not be reached. Check your signal and try again.";
+  },function(){m.textContent="Red Shift could not be reached. Check your signal and try again.";});
+})();
+</script>
+</body></html>
