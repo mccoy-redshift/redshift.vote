@@ -346,7 +346,7 @@ if(HG>=0&&QG!==HG){/* /home: the person already went on from the kept home scree
   else if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
   else show(W.land?"home":W.page);
   if(pr&&pr.html&&!ISQR){if(pr.kept&&PF)pr=PF;pit(pr);if(pr.kept)pitLive();}
-  splashOff();if(S.confirm)confirmSheet(S.confirm);},Math.max(0,(W.home?0:2200)-(Date.now()-T0)));
+  splashOff();if(S.confirm)confirmSheet(S.confirm);},Math.max(0,(W.home||!$("spw")?0:2200)-(Date.now()-T0)));
 },function(e){setTimeout(function(){frame('<div class="note bad">Red Shift could not be reached ('+esc(e.message)+'). Check your signal and reload.</div>');splashOff();},Math.max(0,1500-(Date.now()-T0)));});}
 // the Owner's TV page (Rich, 19 Oct: "it will be rendered on a TV from my laptop"; "scan and burn"): one code on screen; when a phone uses it,
 // a new one comes up within about 2 seconds
