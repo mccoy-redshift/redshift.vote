@@ -81,13 +81,13 @@ function tbar(){var t=$("tb");if(!t)return;var b=function(k,lab,extra){return '<
  t.innerHTML=b("back","Back",NAVN>0?"":' class="off"')+b("home","Home",!ONQR&&(CUR==="home"||!S.adm&&CUR==="new")?' class="off"':"")+((S.owner||S.qrm)&&!ONQR?b("qr","Event QR code"):"")+(S.owner?b("test","Tests"):"")+(S.admin?'<a href="/admin/" data-tb="admin" aria-label="Admin"><svg viewBox="0 0 24 24">'+TBI.admin+'</svg></a>':"");
  t.hidden=false;document.body.classList.add("tbon");}
 document.addEventListener("click",function(e){var x=e.target&&e.target.closest&&e.target.closest("#tb [data-tb]");if(!x)return;var k=x.getAttribute("data-tb");
- if(k==="back"){if(NAVN>0)history.back();}else if(k==="home")go("home");else if(k==="qr")go("qr");
+ if(k==="back"){if(NAVN>0)history.back();}else if(k==="home"){if(ONQR)return location.assign("/home");go("home");}else if(k==="qr")go("qr");
  else if(k==="test")call("testToken",[PASS]).then(function(tk){if(tk)location.href=API+"/tests?tk="+encodeURIComponent(tk);}).catch(function(){});});
 var PATHS={home:"/",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/links"};
 function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id))return openBook(id.slice(2));
  if(id==="qr"){if(location.pathname.replace(/\/+$/,"")!=="/qr"){history.pushState({p:"qr"},"","/qr");NAVN++;}return qrTry();}
  if(PATHS[id]){var p=PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");if(location.pathname!==p){history.pushState({p:id},"",p);NAVN++;}show(id);}}
-addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();if(/^\/qr\/?$/.test(location.pathname)&&(S.owner||S.qrm))return qrTry();show(W.page);});
+addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();/* 25 Oct (Rich: "end up on QR code screen some how"): Back never opens the QR screen again; only the QR icon does */if(/^\/qr\/?$/.test(location.pathname)){try{history.replaceState(null,"","/home");}catch(e){}W=where();return show("home");}show(W.page);});
 var NOTE="";
 function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
@@ -206,23 +206,23 @@ function obQ(){try{return JSON.parse(LS.get("rs_ob")||"[]")||[];}catch(e){return
 function obSet(q){try{if(q.length)LS.set("rs_ob",JSON.stringify(q));else LS.del("rs_ob");}catch(e){}}
 var OBB=0,OBW=[];
 function obAdd(fn,args,then){var q=obQ();q.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),fn:fn,args:args,then:then||""});obSet(q);setTimeout(obDrain,0);}
-function obDrain(){var q=obQ();if(!q.length){var w=OBW;OBW=[];w.forEach(function(f){f();});return;}if(OBB)return;OBB=1;var x=q[0];
- call(x.fn,x.args).then(function(r){OBB=0;obSet(obQ().filter(function(y){return y.id!==x.id;}));if(x.then==="reload"&&r&&r.ok!==false){if(!obQ().length)return location.reload();}if(r&&r.ok===false&&r.msg)oops(r.msg);obDrain();},function(){OBB=0;setTimeout(obDrain,15000);});}
-function obFlush(){return new Promise(function(res){if(!obQ().length)return res();OBW.push(res);setTimeout(res,10000);obDrain();});}
+function obDrain(){var q=obQ();if(!q.length){if(OBHOLD)return;var w=OBW;OBW=[];w.forEach(function(f){f();});return;}if(OBB)return;OBB=1;var x=q[0];
+ call(x.fn,x.args).then(function(r){OBB=0;obSet(obQ().filter(function(y){return y.id!==x.id;}));if(x.then==="name"){obName(x,r);return obDrain();}if(x.then==="reload"&&r&&r.ok!==false){if(!obQ().length)return location.reload();}if(r&&r.ok===false&&r.msg)oops(r.msg);obDrain();},function(){OBB=0;setTimeout(obDrain,15000);});}
+function obFlush(){return new Promise(function(res){if(!obQ().length)return res();OBW.push(res);setTimeout(function(){if(!OBHOLD)res();},10000);obDrain();});}
 setTimeout(obDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)obDrain();});
 function nameSheet(then){BUSY=0;
  // Rich, 20 Oct: "do not add cute shit like that. Title that page as: Your info"
  sheet('<h3>Your info</h3><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
  $("nf").focus();$("ngo").onclick=function(){var f=$("nf").value.trim(),l=$("nl").value.trim(),p=$("n4").value.replace(/\D/g,"");
   if(!f){$("nm").textContent="Add your first name.";return;}if(p.length!==4){$("nm").textContent="Add the last 4 digits of your phone number.";return;}
-  this.disabled=true;call("vName",[PID,f,l,p]).then(function(r){
-   if(!r.ok){$("nm").textContent=r.msg;$("ngo").disabled=false;return;}
-   if(!r.ask){S.named=true;S.first=f;shut();return then();}
-   // Rich, 19 Oct: "make the match and them pop up to confirm"; the wording: "perfect"
-   sheet('<h3>Welcome back!</h3><p>Continue as '+esc(r.ask)+'?</p><button class="btn" id="ty">That\'s me</button><button class="btn alt" id="tn">Not me</button>');
-   var tie=function(yes){obAdd("vTie",[PID,r.k,r.s,yes,f,l,p]);S.named=true;S.first=(yes?String(r.ask||f):f).split(" ")[0];shut();then();};
-   $("ty").onclick=function(){tie(true);};$("tn").onclick=function(){tie(false);};
-  },function(e){$("nm").textContent=e.message;$("ngo").disabled=false;});};}
+  /* 25 Oct (Rich: "yes"): the name goes into the outbox and the screen goes on; a match on file asks Welcome back when the server answers (obName) */
+  obAdd("vName",[PID,f,l,p],"name");S.named=true;S.first=f;shut();then();};}
+// the server's answer to a name in the outbox: a match asks Welcome back; the outbox (and a new book waiting on it) holds until answered
+var OBHOLD=0;
+function obName(x,r){if(!r||r.ok===false){S.named=false;return oops((r&&r.msg)||"Please try again.");}if(!r.ask)return;var f=x.args[1],l=x.args[2],p=x.args[3];OBHOLD=1;BUSY=0;
+ sheet('<h3>Welcome back!</h3><p>Continue as '+esc(r.ask)+'?</p><button class="btn" id="ty">That\'s me</button><button class="btn alt" id="tn">Not me</button>');
+ var tie=function(yes){obAdd("vTie",[PID,r.k,r.s,yes,f,l,p]);S.first=(yes?String(r.ask||f):f).split(" ")[0];OBHOLD=0;shut();obDrain();};
+ $("ty").onclick=function(){tie(true);};$("tn").onclick=function(){tie(false);};}
 // Rich, 19 Oct: "on the C W T page, put a checkbox for Ballot Chase. and put a Stat for XX contact YY Not Contacted"; "the check box switches the XX and YY totals"
 // Rich, 19 Oct: "on the New Books page you will put one of those down up arrows that expands an info pane. It wil lbe called the Targets: The title
 // will be Krieger Targets inside SJPS and then you will list the stats as bullets. So drop the checkbox ... But it starts with the total pool"
