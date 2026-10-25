@@ -224,7 +224,7 @@ function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book
   var b=r.book;S.books=S.books.filter(function(x){return x.id!==b.id;}).concat([b]);S.act=true;
   if(k==="door"&&r.fresh){BUSY=0;shut();return route(b);}
   /* 25 Oct: a Call / Text book just handed out carries its link: straight to it (the open call was a second round trip, about 3 s) */
-  if(r.fresh&&b.launch){window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}window.RST.mark("book link");window.RST.send("open book");return location.replace(b.launch);}
+  if(r.fresh&&b.launch){try{if(r.page&&r.page.t&&r.page.r)sessionStorage.setItem("rs_bp:"+r.page.t,JSON.stringify(r.page.r));}catch(e){}window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}window.RST.mark("book link");window.RST.send("open book");return location.replace(b.launch);}
   openBook(b.id);
  },function(e){oops(e.message);});}
 function openBook(id){busy("Opening your book...");window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}call("vOpen",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg);window.RST.mark("book link");window.RST.send("open book");location.replace(r.launch);},function(e){oops(e.message);});}
