@@ -166,9 +166,7 @@ function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn
 // ---- New Books: a name first (first name, last name, last 4 of the phone), then the book
 function tap(m){if(!S.adm){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
- if(S.admin&&!S.books.some(function(b){return b.mode===(m==="walk"?"door":m);})){var L=ML[m==="walk"?"door":m];sheet('<h3>'+esc(L)+' book</h3><button class="btn" id="pv">Preview</button><button class="btn alt" id="tk">Take a book</button>');
-  $("pv").onclick=function(){busy("Opening a preview...");call("vPreview",[PID,m,QN,false,PASS]).then(function(r){if(!r.ok)return oops(r.msg);location.replace(r.launch);},function(e){oops(e.message);});};
-  $("tk").onclick=function(){shut();if(!S.named)return nameSheet(function(){size(m);});size(m);};return;}
+ // 25 Oct (Rich: "get rid of book preview.  no need"): no Preview / Take a book choice for admins
  if(!S.named)return nameSheet(function(){tap(m);});size(m);}
 // Rich, 24 Oct: "add a selection of 5, 25, 50, 75, 100 and let people choose what size of book they want ... The size of 5 is to be inviting":
 // a book of this kind already held opens as before; otherwise the size first (the standard size, from the ready queue, is marked)
@@ -342,7 +340,8 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
  var on=function(x){$("cy").disabled=$("cn").disabled=!x;};
  var ans=function(yes){on(false);call("vConfirm",[PID,yes,c.k,c.s]).then(function(r){if(!r.ok){$("cm").textContent=r.msg;on(true);return;}BUSY=0;shut();
    if(yes){location.reload();return;}if(!r.in){location.href=S.regUrl||"/admin/";return;}nameSheet(function(){location.reload();});},function(e){$("cm").textContent=e.message;on(true);});};
- $("cy").onclick=function(){ans(true);};$("cn").onclick=function(){ans(false);};}
+ /* 25 Oct (Rich: "the yes it's me button does not work"): That's me closes at once; the page reloads when the server has it */
+ $("cy").onclick=function(){BUSY=0;shut();call("vConfirm",[PID,true,c.k,c.s]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");location.reload();},function(e){oops(e.message);});};$("cn").onclick=function(){ans(false);};}
 // Rich, 22 Oct night: "redshift.vote and /admin is the same sequence.   spash then pitstop  then contnet"; "all except the QR code": the pit stop
 // is asked for at once, beside Home, for everyone (not a QR code); the splash stays until both are in (the pit stop at most 8 s)
 function boot(){/* 25 Oct: /home asks for no pit stop; elsewhere the kept pit stop is used at once and the fresh one fills it in (pitFresh) */var PK=ISQR||W.home?null:pitKept(),pitF=ISQR||W.home?null:call("vPit",[PID,PASS]).then(null,function(){return null;});
