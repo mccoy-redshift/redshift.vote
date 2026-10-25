@@ -133,9 +133,9 @@ function mePanel(){var m=meInfo();if(!m)return;
 // anyting"; 99zzzyz siteinvite.js): the kinds this person may send, the campaign, their name and email, the message; sent by text, by
 // Red Shift's email, or as a group link. Every step asks the server (nothing kept on the phone).
 var INV=null,IKT={V:"Volunteer",TV:"Volunteer",CA:"Campaign Admin",AA:"App Admin"};
-function invShare(t){if(navigator.share){navigator.share({text:t}).catch(function(){});return;}location.href="sms:?&body="+encodeURIComponent(t);}
+function invShare(t,ph){if(ph){location.href="sms:"+ph+"&body="+encodeURIComponent(t);return;}if(navigator.share){navigator.share({text:t}).catch(function(){});return;}location.href="sms:?&body="+encodeURIComponent(t);}
 // the share sheet needs a fresh tap (iPhone refuses it after waiting on the server): one button that opens it
-function shareSheet(t,title){BUSY=0;sheet((title?'<h3>'+esc(title)+'</h3>':'')+'<button class="btn" id="shs">Send</button><button class="btn alt" id="shx">Close</button>');$("shs").onclick=function(){invShare(t);shut();};$("shx").onclick=shut;}
+function shareSheet(t,title,ph){BUSY=0;sheet((title?'<h3>'+esc(title)+'</h3>':'')+'<button class="btn" id="shs">Send</button><button class="btn alt" id="shx">Close</button>');$("shs").onclick=function(){invShare(t,ph);shut();};$("shx").onclick=shut;}
 function invSheet(){busy("One moment...");call("sInvite",[]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");INV=r;BUSY=0;
  sheet('<h3>Invite</h3>'+r.kinds.map(function(k){return '<button class="btn alt" data-ik="'+esc(k.k)+'">'+esc(k.label)+'</button>';}).join("")+'<button class="btn alt" id="ikx">Close</button>');
  $("ikx").onclick=shut;[].forEach.call(document.querySelectorAll("[data-ik]"),function(b){b.onclick=function(){invKind(b.getAttribute("data-ik"));};});},function(e){oops(e.message);});}
@@ -145,13 +145,17 @@ function invKind(k){var K=INV.kinds.filter(function(x){return x.k===k;})[0];if(!
    $("dit").onclick=function(){invShare(u);};/* tapped here: the share sheet is allowed */$("dig").onclick=function(){window.open("https://mail.google.com/mail/?view=cm&fs=1&su="+encodeURIComponent("Red Shift dashboard")+"&body="+encodeURIComponent(u),"_blank");};$("dix").onclick=shut;},function(e){oops(e.message);});}
  var cs=K.camps||[],grp=k==="V"||k==="TV",tpl=(INV.msgs&&INV.msgs[IKT[k]])||INV.def;
  sheet('<h3>'+esc(K.label)+'</h3>'+(cs.length>1?'<label>Campaign</label><select id="ikc">'+cs.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.label)+'</option>';}).join("")+'</select>':'')+
-  '<label>Their name</label><input id="ikn" maxlength="60"><label>Their email</label><input id="ike" type="email" maxlength="120"><label>Message</label><textarea id="ikm" rows="5" style="width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:12px;border:1px solid #DDE2EE"></textarea><div class="msg" id="ikmsg"></div>'+
+  '<label>Find</label><input id="iks" maxlength="60" autocomplete="off" placeholder="Name"><div id="ikl"></div><label>Their name</label><input id="ikn" maxlength="60"><label>Their email</label><input id="ike" type="email" maxlength="120"><label>Message</label><textarea id="ikm" rows="5" style="width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:12px;border:1px solid #DDE2EE"></textarea><div class="msg" id="ikmsg"></div>'+
   '<button class="btn" id="ikt">Text</button><button class="btn alt" id="ikr">Email from Red Shift</button>'+(grp?'<button class="btn alt" id="ikg">Group link</button>':'')+'<button class="btn alt" id="ikb">Back</button>');
  $("ikm").value=tpl;$("ikb").onclick=invSheet;
+ /* 25 Oct (Rich: "in the invite, i need the search feature...many invites are to our PDs"): find the person by name (99zzzyz sInvitePeople); a pick fills their name and email, and Text goes to their phone */
+ var IPH="",IST=null,ISQ=0;$("iks").oninput=function(){clearTimeout(IST);var v=$("iks").value.trim();if(v.length<2){$("ikl").innerHTML="";return;}IST=setTimeout(function(){var g=++ISQ;call("sInvitePeople",[v]).then(function(r){if(g!==ISQ||!r||!r.ok)return;
+   $("ikl").innerHTML=(r.people||[]).map(function(x,i){return '<button type="button" class="btn alt" data-ip="'+i+'" style="text-align:left;font-size:15px;padding:10px 14px">'+esc(x.name)+' <small style="opacity:.6">'+esc(x.badge)+(x.where?' · '+esc(x.where):'')+'</small></button>';}).join("");
+   [].forEach.call(document.querySelectorAll("[data-ip]"),function(b){b.onclick=function(){var x=r.people[Number(b.getAttribute("data-ip"))];$("ikn").value=x.name;$("ike").value=x.email||"";IPH=String(x.phone||"").replace(/[^0-9]/g,"");$("ikl").innerHTML="";$("iks").value="";};});});},300);};
  var camp=function(){return cs.length>1?$("ikc").value:(cs[0]?cs[0].id:"");};
  var make=function(ch,then){var em=$("ike").value.trim();if(ch==="red"&&!em){$("ikmsg").textContent="Add their email.";return;}$("ikmsg").textContent="One moment...";
   call("sNewInvite",[{kind:k,campaign:camp(),name:$("ikn").value.trim(),email:em,channel:ch,text:$("ikm").value}]).then(function(r){if(!r.ok){$("ikmsg").textContent=r.msg||"Please try again.";return;}$("ikmsg").textContent=r.msg||"";if(then)then(r);},function(e){$("ikmsg").textContent=e.message;});};
- $("ikt").onclick=function(){make("text",function(r){shareSheet(r.text,K.label);});};
+ $("ikt").onclick=function(){make("text",function(r){shareSheet(r.text,K.label,IPH);});};
  $("ikr").onclick=function(){make("red");};
  if($("ikg"))$("ikg").onclick=function(){$("ikmsg").textContent="One moment...";call("sInviteGroup",[{kind:k,campaign:camp()}]).then(function(r){if(!r.ok){$("ikmsg").textContent=r.msg||"Please try again.";return;}$("ikmsg").textContent=(r.uses||0)+" signed up with this link.";shareSheet(r.link,K.label);},function(e){$("ikmsg").textContent=e.message;});};}
 // ---- My Books: send a book, a personal nickname (Rich, 25 Oct; 99zzzza booksend.js). The share icon (Trusted only) reserves the book for
@@ -223,7 +227,7 @@ function tap(m){if(!S.adm){if(PASS){location.href=S.regUrl||"/admin/";return;}re
 // Rich, 24 Oct: "add a selection of 5, 25, 50, 75, 100 and let people choose what size of book they want ... The size of 5 is to be inviting":
 // a book of this kind already held opens as before; otherwise the size first (the standard size, from the ready queue, is marked)
 var SZ=[5,25,50,75,100],SZD={door:25,call:100,text:100};
-function size(m){var k=m==="walk"?"door":m,hb=S.books.filter(function(b){return b.mode===k&&!b.done;})[0];
+function size(m){var k=m==="walk"?"door":m,hb=S.admin?null:S.books.filter(function(b){return b.mode===k&&!b.done;})[0];   /* 25 Oct (Rich: "n books of each kind for a total of 200 voters per kind"; "admin only.  non admin gets one of each"; the server holds the quota, 99zzzzb) */
  // Rich, 24 Oct: one book of each kind at a time; New Books with an unfinished one asks: open it, or give it back and get a new one ("that is smart")
  if(hb){sheet('<h3>Your '+esc(ML[k])+' book</h3><p style="text-align:center">'+(hb.left!=null?esc(hb.left+" "+(hb.unit||(k==="door"?"doors":"people"))+" left"):"")+'</p><button class="btn" id="hbo">Open my book</button><button class="btn alt" id="hbn">Give it back and get a new one</button>');
   $("hbo").onclick=function(){shut();build(m);};
