@@ -228,12 +228,13 @@ function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="but
 var STAT=null,STATASK=0;function statGet(){if(STATASK)return;STATASK=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){STAT=r;var e=$("bcs");if(e)e.innerHTML=statTxt();}else STATASK=0;},function(){STATASK=0;});}
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
 function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
- call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ()]).then(function(r){
+ call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ(),LS.get("rs_wid")||""]).then(function(r){
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
   if(r.reg){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
   var b=r.book;S.books=S.books.filter(function(x){return x.id!==b.id;}).concat([b]);S.act=true;
-  if(k==="door"&&r.fresh){BUSY=0;shut();return route(b);}
+  /* 25 Oct (Rich: "you are basically rendering the same mape in two different apps"; "i want it faster"): no route pop-up; a new walk book brings its walk page and its walk (99zzzyu), kept in the tab for the walk page on /m/ */
+  if(k==="door"&&r.fresh&&r.walk&&r.walk.k){try{sessionStorage.setItem("rs_wp:"+r.walk.k,JSON.stringify(r.walk));}catch(e){}}
   /* 25 Oct: a Call / Text book just handed out carries its link: straight to it (the open call was a second round trip, about 3 s) */
   if(r.fresh&&b.launch){try{if(r.page&&r.page.t&&r.page.r)sessionStorage.setItem("rs_bp:"+r.page.t,JSON.stringify(r.page.r));}catch(e){}window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}window.RST.mark("book link");window.RST.send("open book");return location.replace(b.launch);}
   openBook(b.id);
