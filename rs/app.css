@@ -44,6 +44,7 @@ body.wide .stat{grid-template-columns:repeat(4,1fr);padding:2% 6%}body.wide .lk,
 #sh[hidden]{display:none}
 #sh .box{background:#fff;border-radius:26px 26px 0 0;padding:24px 22px max(24px,env(safe-area-inset-bottom));width:100%;max-width:520px;box-shadow:0 -10px 40px rgba(11,26,79,.2)}
 body.wide #sh{align-items:center}body.wide #sh .box{border-radius:26px}
+/* 25 Oct (Rich: "i tried to scroll to find search and i could not"): a tall sheet scrolls inside the screen */#sh .box{max-height:calc(100dvh - 24px);max-height:calc(100vh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;box-sizing:border-box}@supports (height:100dvh){#sh .box{max-height:calc(100dvh - 24px)}}
 #sh h3{margin:0 0 6px;font-size:22px;font-weight:800}#sh p{margin:0 0 14px;color:#4a5578;font-size:15px}
 #sh label{display:block;font-size:13px;font-weight:600;color:var(--gray);margin:10px 0 4px}
 #sh input{width:100%;font:500 17px Poppins,system-ui,sans-serif;padding:12px 14px;border:2px solid var(--line);border-radius:14px;color:var(--navy);outline:none}
