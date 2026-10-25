@@ -1,4 +1,21 @@
 
+/* 25 Oct (Rich: "during an install: A message that says, Redshift is temporarily unavialble while the latest features re being installed and then give them a rotation of 4 seconds of spalsh, 4 seconds pitstop and 4 seconds ohome pate"; "javascript that both checks the status and invokes thenext page on a timer"; "ask server.  keep a cached version for it, but the script needs to be smart enoubht o check to see if the server is ready"):
+   the phone asks the server's front door (the loader's bootStatus: answered from the cache, with no app code, so it answers even while new code loads) whether an install is on, every 30 s and whenever a call is slow. During an install: the message on top, and /splash -> /pitstop -> /home, 4 s each, drawn from the copies kept on the phone (no calls to the server). At each step the phone asks again; when the install is over and the server answers a real call quickly, it goes back to the page it was on. */
+window.RSINST=(function(){var K="rsInst",SEQ=["/splash/","/pitstop/","/home/"],APP0="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec",MSG="Redshift is temporarily unavailable while the latest features are being installed.";
+ function ask(fn,args,ms,cb){var U,done=false,t=setTimeout(function(){if(!done){done=true;cb(U);}},ms);try{fetch(APP0,{method:"POST",body:JSON.stringify({fn:fn,args:args}),credentials:"omit"}).then(function(r){return r.json();}).then(function(j){if(done)return;done=true;clearTimeout(t);cb(j&&j.ok?j.result:U);},function(){if(!done){done=true;clearTimeout(t);cb(U);}});}catch(e){done=true;clearTimeout(t);cb(U);}}   /* undefined: no answer */
+ /* on: true (an install is on), false (none), null (no answer) */
+ function st(cb){ask("bootStatus",["rsinstall1"],5000,function(r){cb(r===undefined?null:!!(r&&r.installing));});}
+ /* ready: no install, and the app itself answers within 4 s */
+ function ready(cb){st(function(on){if(on!==false)return cb(false);ask("ping",[],4000,function(r){cb(!!(r&&r.ok));});});}
+ function get(){try{return JSON.parse(sessionStorage.getItem(K)||"null");}catch(e){return null;}}
+ function set(o){try{if(o)sessionStorage.setItem(K,JSON.stringify(o));else sessionStorage.removeItem(K);}catch(e){}}
+ function bar(){var b=document.createElement("div");b.id="rsinstb";b.setAttribute("role","status");b.textContent=MSG;b.style.cssText="position:fixed;left:12px;right:12px;top:12px;z-index:100000;background:#ffd38a;color:#0B1A4F;border-radius:12px;padding:12px 14px;font:600 15px/1.35 Poppins,system-ui,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.35);text-align:center";(document.body||document.documentElement).appendChild(b);}
+ function start(){if(get())return;set({back:location.href,i:0});location.replace(SEQ[0]);}
+ var I=get();
+ if(I){if(document.body)bar();else document.addEventListener("DOMContentLoaded",bar);
+  setTimeout(function(){ready(function(ok){if(ok){set(null);location.replace(I.back||"/home/");return;}I.i=(I.i+1)%SEQ.length;set(I);location.replace(SEQ[I.i]);});},4000);}
+ else{var poll=function(){if(document.hidden)return;st(function(on){if(on)start();});};setTimeout(poll,1500);setInterval(poll,30000);}
+ return {on:!!I,start:start,check:st};})();
 // RST (Rich, 23 Oct: "i m not sure why you are not 100 instrumented by now"; "instrument that code so we can see what is the hold up"): the phone's
 // own timings, in ms from the moment the page was asked for: each mark, and each call to the app (start, end, and the app's own load and work
 // time from its answer). Sent to the Perf log (perfPhone) in parts: what is new since the last part, with the calls still waiting for an answer.
@@ -35,7 +52,13 @@ function passOk(t){try{var f=atob(String(t).split(".")[1].replace(/-/g,"+").repl
 var PID=pidOf(),PASS=LS.get("rsPass")||"";if(PASS&&!passOk(PASS))PASS="";
 function passSet(t){if(!t)return;PASS=t;LS.set("rsPass",t);}
 // ---- the server (the same answer shape as /admin)
-function call(fn,args){var done=window.RST.call(fn);return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[],p:PASS}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){done(null);throw new Error("Red Shift is busy. Please try again.");}done(j.sv);if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
+/* 25 Oct (Rich: "an install aware message that suggests that the user should try again a bit later and that we are currently installing the latest revisions"): a call still waiting after 10 s asks the server's front door whether a new build is being installed (RSINST); during an install the phone says so */
+var INSTM="We are installing the latest revisions to Red Shift. Please try again in a minute or two.";
+function instCheck(cb){if(window.RSINST)window.RSINST.check(function(on){cb(!!on);});else cb(false);}
+function instShow(on){var b=document.getElementById("instb");if(!on){if(b)b.parentNode.removeChild(b);return;}if(b)return;b=document.createElement("div");b.id="instb";b.setAttribute("role","status");b.style.cssText="position:fixed;left:12px;right:12px;top:12px;z-index:9999;background:#ffd38a;color:#0B1A4F;border-radius:12px;padding:12px 14px;font:600 15px/1.35 Poppins,system-ui,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.35)";b.textContent=INSTM;document.body.appendChild(b);}
+var INSTN=0;
+function call(fn,args){INSTN++;var fin=false,it=setTimeout(function(){if(!fin)instCheck(function(on){if(on&&!fin){if(window.RSINST)window.RSINST.start();else instShow(true);}});},10000),end=function(){fin=true;clearTimeout(it);if(--INSTN<=0){INSTN=0;instShow(false);}};return call0(fn,args).then(function(r){end();return r;},function(e){end();throw e;});}
+function call0(fn,args){if(window.RSINST&&window.RSINST.on)return new Promise(function(){});var done=window.RST.call(fn);return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[],p:PASS}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){done(null);throw new Error("Red Shift is busy. Please try again.");}done(j.sv);if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
 window.RUN=function(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;},rpc:function(fn,a){call(fn,a).then(function(r){if(ok)ok(r);},function(e){if(no)no(e);});}};return o;};
 // ---- the measured screen; phone or laptop
 function fit(){var vv=window.visualViewport,h=Math.round((vv&&vv.height)||innerHeight||0),S=screen.height||h;if(!h||h>S)h=(screen.availHeight||S)-100;h=Math.max(320,h);
@@ -133,6 +156,8 @@ function mePanel(){var m=meInfo();if(!m)return;
 // anyting"; 99zzzyz siteinvite.js): the kinds this person may send, the campaign, their name and email, the message; sent by text, by
 // Red Shift's email, or as a group link. Every step asks the server (nothing kept on the phone).
 var INV=null,IKT={V:"Volunteer",TV:"Volunteer",CA:"Campaign Admin",AA:"App Admin"};
+/* 25 Oct: the Campaign Admin invite says so, and where to set up the campaign ([their name], [campaigns], [link] are filled by Red Shift) */
+function IKCA(){return "Hey, this is "+String((INV&&INV.first)||"").trim()+" from Red Shift. [their name], I'd like you to be the Campaign Admin for [campaigns] in Red Shift. Sign in with your Google account: [link] Then tap your profile (the circle at the top) and choose Configure Campaign to set up your campaign.";}
 function invShare(t,ph){if(ph){location.href="sms:"+ph+"&body="+encodeURIComponent(t);return;}if(navigator.share){navigator.share({text:t}).catch(function(){});return;}location.href="sms:?&body="+encodeURIComponent(t);}
 // the share sheet needs a fresh tap (iPhone refuses it after waiting on the server): one button that opens it
 function shareSheet(t,title,ph){BUSY=0;sheet((title?'<h3>'+esc(title)+'</h3>':'')+'<button class="btn" id="shs">Send</button><button class="btn alt" id="shx">Close</button>');$("shs").onclick=function(){invShare(t,ph);shut();};$("shx").onclick=shut;}
@@ -143,21 +168,23 @@ function invKind(k){var K=INV.kinds.filter(function(x){return x.k===k;})[0];if(!
  if(k==="DI"){busy("One moment...");return call("sDashLink",[]).then(function(r){var u=r&&r.url;if(!u)return oops((r&&r.msg)||"No link. Please try again.");BUSY=0;
    sheet('<h3>Dashboard Invite</h3><button class="btn" id="dit">Text</button><button class="btn alt" id="dig">Gmail</button><button class="btn alt" id="dix">Close</button>');
    $("dit").onclick=function(){invShare(u);};/* tapped here: the share sheet is allowed */$("dig").onclick=function(){window.open("https://mail.google.com/mail/?view=cm&fs=1&su="+encodeURIComponent("Red Shift dashboard")+"&body="+encodeURIComponent(u),"_blank");};$("dix").onclick=shut;},function(e){oops(e.message);});}
- var cs=K.camps||[],grp=k==="V"||k==="TV",tpl=(INV.msgs&&INV.msgs[IKT[k]])||INV.def;
- sheet('<h3>'+esc(K.label)+'</h3>'+(cs.length>1?'<label>Campaign</label><select id="ikc">'+cs.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.label)+'</option>';}).join("")+'</select>':'')+
-  '<label>Find</label><input id="iks" maxlength="60" autocomplete="off" placeholder="Name"><div id="ikl"></div><label>Their name</label><input id="ikn" maxlength="60"><label>Their email</label><input id="ike" type="email" maxlength="120"><label>Message</label><textarea id="ikm" rows="5" style="width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:12px;border:1px solid #DDE2EE"></textarea><div class="msg" id="ikmsg"></div>'+
+ var cs=K.camps||[],grp=k==="V"||k==="TV",tpl=(INV.msgs&&INV.msgs[IKT[k]])||(k==="CA"?IKCA():INV.def);
+ /* 25 Oct (Rich: "you just picked a random campaign and did not explain they were being invited to be a campaign admin ... there was no search ... you should ask me which campaign im inviting the person to admin on"): Find first; the campaign is chosen, never assumed; the phone found shows */
+ sheet('<h3>'+esc(K.label)+'</h3>'+'<label>Find</label><input id="iks" maxlength="60" autocomplete="off" placeholder="Start typing a name"><div id="ikl"></div>'+
+  (cs.length>1?'<label>Campaign</label><select id="ikc"><option value="">Choose the campaign</option>'+cs.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.label)+'</option>';}).join("")+'</select>':'')+
+  '<label>Their name</label><input id="ikn" maxlength="60"><label>Their phone</label><input id="ikp" type="tel" maxlength="20"><label>Their email</label><input id="ike" type="email" maxlength="120"><label>Message</label><textarea id="ikm" rows="5" style="width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:12px;border:1px solid #DDE2EE"></textarea><div class="msg" id="ikmsg"></div>'+
   '<button class="btn" id="ikt">Text</button><button class="btn alt" id="ikr">Email from Red Shift</button>'+(grp?'<button class="btn alt" id="ikg">Group link</button>':'')+'<button class="btn alt" id="ikb">Back</button>');
  $("ikm").value=tpl;$("ikb").onclick=invSheet;
  /* 25 Oct (Rich: "in the invite, i need the search feature...many invites are to our PDs"): find the person by name (99zzzyz sInvitePeople); a pick fills their name and email, and Text goes to their phone */
- var IPH="",IST=null,ISQ=0;$("iks").oninput=function(){clearTimeout(IST);var v=$("iks").value.trim();if(v.length<2){$("ikl").innerHTML="";return;}IST=setTimeout(function(){var g=++ISQ;call("sInvitePeople",[v]).then(function(r){if(g!==ISQ||!r||!r.ok)return;
+ var IST=null,ISQ=0;$("iks").oninput=function(){clearTimeout(IST);var v=$("iks").value.trim();if(v.length<2){$("ikl").innerHTML="";return;}IST=setTimeout(function(){var g=++ISQ;call("sInvitePeople",[v]).then(function(r){if(g!==ISQ||!r||!r.ok)return;
    $("ikl").innerHTML=(r.people||[]).map(function(x,i){return '<button type="button" class="btn alt" data-ip="'+i+'" style="text-align:left;font-size:15px;padding:10px 14px">'+esc(x.name)+' <small style="opacity:.6">'+esc(x.badge)+(x.where?' · '+esc(x.where):'')+'</small></button>';}).join("");
-   [].forEach.call(document.querySelectorAll("[data-ip]"),function(b){b.onclick=function(){var x=r.people[Number(b.getAttribute("data-ip"))];$("ikn").value=x.name;$("ike").value=x.email||"";IPH=String(x.phone||"").replace(/[^0-9]/g,"");$("ikl").innerHTML="";$("iks").value="";};});});},300);};
+   [].forEach.call(document.querySelectorAll("[data-ip]"),function(b){b.onclick=function(){var x=r.people[Number(b.getAttribute("data-ip"))];$("ikn").value=x.name;$("ike").value=x.email||"";$("ikp").value=x.phone||"";$("ikl").innerHTML="";$("iks").value="";};});});},300);};
  var camp=function(){return cs.length>1?$("ikc").value:(cs[0]?cs[0].id:"");};
- var make=function(ch,then){var em=$("ike").value.trim();if(ch==="red"&&!em){$("ikmsg").textContent="Add their email.";return;}$("ikmsg").textContent="One moment...";
+ var make=function(ch,then){var em=$("ike").value.trim();if(cs.length>1&&!camp()){$("ikmsg").textContent="Choose the campaign.";$("ikc").focus();return;}if(ch==="red"&&!em){$("ikmsg").textContent="Add their email.";return;}$("ikmsg").textContent="One moment...";
   call("sNewInvite",[{kind:k,campaign:camp(),name:$("ikn").value.trim(),email:em,channel:ch,text:$("ikm").value}]).then(function(r){if(!r.ok){$("ikmsg").textContent=r.msg||"Please try again.";return;}$("ikmsg").textContent=r.msg||"";if(then)then(r);},function(e){$("ikmsg").textContent=e.message;});};
- $("ikt").onclick=function(){make("text",function(r){shareSheet(r.text,K.label,IPH);});};
+ $("ikt").onclick=function(){make("text",function(r){shareSheet(r.text,K.label,$("ikp").value.replace(/[^0-9+]/g,""));});};
  $("ikr").onclick=function(){make("red");};
- if($("ikg"))$("ikg").onclick=function(){$("ikmsg").textContent="One moment...";call("sInviteGroup",[{kind:k,campaign:camp()}]).then(function(r){if(!r.ok){$("ikmsg").textContent=r.msg||"Please try again.";return;}$("ikmsg").textContent=(r.uses||0)+" signed up with this link.";shareSheet(r.link,K.label);},function(e){$("ikmsg").textContent=e.message;});};}
+ if($("ikg"))$("ikg").onclick=function(){if(cs.length>1&&!camp()){$("ikmsg").textContent="Choose the campaign.";return;}$("ikmsg").textContent="One moment...";call("sInviteGroup",[{kind:k,campaign:camp()}]).then(function(r){if(!r.ok){$("ikmsg").textContent=r.msg||"Please try again.";return;}$("ikmsg").textContent=(r.uses||0)+" signed up with this link.";shareSheet(r.link,K.label);},function(e){$("ikmsg").textContent=e.message;});};}
 // ---- My Books: send a book, a personal nickname (Rich, 25 Oct; 99zzzza booksend.js). The share icon (Trusted only) reserves the book for
 // 4, 8, 12 or 24 hours and opens the phone's share sheet with the message and the link (the link last, so the text app shows its card); the
 // book stays here, Pending, until someone opens the link; the small x takes the send back. The pencil sets this person's own name for it.
