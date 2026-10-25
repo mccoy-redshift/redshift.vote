@@ -26,11 +26,22 @@
    if(!x){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}x=Array.prototype.map.call(a,function(y){return("0"+y.toString(16)).slice(-2);}).join("");}
    try{localStorage.setItem("rs_pid",x);}catch(e){}try{document.cookie="rs_pid="+x+"; max-age=63072000; path=/; SameSite=Lax; Secure";}catch(e){}return x;})();
   var p="";try{p=localStorage.getItem("rsPass")||"";}catch(e){}
-  fetch(APP,{method:"POST",body:JSON.stringify({fn:"vSendOpen",args:[pid,s],p:p}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){
+  // 25 Oct (Krystal's tap sat on a blank screen while the server loaded new code): the page says it is opening, tries again by itself on a
+  // dropped connection, and after 15 s offers Try again (opening the same link again is safe: a book already hers opens)
+  m.innerHTML='<div><div>RED SHIFT</div><div id="ms" style="font-size:15px;font-weight:500;margin-top:14px;opacity:.85">Opening your book...</div><div id="mb"></div></div>';
+  var ms=document.getElementById("ms"),mb=document.getElementById("mb"),done=false;
+  var slow=setTimeout(function(){if(done)return;ms.textContent="Still opening. Red Shift is starting up; this can take a few more seconds.";
+   fetch(APP,{method:"POST",body:JSON.stringify({fn:"bootStatus",args:["rsinstall1"]}),credentials:"omit"}).then(function(r){return r.json();}).then(function(j){var x=j&&j.ok?j.result:null;if(x&&x.installing&&!done)ms.textContent="Redshift is temporarily unavailable while the latest features are being installed.";},function(){});
+   mb.innerHTML='<button type="button" style="margin-top:18px;border:0;border-radius:12px;padding:12px 22px;background:#ff2b3d;color:#fff;font:700 17px Poppins,sans-serif">Try again</button>';
+   mb.firstChild.onclick=function(){location.reload();};},15000);
+  var go=function(n){fetch(APP,{method:"POST",body:JSON.stringify({fn:"vSendOpen",args:[pid,s],p:p}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){
     var j=null;try{j=JSON.parse(t);}catch(e){}var r=j&&j.ok?j.result:null;
-    if(r&&r.ok&&r.launch)return location.replace(r.launch);
-    m.textContent=(r&&r.msg)||"Red Shift could not be reached. Check your signal and try again.";
-  },function(){m.textContent="Red Shift could not be reached. Check your signal and try again.";});
+    if(r&&r.ok&&r.launch){done=true;clearTimeout(slow);ms.textContent="Opening your book...";return location.replace(r.launch);}
+    if(!j&&n<4)return setTimeout(function(){go(n+1);},3000);
+    done=true;clearTimeout(slow);m.textContent=(r&&r.msg)||"Red Shift could not be reached. Check your signal and try again.";
+    if(r&&r.regUrl){var a=document.createElement("a");a.href=r.regUrl;a.textContent="Register";a.style.cssText="display:inline-block;margin-top:18px;border-radius:12px;padding:12px 22px;background:#ff2b3d;color:#fff;text-decoration:none;font:700 17px Poppins,sans-serif";var w=document.createElement("div");w.appendChild(document.createTextNode(m.textContent));m.textContent="";var d=document.createElement("div");d.appendChild(w);d.appendChild(a);m.appendChild(d);}
+  },function(){if(n<4)return setTimeout(function(){go(n+1);},3000);done=true;clearTimeout(slow);m.textContent="Red Shift could not be reached. Check your signal and try again.";});};
+  go(0);
 })();
 </script>
 </body></html>
