@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Red Shift: Approve</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/logo.webp">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<!-- The Owner's approval page (25 Oct, 99zzzzc configure.js; Rich: "any new script is sent to me via text with an approval link a the bottom.
+     the approval link give me a reject option with notes....so it would be a page you create that when i submit goes back to them via text or
+     email"; "they have to text it from their phone to mine"). redshift.vote/ap/?a=<section>.<sig>, signed in as the Owner (rsPass). -->
+<style>
+html,body{margin:0;background:#0B1A4F;color:#fff;font:500 16px/1.4 Poppins,system-ui,sans-serif}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px;box-sizing:border-box}
+h1{font:800 22px Poppins,sans-serif;margin:0 0 4px}.sub{color:#b9c3e6;font-size:14px;margin:0 0 16px}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:14px;margin:0 0 14px}
+.card h2{font:700 15px Poppins,sans-serif;margin:0 0 8px;color:#ffd38a;text-transform:uppercase;letter-spacing:.04em}
+.card img{width:100%;max-width:320px;border-radius:12px;display:block;margin:0 0 10px}
+.txt{white-space:pre-wrap}a{color:#9fdcff;word-break:break-all}
+.note{background:rgba(255,43,61,.14);border:1px solid rgba(255,43,61,.5);border-radius:12px;padding:10px 12px;margin:0 0 14px;font-size:14px}
+button{display:block;width:100%;border:0;border-radius:12px;padding:14px;margin:10px 0;font:700 17px Poppins,sans-serif;color:#fff;cursor:pointer}
+.ok{background:#22c55e}.no{background:#ff2b3d}.alt{background:rgba(255,255,255,.14)}
+textarea{width:100%;box-sizing:border-box;min-height:110px;border-radius:12px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.25);color:#fff;font:500 16px Poppins,sans-serif;padding:10px}
+#msg{margin:12px 0;color:#ffd38a}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1 id="ttl">Red Shift</h1>
+<p class="sub" id="sub">One moment...</p>
+<div id="body"></div>
+<div id="act" hidden>
+ <button class="ok" id="yes">Approve</button>
+ <button class="no" id="no">Reject with notes</button>
+ <div id="rj" hidden><textarea id="nt" placeholder="What needs to change?"></textarea><button class="no" id="nogo">Send rejection</button><button class="alt" id="nox">Cancel</button></div>
+</div>
+<div id="msg"></div>
+<div id="done" hidden><button class="ok" id="txt">Text</button></div>
+</main>
+<script>
+(function(){
+  var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X5qFcR16vc3-geiIdK6RjO3M5E6xXSYySJ2Gc/exec";
+  var a=(new URLSearchParams(location.search)).get("a")||"",$=function(i){return document.getElementById(i);},p="";
+  try{p=localStorage.getItem("rsPass")||"";}catch(e){}
+  var NET="Red Shift could not be reached. Check your signal and try again.";
+  function rpc(fn,args){return fetch(APP,{method:"POST",body:JSON.stringify({fn:fn,args:args,p:p}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j=null;try{j=JSON.parse(t);}catch(e){}if(!j||!j.ok)throw new Error((j&&j.error)||NET);return j.result;});}
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+  function view(h,v,kind){var c=el("div","card");c.appendChild(el("h2","",h));
+    if(kind==="about"){if(v.photo){var im=el("img");im.src=v.photo;im.alt="";c.appendChild(im);}
+      c.appendChild(el("div","txt",v.text||""));
+      [["Website",v.web],["Facebook",v.fb]].forEach(function(x){if(!x[1])return;var d=el("p");d.appendChild(el("b","",x[0]+": "));var l=el("a","",x[1]);l.href=x[1];l.target="_blank";l.rel="noopener";d.appendChild(l);c.appendChild(d);});}
+    else c.appendChild(el("div","txt",v.text||""));
+    return c;}
+  var R=null;
+  function show(r){R=r;$("ttl").textContent=r.name;$("sub").textContent=r.campaign+(r.by?" · sent by "+r.by:"");
+    var b=$("body");b.innerHTML="";
+    if(r.status==="Approved")b.appendChild(el("div","note","This is approved and live."));
+    if(r.status==="Rejected"&&r.notes)b.appendChild(el("div","note","You rejected this: "+r.notes));
+    b.appendChild(view(r.status==="Approved"?"Live":"For approval",r.draft,r.kind));
+    if(r.live&&r.status!=="Approved")b.appendChild(view("Live now",r.live,r.kind));
+    $("act").hidden=r.status==="Approved";}
+  function decide(yes){var n=$("nt").value.trim();if(!yes&&!n){$("msg").textContent="Add your notes.";return;}
+    $("msg").textContent="One moment...";$("act").hidden=true;
+    rpc("apDecide",[a,yes,n]).then(function(r){
+      if(!r.ok){$("act").hidden=false;$("msg").textContent=r.msg||NET;return;}
+      $("msg").textContent=(r.approved?"Approved. It is live now.":"Rejected.")+(r.emailed?" "+(R.by||"They")+" has no phone on file, so Red Shift emailed them.":"");
+      if(r.phone){$("txt").textContent="Text "+(R.by?R.by.split(" ")[0]:"them");$("done").hidden=false;
+        $("txt").onclick=function(){location.href="sms:"+r.phone+"?&body="+encodeURIComponent(r.body);};}
+    },function(e){$("act").hidden=false;$("msg").textContent=e.message;});}
+  $("yes").onclick=function(){decide(true);};
+  $("no").onclick=function(){$("rj").hidden=false;$("yes").hidden=true;$("no").hidden=true;$("nt").focus();};
+  $("nox").onclick=function(){$("rj").hidden=true;$("yes").hidden=false;$("no").hidden=false;$("msg").textContent="";};
+  $("nogo").onclick=function(){decide(false);};
+  if(!a){$("sub").textContent="This link is not complete.";return;}
+  rpc("apGet",[a]).then(function(r){
+    if(!r.ok){$("sub").textContent=r.msg||NET;if(r.signin){var l=el("a","","Sign in to Red Shift");l.href="/";$("msg").appendChild(l);}return;}
+    show(r);
+  },function(e){$("sub").textContent=e.message;});
+})();
+</script>
+</body></html>
