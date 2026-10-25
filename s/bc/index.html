@@ -152,6 +152,16 @@ var APP="https://script.google.com/macros/s/AKfycby2obxweLHic-kW3KuLjCF3aMjoR5-X
 // Preview (21 Oct, Rich: "i clicked on the image and teh expander bars are not expanding"): a volunteer looking at this page from the Text
 // Script (?pv=1) can open and tap everything, but nothing is sent: STOP and the poll answer as if sent, and no record is made.
 if(new URLSearchParams(location.search).get('pv')==='1'){var _rsf=window.fetch;window.fetch=function(u,o){if(u===APP)return Promise.resolve({json:function(){return Promise.resolve({ok:true,result:{ok:true,preview:true}});}});return _rsf.apply(this,arguments);};}
+// About [Candidate] (Rich, 25 Oct: "give any CA a chance to populate a 1st expadner 'About [Candidate]' and let themupload a pick and q website and afaceook page"): the campaign's approved About, as the first expander. Kept on the phone so it shows at once next time; read only (also in preview).
+(function(){if(!(BK&&RK&&SG))return;var K='rs_ab:'+BK,F=typeof _rsf==='function'?_rsf:window.fetch,E=function(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;};
+ function draw(a){var o=document.getElementById('abt');if(o)o.parentNode.removeChild(o);if(!a||!(a.text||a.photo||a.web||a.fb))return;
+  var d=E('details');d.id='abt';d.appendChild(E('summary','',a.title||'About'));var b=E('div','ans');
+  if(a.photo){var im=E('img');im.src=a.photo;im.alt='';im.style.cssText='width:100%;max-width:340px;border-radius:12px;display:block;margin:0 0 10px';b.appendChild(im);}
+  if(a.text){var p=E('div','',a.text);p.style.whiteSpace='pre-wrap';b.appendChild(p);}
+  [['Website',a.web],['Facebook',a.fb]].forEach(function(x){if(!/^https?:\/\//i.test(x[1]||''))return;var l=E('a','btn',x[0]);l.href=x[1];l.target='_blank';l.rel='noopener';b.appendChild(l);});
+  d.appendChild(b);var m=document.querySelector('main'),f=m&&m.querySelector('details');if(m)m.insertBefore(d,f||m.firstChild);}
+ try{draw(JSON.parse(localStorage.getItem(K)||'null'));}catch(e){}
+ F(APP,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({fn:'bcAbout',args:[BK,RK,SG]})}).then(function(r){return r.json();}).then(function(j){var r=j&&j.ok?j.result:null;if(!r||!r.ok)return;try{localStorage.setItem(K,JSON.stringify(r.about||null));}catch(e){}draw(r.about);}).catch(function(){});})();
 // Opt out (Rich, 15 Oct: "Reply STOP, or select STOP in our link, to opt out"): a signed link's STOP records it
 // Rich, 22 Oct ("send it on change using momento and that if they uncheck it  ,you have protocol for that as well"): STOP and the poll are kept on the phone (an outbox) with their own id and sent until Red Shift confirms them ({ack}); unticking STOP opts back in (bcStart)
 var PO='rs_bc_out',POB=false,POCB={};function poGet(){try{return JSON.parse(localStorage.getItem(PO)||'[]');}catch(e){return [];}}function poPut(a){try{localStorage.setItem(PO,JSON.stringify(a));}catch(e){}}
