@@ -199,6 +199,17 @@ function gbAdd(id){var q=gbQ();if(q.indexOf(id)<0)q.push(id);gbSet(q);gbOut();se
 function gbDrain(){var q=gbQ();if(!q.length||GBB)return;GBB=1;var id=q[0];
  call("vGiveBack",[PID,id]).then(function(){GBB=0;gbSet(gbQ().filter(function(x){return x!==id;}));gbDrain();},function(){GBB=0;setTimeout(gbDrain,15000);});}
 setTimeout(gbDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)gbDrain();});
+// 25 Oct (Rich: "so another button that does not use the outbox ?"): every command button (That's me, the Welcome back tie) goes into one outbox
+// on the phone (rs_ob): the screen goes on at once; the outbox sends in order, again until the server has it. A new book waits for the
+// outbox to be sent first (only while something is in it), so the server knows who is asking. then: "reload" = the page reloads once sent.
+function obQ(){try{return JSON.parse(LS.get("rs_ob")||"[]")||[];}catch(e){return [];}}
+function obSet(q){try{if(q.length)LS.set("rs_ob",JSON.stringify(q));else LS.del("rs_ob");}catch(e){}}
+var OBB=0,OBW=[];
+function obAdd(fn,args,then){var q=obQ();q.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),fn:fn,args:args,then:then||""});obSet(q);setTimeout(obDrain,0);}
+function obDrain(){var q=obQ();if(!q.length){var w=OBW;OBW=[];w.forEach(function(f){f();});return;}if(OBB)return;OBB=1;var x=q[0];
+ call(x.fn,x.args).then(function(r){OBB=0;obSet(obQ().filter(function(y){return y.id!==x.id;}));if(x.then==="reload"&&r&&r.ok!==false){if(!obQ().length)return location.reload();}if(r&&r.ok===false&&r.msg)oops(r.msg);obDrain();},function(){OBB=0;setTimeout(obDrain,15000);});}
+function obFlush(){return new Promise(function(res){if(!obQ().length)return res();OBW.push(res);setTimeout(res,10000);obDrain();});}
+setTimeout(obDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)obDrain();});
 function nameSheet(then){BUSY=0;
  // Rich, 20 Oct: "do not add cute shit like that. Title that page as: Your info"
  sheet('<h3>Your info</h3><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
@@ -209,7 +220,7 @@ function nameSheet(then){BUSY=0;
    if(!r.ask){S.named=true;S.first=f;shut();return then();}
    // Rich, 19 Oct: "make the match and them pop up to confirm"; the wording: "perfect"
    sheet('<h3>Welcome back!</h3><p>Continue as '+esc(r.ask)+'?</p><button class="btn" id="ty">That\'s me</button><button class="btn alt" id="tn">Not me</button>');
-   var tie=function(yes){busy("One moment...");call("vTie",[PID,r.k,r.s,yes,f,l,p]).then(function(x){if(!x.ok)return oops(x.msg);S.named=true;S.first=(yes?x.name:f).split(" ")[0];shut();then();},function(e){oops(e.message);});};
+   var tie=function(yes){obAdd("vTie",[PID,r.k,r.s,yes,f,l,p]);S.named=true;S.first=(yes?String(r.ask||f):f).split(" ")[0];shut();then();};
    $("ty").onclick=function(){tie(true);};$("tn").onclick=function(){tie(false);};
   },function(e){$("nm").textContent=e.message;$("ngo").disabled=false;});};}
 // Rich, 19 Oct: "on the C W T page, put a checkbox for Ballot Chase. and put a Stat for XX contact YY Not Contacted"; "the check box switches the XX and YY totals"
@@ -226,7 +237,7 @@ function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="but
 var STAT=null,STATASK=0;function statGet(){if(STATASK)return;STATASK=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){STAT=r;var e=$("bcs");if(e)e.innerHTML=statTxt();}else STATASK=0;},function(){STATASK=0;});}
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
 function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
- call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ(),LS.get("rs_wid")||""]).then(function(r){
+ obFlush().then(function(){return call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ(),LS.get("rs_wid")||""]);}).then(function(r){
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
   if(r.reg){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
@@ -341,7 +352,7 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
  var ans=function(yes){on(false);call("vConfirm",[PID,yes,c.k,c.s]).then(function(r){if(!r.ok){$("cm").textContent=r.msg;on(true);return;}BUSY=0;shut();
    if(yes){location.reload();return;}if(!r.in){location.href=S.regUrl||"/admin/";return;}nameSheet(function(){location.reload();});},function(e){$("cm").textContent=e.message;on(true);});};
  /* 25 Oct (Rich: "the yes it's me button does not work"): That's me closes at once; the page reloads when the server has it */
- $("cy").onclick=function(){BUSY=0;shut();call("vConfirm",[PID,true,c.k,c.s]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");location.reload();},function(e){oops(e.message);});};$("cn").onclick=function(){ans(false);};}
+ $("cy").onclick=function(){BUSY=0;shut();obAdd("vConfirm",[PID,true,c.k,c.s],"reload");};$("cn").onclick=function(){ans(false);};}
 // Rich, 22 Oct night: "redshift.vote and /admin is the same sequence.   spash then pitstop  then contnet"; "all except the QR code": the pit stop
 // is asked for at once, beside Home, for everyone (not a QR code); the splash stays until both are in (the pit stop at most 8 s)
 function boot(){/* 25 Oct: /home asks for no pit stop; elsewhere the kept pit stop is used at once and the fresh one fills it in (pitFresh) */var PK=ISQR||W.home?null:pitKept(),pitF=ISQR||W.home?null:call("vPit",[PID,PASS]).then(null,function(){return null;});
