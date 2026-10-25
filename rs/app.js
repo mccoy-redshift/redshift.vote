@@ -96,7 +96,7 @@ function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oc
  if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
   return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k]&&!have[k].done?have[k]:null;return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  // Rich, 24 Oct: finished books and "Give back this book" (99zzzye): each book shows Finished or how many are left, with a Give back button
- if(id==="mine"){frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
+ if(id==="mine"){frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";wpFix(b);return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
   :'<div class="note">No books yet on this phone.</div><div class="list">'+card("new","New Books","new")+'</div>',true,"My Books");
   [].forEach.call(document.querySelectorAll("[data-gb]"),function(x){x.onclick=function(){giveBack(x.getAttribute("data-gb"));};});return;}
  if(id==="dash"){frame('<div class="list"><div class="spin"></div></div>',true,"Dashboard");return call("vDash",[PID,PASS]).then(dash,function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Dashboard");});}
@@ -147,8 +147,13 @@ setTimeout(ocDrain,3000);document.addEventListener("visibilitychange",function()
 // Rich, 24 Oct: "fininished books should be auto released from mybooks"; "i had to go in and out for the CWT page to realize the book was
 // actually done": a book page on this phone flags its book done (rs_bookdone:<id>, 97q) the moment nobody is left to text; here the flagged
 // books leave this phone's list at once (and are let go on the server, 99zzzye vGiveBack), when the app opens or comes back to the front
+// Rich, 24 Oct: "the mybook shows 4 doors left, but inside the book is 21/21": a walk book's count on My Books is the walk app's own count
+// on this phone (34 qrwalk paint() writes rs_walkprog:<k>; rs_bookdone:k:<k> when every stop is done).
+function wkOf(b){var m=/[?&]k=([A-Za-z0-9]+)/.exec(String(b.launch||""));return m?m[1]:"";}
+function wpFix(b){if(b.mode!=="door")return;var k=wkOf(b),w=null;if(!k)return;try{w=JSON.parse(LS.get("rs_walkprog:"+k)||"null");}catch(e){w=null;}
+ if(w&&w.t>0){b.total=w.t;b.left=Math.max(0,w.t-w.n);b.unit="doors";b.done=b.left===0;}}
 function doneSweep(quiet){if(!S||!S.books||!S.books.length)return;var gone=[];
- S.books=S.books.filter(function(b){var k="rs_bookdone:"+b.id,f=null;try{f=localStorage.getItem(k);}catch(e){}if(!f)return true;gone.push(b.id);try{localStorage.removeItem(k);}catch(e){}return false;});
+ S.books=S.books.filter(function(b){var k="rs_bookdone:"+b.id,wk=wkOf(b),k2=wk?"rs_bookdone:k:"+wk:"",f=null;try{f=localStorage.getItem(k)||(k2&&localStorage.getItem(k2));}catch(e){}if(!f)return true;gone.push(b.id);try{localStorage.removeItem(k);if(k2)localStorage.removeItem(k2);}catch(e){}return false;});
  gone.forEach(function(id){call("vGiveBack",[PID,id]).then(function(){},function(){});});
  if(gone.length&&!quiet&&CUR&&/^(home|new|mine)$/.test(CUR))show(CUR);}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)doneSweep();});addEventListener("pageshow",function(){doneSweep();});
