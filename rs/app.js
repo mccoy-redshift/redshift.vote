@@ -154,7 +154,7 @@ function wpFix(b){if(b.mode!=="door")return;var k=wkOf(b),w=null;if(!k)return;tr
  if(w&&w.t>0){b.total=w.t;b.left=Math.max(0,w.t-w.n);b.unit="doors";b.done=b.left===0;}}
 function doneSweep(quiet){if(!S||!S.books||!S.books.length)return;var gone=[];
  S.books=S.books.filter(function(b){var k="rs_bookdone:"+b.id,wk=wkOf(b),k2=wk?"rs_bookdone:k:"+wk:"",f=null;try{f=localStorage.getItem(k)||(k2&&localStorage.getItem(k2));}catch(e){}if(!f)return true;gone.push(b.id);try{localStorage.removeItem(k);if(k2)localStorage.removeItem(k2);}catch(e){}return false;});
- gone.forEach(function(id){call("vGiveBack",[PID,id]).then(function(){},function(){});});
+ gone.forEach(function(id){gbAdd(id);});
  if(gone.length&&!quiet&&CUR&&/^(home|new|mine)$/.test(CUR))show(CUR);}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)doneSweep();});addEventListener("pageshow",function(){doneSweep();});
 function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
@@ -177,7 +177,7 @@ function size(m){var k=m==="walk"?"door":m,hb=S.books.filter(function(b){return 
  // Rich, 24 Oct: one book of each kind at a time; New Books with an unfinished one asks: open it, or give it back and get a new one ("that is smart")
  if(hb){sheet('<h3>Your '+esc(ML[k])+' book</h3><p style="text-align:center">'+(hb.left!=null?esc(hb.left+" "+(hb.unit||(k==="door"?"doors":"people"))+" left"):"")+'</p><button class="btn" id="hbo">Open my book</button><button class="btn alt" id="hbn">Give it back and get a new one</button>');
   $("hbo").onclick=function(){shut();build(m);};
-  $("hbn").onclick=function(){busy("One moment...");call("vGiveBack",[PID,hb.id]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");S.books=S.books.filter(function(b){return b.id!==hb.id;});BUSY=0;shut();size(m);},function(e){oops(e.message);});};return;}
+  $("hbn").onclick=function(){gbAdd(hb.id);BUSY=0;shut();size(m);};return;}
  sheet('<h3>'+esc(ML[k])+' book</h3><p style="text-align:center">'+(k==="door"?"How many doors?":"How many people?")+'</p><div class="szs">'+SZ.map(function(n){return '<button type="button" class="btn'+(n===SZD[k]?"":" alt")+'" data-sz="'+n+'">'+n+'</button>';}).join("")+'</div>');
  [].forEach.call(document.querySelectorAll("[data-sz]"),function(b){b.onclick=function(){shut();build(m,Number(b.getAttribute("data-sz")));};});}
 // a guest on a browser not let in yet: Your info -> vKnown (a guest let in before comes in; anyone else: scan the event QR code or sign in)
@@ -189,7 +189,18 @@ function knownSheet(done){BUSY=0;
   bt.disabled=true;call("vKnown",[PID,f,l,p]).then(function(r){if(!r.ok||!r.in){$("km").textContent=r.msg||"Please try again.";bt.disabled=false;return;}shut();done();},function(e){$("km").textContent=e.message;bt.disabled=false;});};}
 // give a book back (99zzzye vGiveBack): it comes off the phone and its voters not yet reached go back for other volunteers
 function giveBack(id){BUSY=0;sheet('<h3>Give back this book?</h3><p>The people you have not reached go back for other volunteers.</p><button class="btn" id="gby">Give it back</button><button class="btn alt" id="gbn">Keep it</button>');
- $("gbn").onclick=shut;$("gby").onclick=function(){busy("One moment...");call("vGiveBack",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");S.books=S.books.filter(function(b){return b.id!==id;});BUSY=0;shut();show("mine");},function(e){oops(e.message);});};}
+ $("gbn").onclick=shut;$("gby").onclick=function(){gbAdd(id);BUSY=0;shut();show("mine");};}
+// 25 Oct (Rich: "why does give back this book not just go into the outbox command que?  why does it wait on http"): a give-back is a command in
+// the phone's outbox (rs_gbq), as DNC / DNT are (rs_ocq): the book leaves the phone at once and the outbox sends it, again until the server has
+// it. A new book asked for meanwhile carries the give-backs still waiting, so the server lets them go first.
+function gbQ(){try{return JSON.parse(LS.get("rs_gbq")||"[]")||[];}catch(e){return [];}}
+function gbSet(q){try{if(q.length)LS.set("rs_gbq",JSON.stringify(q));else LS.del("rs_gbq");}catch(e){}}
+function gbOut(){var q=gbQ();if(q.length&&S&&S.books)S.books=S.books.filter(function(b){return q.indexOf(b.id)<0;});}
+var GBB=0;
+function gbAdd(id){var q=gbQ();if(q.indexOf(id)<0)q.push(id);gbSet(q);gbOut();setTimeout(gbDrain,0);}
+function gbDrain(){var q=gbQ();if(!q.length||GBB)return;GBB=1;var id=q[0];
+ call("vGiveBack",[PID,id]).then(function(){GBB=0;gbSet(gbQ().filter(function(x){return x!==id;}));gbDrain();},function(){GBB=0;setTimeout(gbDrain,15000);});}
+setTimeout(gbDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)gbDrain();});
 function nameSheet(then){BUSY=0;
  // Rich, 20 Oct: "do not add cute shit like that. Title that page as: Your info"
  sheet('<h3>Your info</h3><label>First name</label><input id="nf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="nl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="n4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="nm"></div><button class="btn" id="ngo">Continue</button>');
@@ -217,7 +228,7 @@ function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="but
 var STAT=null,STATASK=0;function statGet(){if(STATASK)return;STATASK=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){STAT=r;var e=$("bcs");if(e)e.innerHTML=statTxt();}else STATASK=0;},function(){STATASK=0;});}
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
 function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
- call("vNew",[PID,m,QN,false,sz||SZD[k]]).then(function(r){
+ call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ()]).then(function(r){
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
   if(r.reg){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
@@ -335,17 +346,18 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
 // is asked for at once, beside Home, for everyone (not a QR code); the splash stays until both are in (the pit stop at most 8 s)
 function boot(){/* 25 Oct: /home asks for no pit stop; elsewhere the kept pit stop is used at once and the fresh one fills it in (pitFresh) */var PK=ISQR||W.home?null:pitKept(),pitF=ISQR||W.home?null:call("vPit",[PID,PASS]).then(null,function(){return null;});
  var pitP=ISQR||W.home?Promise.resolve(null):PK?Promise.resolve(PK):Promise.race([pitF,new Promise(function(res){setTimeout(function(){res(null);},8000);})]);
+ /* a phone already let in (its home screen kept) gets the kept pit stop at once, before Home answers */var PE=false;if(PK){var HK0=null;try{HK0=JSON.parse(LS.get("rsHome:"+(PID||""))||"null");}catch(e){}if(HK0&&HK0.adm){pit(PK);pitLive();PE=true;}}
  var PF=null;if(pitF)pitF.then(function(pr){if(pr&&pr.html)PF=pr;if(PK)pitFresh(pr);else if(pr&&pr.html)LS.set(pitK(),pr.html);});
- /* /home: the phone's last home screen at once (a tap made on it is not undone when the fresh one comes) */var HK=null,HG=-1;if(W.home){try{HK=JSON.parse(LS.get("rsHome:"+(PID||""))||"null");}catch(e){HK=null;}if(HK&&HK.adm){S=HK;NOTE=HK.note||"";try{meDraw();}catch(e){}show("home");HG=QG;splashOff();}}
+ /* /home: the phone's last home screen at once (a tap made on it is not undone when the fresh one comes) */var HK=null,HG=-1;if(W.home){try{HK=JSON.parse(LS.get("rsHome:"+(PID||""))||"null");}catch(e){HK=null;}if(HK&&HK.adm){S=HK;gbOut();NOTE=HK.note||"";try{meDraw();}catch(e){}show("home");HG=QG;splashOff();}}
  var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
  if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},true,false);});}return r;});   /* one sign-in panel (21 Oct) */
-home.then(function(r){if(!r){boot();return "re";}S=r;try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
+home.then(function(r){if(!r){boot();return "re";}S=r;gbOut();try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
 if(HG>=0&&QG!==HG){/* /home: the person already went on from the kept home screen */}
   else if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
   else show(W.land?"home":W.page);
-  if(pr&&pr.html&&!ISQR){if(pr.kept&&PF)pr=PF;pit(pr);if(pr.kept)pitLive();}
+  if(pr&&pr.html&&!ISQR&&!PE){if(pr.kept&&PF)pr=PF;pit(pr);if(pr.kept)pitLive();}
   splashOff();if(S.confirm)confirmSheet(S.confirm);},Math.max(0,(W.home||!$("spw")?0:2200)-(Date.now()-T0)));
 },function(e){setTimeout(function(){frame('<div class="note bad">Red Shift could not be reached ('+esc(e.message)+'). Check your signal and reload.</div>');splashOff();},Math.max(0,1500-(Date.now()-T0)));});}
 // the Owner's TV page (Rich, 19 Oct: "it will be rendered on a TV from my laptop"; "scan and burn"): one code on screen; when a phone uses it,
