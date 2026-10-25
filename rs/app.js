@@ -122,8 +122,8 @@ function meDraw(){var m=meInfo(),b=$("me");if(!m){if(b)b.hidden=true;return;}
  b.className=m.signed?"in":"";b.innerHTML=meFace(m);b.hidden=false;var im=b.querySelector("img");if(im)im.onerror=function(){b.textContent=meIni(m.name);};}
 function mePanel(){var m=meInfo();if(!m)return;
  sheet('<div class="mew"><div class="mec"'+(m.signed?' style="background:var(--navy)"':'')+'>'+meFace(m)+'</div><div><b>'+esc(m.name)+'</b><span>'+(m.signed?esc(m.email)+'<br>Signed in with Google':'Guest on this phone')+'</span></div></div>'+
-  (m.signed?'<button class="btn" id="meo">Sign out</button>':'<button class="btn" id="mei">Sign in with Google</button>')+(m.signed?'<button class="btn alt" id="meinv">Invite</button>':'')+'<button class="btn alt" id="meoc">Record DNC / DNT</button><button class="btn alt" id="mex">Close</button>');
- $("mex").onclick=shut;$("meoc").onclick=optSheet;if($("meinv"))$("meinv").onclick=invSheet;
+  (m.signed?'<button class="btn" id="meo">Sign out</button>':'<button class="btn" id="mei">Sign in with Google</button>')+(m.signed?'<button class="btn alt" id="meinv">Invite</button><button class="btn alt" id="mecfg">Configure Campaign</button>':'')+'<button class="btn alt" id="meoc">Record DNC / DNT</button><button class="btn alt" id="mex">Close</button>');
+ $("mex").onclick=shut;$("meoc").onclick=optSheet;if($("meinv"))$("meinv").onclick=invSheet;if($("mecfg"))$("mecfg").onclick=function(){shut();cfgOpen();};
  if($("meo"))$("meo").onclick=function(){try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}LS.del("rsPass");LS.del("rsMe");PASS="";location.href="/";};
  if($("mei"))$("mei").onclick=function(){shut();signIn(function(){location.reload();},false);};}
 // Rich, 24 Oct: "logging a DNC or DNT for a book the person no longer has ... a drop down even better so the user can enter their code";
@@ -177,14 +177,58 @@ function bkSend(id){var b=bkOf(id);if(!b)return;BUSY=0;
  sheet('<h3>Send this book</h3><p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24].map(function(h){return '<button type="button" class="btn alt" data-bh="'+h+'">'+h+' h</button>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
  $("bsx").onclick=shut;
  [].forEach.call(document.querySelectorAll("[data-bh]"),function(x){x.onclick=function(){var h=Number(x.getAttribute("data-bh"));$("bsm").textContent="One moment...";
-  call("vSend",[PID,b.id,h]).then(function(r){if(!r.ok){$("bsm").textContent=r.msg||"Please try again.";return;}
+  /* 25 Oct (Rich: "when i share a book, you using a long thread instead to fhte pipe"): the send link is made ahead (b.sk, 99zzzzd); the tap opens the share sheet at once and the send goes into the outbox */
+  if(b.sk){var sk=b.sk;delete b.sk;obAdd("vSendRec",[PID,sk,h]);var r0={ok:true,first:S.sf||S.first||"",hours:h,link:location.origin+"/r/?s="+sk};return go(r0);}
+  call("vSend",[PID,b.id,h]).then(go,function(e){$("bsm").textContent=e.message;});
+  function go(r){if(!r.ok){$("bsm").textContent=r.msg||"Please try again.";return;}
    var nm=String(r.first||S.first||"").trim();
    var t="Hi! "+nm+" is inviting you to help save Michigan by reaching Republicans who tend to skip midterms.\n\nReply IN if we can count on your help, then tap the card below to start.\n\nThis invite expires in "+r.hours+" hours because we are running out of time.\n\n"+r.link;
-   b.sent={until:Date.now()+r.hours*3600000,h:r.hours};show("mine");shareSheet(t,"Send this book");},function(e){$("bsm").textContent=e.message;});};});}
+   b.sent={until:Date.now()+r.hours*3600000,h:r.hours};show("mine");shareSheet(t,"Send this book");}};});}
 function bkNick(id){var b=bkOf(id);if(!b)return;BUSY=0;
  sheet('<h3>Nickname</h3><input id="bnn" maxlength="40" value="'+esc(b.nick||"")+'"><button class="btn" id="bns">Save</button><button class="btn alt" id="bnx">Cancel</button>');
  $("bnx").onclick=shut;$("bnn").focus();
  $("bns").onclick=function(){var n=$("bnn").value.replace(/\s+/g," ").trim().slice(0,40);obAdd("vNick",[PID,b.id,n]);if(!b.own)b.own=b.nick;b.nick=n||b.own;shut();show("mine");};}
+// ---- Configure Campaign, under the profile (Rich, 25 Oct; 99zzzzc configure.js): a campaign's admins send their files (each button with its
+// (i)) and write About [Candidate]. Files go up in 4 MiB pieces, one after another (the pipe), into Imported Files; the Owner is emailed. About
+// goes to the Owner for approval: this phone texts the Owner the link.
+var CFGI={GOPX:"Your district's voters from GOP Data Center, as a CSV (or the .zip it downloads as).\n\nInclude every voter in your district, with these columns: VoterKey (Voter ID), name, address, precinct, County, Congressional, State Senate and State House districts, School District, County Commissioner District and Township, plus phones and absentee status.\n\nRed Shift builds your walk, call and text books from it. A county export can be 300 MB: keep this page open until the upload says Received.",
+ TGT:"Optional: the voters you want contacted.\n\nA CSV with a header row and one column named VoterKey (the GOP Data Center voter key), one voter per row. Other columns are ignored.\n\nExample:\nVoterKey\n123456789\n987654321\n\nLeave it out and Red Shift works from your whole district.",
+ ABEV:"How to get this file from GOP Data Center: 1. Open Advanced Counts and select your race's voters (its district), then add Voter Frequency > Absentee for this election. Do not exclude returned ballots: Red Shift counts them. 2. Preview the count, then Export File. 3. List Style: ABEV List. Pick this election from the drop-down. 4. Format: CSV. Export Data Now. 5. My Data > My Exports: download it when it is ready, then choose it here (the zip or the csv). A new export each day keeps Ballot Chase current.",
+ VBK:"A list you already keep, in any layout: a spreadsheet or CSV of voters with your own notes or contact results.\n\nInclude a voter ID, or name and full address, on each row so we can match voters. We map the columns for you.",
+ SCR:"Call, text or door scripts you already use: Word, Google Doc, PDF or plain text.\n\nWe set them up as your Red Shift scripts; you can edit them after.",
+ OTH:"Anything else for your campaign: walk lists, event plans, logos.\n\nName the file so we know what it is (for example: Logo - Smith for Senate.png)."};
+var CFG=null,CFGC=null;
+function cfgOpen(){frame('<div class="list"><div class="spin"></div></div>',true,"Configure Campaign");call("sConfig",[]).then(function(r){if(!r.ok)return frame('<div class="note bad">'+esc(r.msg||"Please try again.")+'</div>',true,"Configure Campaign");CFG=r;CFGC=CFGC&&r.camps.some(function(c){return c.id===CFGC;})?CFGC:r.camps[0].id;cfgDraw();},function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Configure Campaign");});}
+function cfgDraw(){var c=CFG.camps.filter(function(x){return x.id===CFGC;})[0],A=c.about||{};
+ var row=function(t){return '<div class="lk" style="padding:12px 16px"><div style="display:flex;align-items:center;gap:10px"><b style="flex:1">'+esc(t.label)+'</b><button type="button" class="ii" data-ci="'+t.k+'" aria-label="How" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--navy);background:#fff;color:var(--navy);font:700 15px Georgia,serif">i</button><label class="btn alt" style="width:auto;margin:0;padding:8px 14px;font-size:15px">Upload<input type="file" data-cu="'+t.k+'" hidden></label></div><div data-cx="'+t.k+'" hidden style="white-space:pre-line;font-size:14px;line-height:1.45;margin-top:8px;color:#333">'+esc(CFGI[t.k]||"")+'</div><div class="msg" data-cm="'+t.k+'"></div></div>';};
+ frame((CFG.camps.length>1?'<div class="lk"><label>Campaign</label><select id="cfc">'+CFG.camps.map(function(x){return '<option value="'+esc(x.id)+'"'+(x.id===CFGC?' selected':'')+'>'+esc(x.label)+'</option>';}).join("")+'</select></div>':'<div class="note">'+esc(c.label)+'</div>')+
+  CFG.types.map(row).join("")+
+  '<div class="lk" style="padding:12px 16px"><b>About '+esc(c.candidate)+'</b>'+(A.status?'<div style="font-size:13px;opacity:.7;margin-top:2px">'+esc(A.status)+(A.notes?': '+esc(A.notes):'')+'</div>':'')+
+  '<label>Photo</label>'+(A.photo?'<img src="'+esc(A.photo)+'" alt="" style="max-width:120px;border-radius:10px;display:block;margin:4px 0">':'')+'<input type="file" id="cap" accept="image/*">'+
+  '<label>About the candidate</label><textarea id="cat" rows="5" maxlength="1500" style="width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:12px;border:1px solid #DDE2EE">'+esc(A.text||"")+'</textarea>'+
+  '<label>Website</label><input id="caw" maxlength="300" value="'+esc(A.web||"")+'" placeholder="https://"><label>Facebook page</label><input id="caf" maxlength="300" value="'+esc(A.fb||"")+'" placeholder="https://facebook.com/">'+
+  '<div class="msg" id="cam"></div><button class="btn" id="cas">Send for approval</button></div>'+
+  (c.files.length?'<div class="lk" style="padding:12px 16px"><b>Sent</b>'+c.files.map(function(f){return '<div style="font-size:14px;margin-top:6px">'+esc(f.file)+' <small style="opacity:.65">'+esc(f.type)+' · '+esc(f.status)+(f.on?' · '+esc(f.on):'')+'</small></div>';}).join("")+'</div>':''),true,"Configure Campaign");
+ if($("cfc"))$("cfc").onchange=function(){CFGC=$("cfc").value;cfgDraw();};
+ [].forEach.call(document.querySelectorAll("[data-ci]"),function(b){b.onclick=function(){var x=document.querySelector('[data-cx="'+b.getAttribute("data-ci")+'"]');x.hidden=!x.hidden;};});
+ [].forEach.call(document.querySelectorAll("[data-cu]"),function(inp){inp.onchange=function(){var f=inp.files&&inp.files[0];if(f)cfgUp(c.id,inp.getAttribute("data-cu"),f);inp.value="";};});
+ $("cas").onclick=function(){cfgAbout(c);};}
+// the pipe: 4 MiB pieces, one after another; a piece that fails is sent again (3 tries, then the upload stops and says so)
+function cfgUp(el,k,f){var m=document.querySelector('[data-cm="'+k+'"]'),PS=4194304,t0=Date.now();m.textContent="Starting...";
+ call("sCfgUpStart",[{el:el,type:k,name:f.name,size:f.size,mime:f.type||"application/octet-stream"}]).then(function(r){if(!r.ok){m.textContent=r.msg||"Please try again.";return;}
+  var send=function(at,tries){var b=f.slice(at,Math.min(f.size,at+PS)),rd=new FileReader();rd.onload=function(){var b64=String(rd.result).replace(/^data:[^,]*,/,"");
+    call("sCfgUpPart",[at,b64]).then(function(x){if(!x.ok){if(tries<3)return setTimeout(function(){send(at,tries+1);},2000);m.textContent=x.msg||"The upload stopped. Please try again.";return;}
+     if(x.done){m.textContent="Received.";BUSY=0;sheet('<h3>Received</h3><p style="text-align:center">We will send you a message when your campaign is ready.</p><button class="btn" id="cfok">OK</button>');$("cfok").onclick=function(){shut();cfgOpen();};return;}
+     var nx=x.next||at+b.size;m.textContent=Math.floor(nx*100/f.size)+"% sent";send(nx,0);},function(){if(tries<3)return setTimeout(function(){send(at,tries+1);},3000);m.textContent="No connection. The upload stopped; please try again.";});};
+   rd.onerror=function(){m.textContent="This file could not be read.";};rd.readAsDataURL(b);};
+  send(0,0);},function(e){m.textContent=e.message;});}
+// a photo: made 800 px wide at most (a JPEG), then About goes for approval; the Owner gets the link by text from this phone
+function cfgAbout(c){var m=$("cam"),pf=$("cap").files&&$("cap").files[0];m.textContent="One moment...";
+ var go=function(ph){call("sAboutSave",[c.id,{text:$("cat").value,web:$("caw").value,fb:$("caf").value,photo:ph}]).then(function(r){if(!r.ok){m.textContent=r.msg||"Please try again.";return;}m.textContent="";
+   var t=r.body+"\n\n"+r.link;BUSY=0;sheet('<h3>Send for approval</h3><button class="btn" id="cat2">Text it</button><button class="btn alt" id="catx">Close</button>');
+   $("cat2").onclick=function(){location.href="sms:"+(r.to||"")+"?&body="+encodeURIComponent(t);shut();cfgOpen();};$("catx").onclick=function(){shut();cfgOpen();};},function(e){m.textContent=e.message;});};
+ if(!pf)return go("");
+ var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var w=Math.min(800,im.width),h=Math.round(im.height*w/im.width),cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(im,0,0,w,h);go(cv.toDataURL("image/jpeg",0.85));};im.onerror=function(){m.textContent="This photo could not be read.";};im.src=rd.result;};rd.readAsDataURL(pf);}
 function optSheet(){BUSY=0;sheet('<h3>Record DNC / DNT</h3><label>Ref code (at the bottom of the text)</label><input id="ocx" maxlength="5" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase"><div class="msg" id="ocm"></div><div class="szs"><button type="button" class="btn alt" data-oc="dnc">DNC</button><button type="button" class="btn alt" data-oc="dnt">DNT</button></div><button class="btn alt" id="ocb">Close</button>');
  $("ocb").onclick=shut;$("ocx").focus();
  [].forEach.call(document.querySelectorAll("[data-oc]"),function(b){b.onclick=function(){var kind=b.getAttribute("data-oc"),code=$("ocx").value.trim().toUpperCase().replace(/[^A-Z0-9]/g,""),L=kind==="dnc"?"DNC":"DNT";
