@@ -30,6 +30,8 @@ button{font:inherit}
 .lk{background:#fff;border-radius:18px;margin:0 18px 10px;padding:14px 18px;box-shadow:0 2px 0 var(--line)}
 .lk a{color:var(--navy);font-weight:700;text-decoration:none;word-break:break-all}.lk p{margin:4px 0 0;font-size:13px;color:var(--gray)}.lk i{font-style:normal;font-size:11px;font-weight:700;color:var(--red);margin-left:6px}
 #dashf{border:0;width:100%;flex:1;min-height:calc(var(--H) - 120px);background:#001638}
+/* 25 Oct (Rich: "im on the dashboard now and im pounding the home icon and it acaully selected teh dashboard label"): on the phone the dashboard frame took taps meant for the bar and the profile circle over it; the bar and the circle get their own layer above the frame, and the frame stops above the bar */
+#tb,#me{-webkit-transform:translateZ(0);transform:translateZ(0)}#tb{z-index:50}#me{z-index:51}#dashf{position:relative;z-index:0;max-height:calc(var(--H) - 140px)}
 /* laptop: a 16:9 stage, the cards side by side (Rich, 19 Oct: "phone sized (measured) and a 16:9") */
 body.wide #app{max-width:none;width:min(100vw,calc(var(--H)*16/9));height:var(--H);min-height:0;overflow:auto}
 body.wide .top{padding:calc(var(--H)*.06) 6% 2%}body.wide .ttl{padding:0 6% 8px}
