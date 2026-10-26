@@ -202,7 +202,7 @@ function bkWire(){[].forEach.call(document.querySelectorAll("[data-bs]"),functio
  [].forEach.call(document.querySelectorAll("[data-bx]"),function(x){x.onclick=function(){var b=bkOf(x.getAttribute("data-bx"));if(!b)return;obAdd("vSendCancel",[PID,b.id]);delete b.sent;show("mine");};});
  [].forEach.call(document.querySelectorAll("[data-bn]"),function(x){x.onclick=function(){bkNick(x.getAttribute("data-bn"));};});}
 function bkSend(id){var b=bkOf(id);if(!b)return;BUSY=0;
- sheet('<h3>Send this book</h3><p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24].map(function(h){return '<button type="button" class="btn alt" data-bh="'+h+'">'+h+' h</button>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
+ sheet('<h3>Send this book</h3><p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24,72,120].map(function(h){return '<button type="button" class="btn alt" data-bh="'+h+'">'+(h>=72?h/24+' days':h+' h')+'</button>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
  $("bsx").onclick=shut;
  [].forEach.call(document.querySelectorAll("[data-bh]"),function(x){x.onclick=function(){var h=Number(x.getAttribute("data-bh"));$("bsm").textContent="One moment...";
   /* 25 Oct (Rich: "when i share a book, you using a long thread instead to fhte pipe"): the send link is made ahead (b.sk, 99zzzzd); the tap opens the share sheet at once and the send goes into the outbox */
@@ -210,7 +210,7 @@ function bkSend(id){var b=bkOf(id);if(!b)return;BUSY=0;
   call("vSend",[PID,b.id,h]).then(go,function(e){$("bsm").textContent=e.message;});
   function go(r){if(!r.ok){$("bsm").textContent=r.msg||"Please try again.";return;}
    var nm=String(r.first||S.first||"").trim();
-   var t="Hi! "+nm+" is inviting you to help save Michigan by reaching Republicans who tend to skip midterms.\n\nReply IN if we can count on your help, then tap the card below to start.\n\nThis invite expires in "+r.hours+" hours because we are running out of time.\n\n"+r.link;
+   var t="Hi! "+nm+" is inviting you to help save Michigan by reaching Republicans who tend to skip midterms.\n\nReply IN if we can count on your help, then tap the card below to start.\n\nThis invite expires in "+(r.hours>=72?r.hours/24+" days":r.hours+" hours")+" because we are running out of time.\n\n"+r.link;
    b.sent={until:Date.now()+r.hours*3600000,h:r.hours};show("mine");shareSheet(t,"Send this book");}};});}
 function bkNick(id){var b=bkOf(id);if(!b)return;BUSY=0;
  sheet('<h3>Nickname</h3><input id="bnn" maxlength="40" value="'+esc(b.nick||"")+'"><button class="btn" id="bns">Save</button><button class="btn alt" id="bnx">Cancel</button>');
