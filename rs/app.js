@@ -203,19 +203,23 @@ function bkWire(){[].forEach.call(document.querySelectorAll("[data-bs]"),functio
  [].forEach.call(document.querySelectorAll("[data-bn]"),function(x){x.onclick=function(){bkNick(x.getAttribute("data-bn"));};});}
 function bkSend(id){var b=bkOf(id);if(!b)return;BUSY=0;
  /* 26 Oct (Rich: "use the people search on the share so that (1) you can prepopulate the # in the text and (2) ... who it was sent to"; "link to a person object"): find the person (sInvitePeople, signed in); their key goes with the send, their cell into the text */var PK=null;
- sheet('<h3>Send this book</h3>'+(PASS?'<label>Find</label><input id="bsf" maxlength="60" autocomplete="off" placeholder="Start typing a name"><div id="bsl"></div>':'')+'<p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24,72,120].map(function(h){return '<button type="button" class="btn alt" data-bh="'+h+'">'+(h>=72?h/24+' days':h+' h')+'</button>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
+ /* 26 Oct (Rich: "you have a number in your hand and this should work exactly the same way" as the text blast book; "update the client graphic immediately and let status update sync later"): with a person picked, each hours button is the text link itself (as the book's Text button): the tap opens the text app, the send goes into the outbox (vSendRec), the book shows Pending at once. The send link is in hand (b.sk, from Home or the new book; else asked now, 99zzzzo) */
+ if(!b.sk)call("vSendKey",[PID,b.id]).then(function(r){if(r&&r.ok&&r.sk){b.sk=r.sk;hrefs();if($("bsm")&&$("bsm").textContent==="One moment...")$("bsm").textContent="";}},function(){});
+ sheet('<h3>Send this book</h3>'+(PASS?'<label>Find</label><input id="bsf" maxlength="60" autocomplete="off" placeholder="Start typing a name"><div id="bsl"></div>':'')+'<p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24,72,120].map(function(h){return '<a class="btn alt" target="_top" href="#" data-bh="'+h+'" style="text-align:center;text-decoration:none;box-sizing:border-box">'+(h>=72?h/24+' days':h+' h')+'</a>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
  $("bsx").onclick=shut;
- if($("bsf")){var BST=null,BSQ=0;$("bsf").oninput=function(){PK=null;clearTimeout(BST);var v=$("bsf").value.trim();if(v.length<2){$("bsl").innerHTML="";return;}BST=setTimeout(function(){var g=++BSQ;call("sInvitePeople",[v]).then(function(r){if(g!==BSQ||!r||!r.ok)return;var L=(r.people||[]).filter(function(x){return x.k;});
+ function txt(h){var nm=String(S.sf||S.first||"").trim();return "Hi! "+nm+" is inviting you to help save Michigan by reaching Republicans who tend to skip midterms.\n\nReply IN if we can count on your help, then tap the card below to start.\n\nThis invite expires in "+(h>=72?h/24+" days":h+" hours")+" because we are running out of time.\n\n"+location.origin+"/r/?s="+b.sk;}
+ function ph(){return PK&&PK.phone?String(PK.phone).replace(/[^0-9+]/g,""):"";}
+ function hrefs(){[].forEach.call(document.querySelectorAll("a[data-bh]"),function(a){var h=Number(a.getAttribute("data-bh"));a.href=b.sk&&ph()?"sms:"+ph()+"?&body="+encodeURIComponent(txt(h)):"#";});}
+ hrefs();
+ if($("bsf")){var BST=null,BSQ=0;$("bsf").oninput=function(){PK=null;hrefs();clearTimeout(BST);var v=$("bsf").value.trim();if(v.length<2){$("bsl").innerHTML="";return;}BST=setTimeout(function(){var g=++BSQ;call("sInvitePeople",[v]).then(function(r){if(g!==BSQ||!r||!r.ok)return;var L=(r.people||[]).filter(function(x){return x.k;});
    $("bsl").innerHTML=L.map(function(x,i){return '<button type="button" class="btn alt" data-sp="'+i+'" style="text-align:left;font-size:15px;padding:10px 14px">'+esc(x.name)+' <small style="opacity:.6">'+esc(x.badge)+(x.where?' · '+esc(x.where):'')+'</small></button>';}).join("");
-   [].forEach.call(document.querySelectorAll("[data-sp]"),function(b2){b2.onclick=function(){var x=L[Number(b2.getAttribute("data-sp"))];PK={k:x.k,name:x.name,phone:x.phone||""};$("bsf").value=x.name;$("bsl").innerHTML="";};});});},300);};}
- [].forEach.call(document.querySelectorAll("[data-bh]"),function(x){x.onclick=function(){var h=Number(x.getAttribute("data-bh"));$("bsm").textContent="One moment...";
-  /* 25 Oct (Rich: "when i share a book, you using a long thread instead to fhte pipe"): the send link is made ahead (b.sk, 99zzzzd); the tap opens the share sheet at once and the send goes into the outbox */
-  if(b.sk){var sk=b.sk;delete b.sk;obAdd("vSendRec",[PID,sk,h,PK?PK.k:""]);var r0={ok:true,first:S.sf||S.first||"",hours:h,link:location.origin+"/r/?s="+sk};return go(r0);}
-  call("vSend",[PID,b.id,h,PK?PK.k:""]).then(go,function(e){$("bsm").textContent=e.message;});
-  function go(r){if(!r.ok){$("bsm").textContent=r.msg||"Please try again.";return;}
-   var nm=String(r.first||S.first||"").trim();
-   var t="Hi! "+nm+" is inviting you to help save Michigan by reaching Republicans who tend to skip midterms.\n\nReply IN if we can count on your help, then tap the card below to start.\n\nThis invite expires in "+(r.hours>=72?r.hours/24+" days":r.hours+" hours")+" because we are running out of time.\n\n"+r.link;
-   b.sent={until:Date.now()+r.hours*3600000,h:r.hours,to:PK?PK.name:""};show("mine");shareSheet(t,"Send this book",PK&&PK.phone?PK.phone.replace(/[^0-9+]/g,""):"");}};});}
+   [].forEach.call(document.querySelectorAll("[data-sp]"),function(b2){b2.onclick=function(){var x=L[Number(b2.getAttribute("data-sp"))];PK={k:x.k,name:x.name,phone:x.phone||""};$("bsf").value=x.name;$("bsl").innerHTML="";hrefs();window.RST.mark("person picked"+(ph()?"":" (no cell)"));};});});},300);};}
+ [].forEach.call(document.querySelectorAll("a[data-bh]"),function(x){x.onclick=function(e){var h=Number(x.getAttribute("data-bh"));
+  if(!b.sk){e.preventDefault();$("bsm").textContent="One moment...";window.RST.mark("send: no link yet");return;}
+  var sk=b.sk,t=txt(h),p=ph();delete b.sk;
+  obAdd("vSendRec",[PID,sk,h,PK?PK.k:""]);b.sent={until:Date.now()+h*3600000,h:h,to:PK?PK.name:""};
+  if(p){window.RST.mark("text tapped");setTimeout(function(){shut();show("mine");},400);return;}   /* the tap opens the text app (the href) */
+  e.preventDefault();window.RST.mark("send: share sheet");show("mine");shareSheet(t,"Send this book","");};});}
 function bkNick(id){var b=bkOf(id);if(!b)return;BUSY=0;
  sheet('<h3>Nickname</h3><input id="bnn" maxlength="40" value="'+esc(b.nick||"")+'"><button class="btn" id="bns">Save</button><button class="btn alt" id="bnx">Cancel</button>');
  $("bnx").onclick=shut;$("bnn").focus();
