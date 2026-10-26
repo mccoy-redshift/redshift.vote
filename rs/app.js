@@ -110,7 +110,7 @@ var PATHS={home:"/",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/li
 function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id))return openBook(id.slice(2));
  if(id==="qr"){if(location.pathname.replace(/\/+$/,"")!=="/qr"){history.pushState({p:"qr"},"","/qr");NAVN++;}return qrTry();}
  if(PATHS[id]){var p=PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");if(location.pathname!==p){history.pushState({p:id},"",p);NAVN++;}show(id);}}
-addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();/* 25 Oct (Rich: "end up on QR code screen some how"): Back never opens the QR screen again; only the QR icon does */if(/^\/qr\/?$/.test(location.pathname)){try{history.replaceState(null,"","/home");}catch(e){}W=where();return show("home");}show(W.page);});
+addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();/* 26 Oct: Back closes a menu or spinner left open (it stayed over every screen after it) */if(!$("sh").hidden){window.RST.mark("Back: menu closed");BUSY=0;shut();}/* 25 Oct (Rich: "end up on QR code screen some how"): Back never opens the QR screen again; only the QR icon does */if(/^\/qr\/?$/.test(location.pathname)){try{history.replaceState(null,"","/home");}catch(e){}W=where();return show("home");}show(W.page);});
 var NOTE="";
 function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
@@ -284,12 +284,13 @@ function doneSweep(quiet){if(!S||!S.books||!S.books.length)return;var gone=[];
  S.books=S.books.filter(function(b){var k="rs_bookdone:"+b.id,wk=wkOf(b),k2=wk?"rs_bookdone:k:"+wk:"",f=null;try{f=localStorage.getItem(k)||(k2&&localStorage.getItem(k2));}catch(e){}if(!f)return true;gone.push(b.id);try{localStorage.removeItem(k);if(k2)localStorage.removeItem(k2);}catch(e){}return false;});
  gone.forEach(function(id){gbAdd(id);});
  if(gone.length&&!quiet&&CUR&&/^(home|new|mine)$/.test(CUR))show(CUR);}
-document.addEventListener("visibilitychange",function(){if(!document.hidden)doneSweep();});addEventListener("pageshow",function(){doneSweep();});
+document.addEventListener("visibilitychange",function(){if(!document.hidden)doneSweep();});addEventListener("pageshow",function(e){if(e&&e.persisted&&!$("sh").hidden){window.RST.mark("page restored: menu closed");BUSY=0;shut();}doneSweep();});
 function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
-function shut(){$("sh").hidden=true;$("shb").innerHTML="";}
+function shut(){if(!$("sh").hidden)window.RST.mark("menu closed");$("sh").hidden=true;$("shb").innerHTML="";}
 $("sh").onclick=function(e){if(e.target===$("sh")&&!BUSY)shut();};
 var BUSY=0;
-function busy(t){BUSY=1;sheet('<div class="spin"></div><p style="text-align:center">'+esc(t)+'</p>');}
+/* 26 Oct (Rich: "the size menue is stuck and i cannot do anything"): a spinner with no answer in 20 s closes with the busy message (the answer, if it comes later, still goes on) */
+var BUSYN=0;function busy(t){BUSY=1;var n=++BUSYN;window.RST.mark("spinner: "+t);sheet('<div class="spin"></div><p style="text-align:center">'+esc(t)+'</p>');setTimeout(function(){if(BUSY&&BUSYN===n&&!$("sh").hidden&&$("shb").querySelector(".spin")){window.RST.mark("spinner: no answer in 20 s");oops("Red Shift is busy. Please try again.");}},20000);}
 function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn" id="sx">OK</button>');$("sx").onclick=shut;}
 // ---- New Books: a name first (first name, last name, last 4 of the phone), then the book
 function tap(m){if(!S.adm){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
@@ -305,7 +306,7 @@ function size(m){var k=m==="walk"?"door":m,hb=S.admin?null:S.books.filter(functi
   $("hbo").onclick=function(){shut();build(m);};
   $("hbn").onclick=function(){gbAdd(hb.id);BUSY=0;shut();size(m);};return;}
  sheet('<h3>'+esc(ML[k])+' book</h3><p style="text-align:center">'+(k==="door"?"How many doors?":"How many people?")+'</p><div class="szs">'+SZ.map(function(n){return '<button type="button" class="btn'+(n===SZD[k]?"":" alt")+'" data-sz="'+n+'">'+n+'</button>';}).join("")+'</div>');
- [].forEach.call(document.querySelectorAll("[data-sz]"),function(b){b.onclick=function(){shut();build(m,Number(b.getAttribute("data-sz")));};});}
+ window.RST.mark("size menu: "+k);[].forEach.call(document.querySelectorAll("[data-sz]"),function(b){b.onclick=function(){window.RST.mark("size tapped: "+b.getAttribute("data-sz"));shut();build(m,Number(b.getAttribute("data-sz")));};});}
 // a guest on a browser not let in yet: Your info -> vKnown (a guest let in before comes in; anyone else: scan the event QR code or sign in)
 function knownSheet(done){BUSY=0;
  sheet('<h3>Your info</h3><label>First name</label><input id="kf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="kl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="k4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="km"></div><button class="btn" id="kgo">Continue</button><button class="btn alt" id="kgg">Sign in with Google</button>');
@@ -365,7 +366,7 @@ function bcBox(){return '<div class="bc'+(S.tgo?' open':'')+'"><button type="but
 var STAT=null,STATASK=0;function statGet(){if(STATASK)return;STATASK=1;call("vStat",[QN]).then(function(r){if(r&&r.ok){STAT=r;var e=$("bcs");if(e)e.innerHTML=statTxt();}else STATASK=0;},function(){STATASK=0;});}
 document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&e.target.closest("#tgh");if(!b)return;S.tgo=!S.tgo;var x=$("bcs");if(x)x.hidden=!S.tgo;b.setAttribute("aria-expanded",S.tgo?"true":"false");b.parentNode.className="bc"+(S.tgo?" open":"");});
 function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
- obFlush().then(function(){return call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ(),LS.get("rs_wid")||""]);}).then(function(r){
+ obFlush().then(function(){window.RST.mark("book asked");return call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ(),LS.get("rs_wid")||""]);}).then(function(r){
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
   if(r.reg){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
