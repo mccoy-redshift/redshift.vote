@@ -194,7 +194,7 @@ var BKI={share:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stro
  x:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
 function bkIcons(b){var h=b.sent?Math.max(0,Math.ceil((b.sent.until-Date.now())/3600000)):0;
  return '<div class="bki" style="display:flex;align-items:center;gap:14px;justify-content:flex-end;margin:-4px 18px 8px;color:var(--navy);font-size:14px">'+
-  (b.sent?'<span style="opacity:.75">Pending · '+h+' h</span><button type="button" data-bx="'+esc(b.id)+'" aria-label="Take the send back" style="border:0;background:none;padding:4px;color:inherit;opacity:.6">'+BKI.x+'</button>':
+  (b.sent?'<span style="opacity:.75">Pending · '+(b.sent.to?esc(b.sent.to)+' · ':'')+(h>=48?Math.round(h/24)+' days':h+' h')+'</span><button type="button" data-bx="'+esc(b.id)+'" aria-label="Take the send back" style="border:0;background:none;padding:4px;color:inherit;opacity:.6">'+BKI.x+'</button>':
    (S.canSend?'<button type="button" data-bs="'+esc(b.id)+'" aria-label="Send this book" style="border:0;background:none;padding:4px;color:inherit">'+BKI.share+'</button>':''))+
   '<button type="button" data-bn="'+esc(b.id)+'" aria-label="Nickname" style="border:0;background:none;padding:4px;color:inherit;opacity:.7">'+BKI.pen+'</button></div>';}
 function bkOf(id){return (S.books||[]).filter(function(b){return b.id===id;})[0];}
@@ -202,16 +202,20 @@ function bkWire(){[].forEach.call(document.querySelectorAll("[data-bs]"),functio
  [].forEach.call(document.querySelectorAll("[data-bx]"),function(x){x.onclick=function(){var b=bkOf(x.getAttribute("data-bx"));if(!b)return;obAdd("vSendCancel",[PID,b.id]);delete b.sent;show("mine");};});
  [].forEach.call(document.querySelectorAll("[data-bn]"),function(x){x.onclick=function(){bkNick(x.getAttribute("data-bn"));};});}
 function bkSend(id){var b=bkOf(id);if(!b)return;BUSY=0;
- sheet('<h3>Send this book</h3><p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24,72,120].map(function(h){return '<button type="button" class="btn alt" data-bh="'+h+'">'+(h>=72?h/24+' days':h+' h')+'</button>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
+ /* 26 Oct (Rich: "use the people search on the share so that (1) you can prepopulate the # in the text and (2) ... who it was sent to"; "link to a person object"): find the person (sInvitePeople, signed in); their key goes with the send, their cell into the text */var PK=null;
+ sheet('<h3>Send this book</h3>'+(PASS?'<label>Find</label><input id="bsf" maxlength="60" autocomplete="off" placeholder="Start typing a name"><div id="bsl"></div>':'')+'<p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24,72,120].map(function(h){return '<button type="button" class="btn alt" data-bh="'+h+'">'+(h>=72?h/24+' days':h+' h')+'</button>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
  $("bsx").onclick=shut;
+ if($("bsf")){var BST=null,BSQ=0;$("bsf").oninput=function(){PK=null;clearTimeout(BST);var v=$("bsf").value.trim();if(v.length<2){$("bsl").innerHTML="";return;}BST=setTimeout(function(){var g=++BSQ;call("sInvitePeople",[v]).then(function(r){if(g!==BSQ||!r||!r.ok)return;var L=(r.people||[]).filter(function(x){return x.k;});
+   $("bsl").innerHTML=L.map(function(x,i){return '<button type="button" class="btn alt" data-sp="'+i+'" style="text-align:left;font-size:15px;padding:10px 14px">'+esc(x.name)+' <small style="opacity:.6">'+esc(x.badge)+(x.where?' · '+esc(x.where):'')+'</small></button>';}).join("");
+   [].forEach.call(document.querySelectorAll("[data-sp]"),function(b2){b2.onclick=function(){var x=L[Number(b2.getAttribute("data-sp"))];PK={k:x.k,name:x.name,phone:x.phone||""};$("bsf").value=x.name;$("bsl").innerHTML="";};});});},300);};}
  [].forEach.call(document.querySelectorAll("[data-bh]"),function(x){x.onclick=function(){var h=Number(x.getAttribute("data-bh"));$("bsm").textContent="One moment...";
   /* 25 Oct (Rich: "when i share a book, you using a long thread instead to fhte pipe"): the send link is made ahead (b.sk, 99zzzzd); the tap opens the share sheet at once and the send goes into the outbox */
-  if(b.sk){var sk=b.sk;delete b.sk;obAdd("vSendRec",[PID,sk,h]);var r0={ok:true,first:S.sf||S.first||"",hours:h,link:location.origin+"/r/?s="+sk};return go(r0);}
-  call("vSend",[PID,b.id,h]).then(go,function(e){$("bsm").textContent=e.message;});
+  if(b.sk){var sk=b.sk;delete b.sk;obAdd("vSendRec",[PID,sk,h,PK?PK.k:""]);var r0={ok:true,first:S.sf||S.first||"",hours:h,link:location.origin+"/r/?s="+sk};return go(r0);}
+  call("vSend",[PID,b.id,h,PK?PK.k:""]).then(go,function(e){$("bsm").textContent=e.message;});
   function go(r){if(!r.ok){$("bsm").textContent=r.msg||"Please try again.";return;}
    var nm=String(r.first||S.first||"").trim();
    var t="Hi! "+nm+" is inviting you to help save Michigan by reaching Republicans who tend to skip midterms.\n\nReply IN if we can count on your help, then tap the card below to start.\n\nThis invite expires in "+(r.hours>=72?r.hours/24+" days":r.hours+" hours")+" because we are running out of time.\n\n"+r.link;
-   b.sent={until:Date.now()+r.hours*3600000,h:r.hours};show("mine");shareSheet(t,"Send this book");}};});}
+   b.sent={until:Date.now()+r.hours*3600000,h:r.hours,to:PK?PK.name:""};show("mine");shareSheet(t,"Send this book",PK&&PK.phone?PK.phone.replace(/[^0-9+]/g,""):"");}};});}
 function bkNick(id){var b=bkOf(id);if(!b)return;BUSY=0;
  sheet('<h3>Nickname</h3><input id="bnn" maxlength="40" value="'+esc(b.nick||"")+'"><button class="btn" id="bns">Save</button><button class="btn alt" id="bnx">Cancel</button>');
  $("bnx").onclick=shut;$("bnn").focus();
