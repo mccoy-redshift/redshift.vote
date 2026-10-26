@@ -356,8 +356,18 @@ function obQ(){try{return JSON.parse(LS.get("rs_ob")||"[]")||[];}catch(e){return
 function obSet(q){try{if(q.length)LS.set("rs_ob",JSON.stringify(q));else LS.del("rs_ob");}catch(e){}}
 var OBB=0,OBW=[];
 function obAdd(fn,args,then){var q=obQ();q.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),fn:fn,args:args,then:then||""});obSet(q);setTimeout(obDrain,0);}
-function obDrain(){var q=obQ();if(!q.length){if(OBHOLD)return;var w=OBW;OBW=[];w.forEach(function(f){f();});return;}if(OBB)return;OBB=1;var x=q[0];
- call(x.fn,x.args).then(function(r){OBB=0;obSet(obQ().filter(function(y){return y.id!==x.id;}));if(x.then==="name"){obName(x,r);return obDrain();}if(x.then==="reload"&&r&&r.ok!==false){if(!obQ().length)return location.reload();}if(r&&r.ok===false&&/^send:/.test(x.then)){var sb=bkOf(x.then.slice(5));if(sb){delete sb.sent;sndDel(sb.id);window.RST.mark("send refused: "+(r.msg||""));if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}}if(r&&r.ok===false&&r.msg)oops(r.msg);obDrain();},function(){OBB=0;setTimeout(obDrain,15000);});}
+/* 26 Oct (the Perf log: "WAITING vSendRec since 12445" for 15 minutes; Rich: "you have to fix these lockups"): a request the phone lost (the
+   text app opened, the page put to sleep) never answers, and the outbox waited on it for good. Now a send with no answer in 25 s is sent again;
+   an answer that comes after that is taken quietly (the server takes a repeat: the send, nickname, take-back and give-back are the same twice);
+   a refusal of a repeat is not shown (the first one went in) */
+var OBT=0;
+function obDrain(){var q=obQ();if(!q.length){if(OBHOLD)return;var w=OBW;OBW=[];w.forEach(function(f){f();});return;}if(OBB)return;OBB=1;var x=q[0],tk=++OBT;
+ var lost=setTimeout(function(){if(OBB&&OBT===tk){OBB=0;OBT++;window.RST.mark("outbox: no answer in 25 s, again: "+x.fn);obSet(obQ().map(function(y){if(y.id===x.id)y.n=(y.n||0)+1;return y;}));obDrain();}},25000);
+ call(x.fn,x.args).then(function(r){clearTimeout(lost);if(OBT!==tk){obSet(obQ().filter(function(y){return y.id!==x.id;}));return;}OBB=0;obSet(obQ().filter(function(y){return y.id!==x.id;}));if(x.n&&r&&r.ok===false){window.RST.mark("outbox: repeat refused, not shown: "+x.fn);return obDrain();}if(x.then==="name"){obName(x,r);return obDrain();}if(x.then==="reload"&&r&&r.ok!==false){if(!obQ().length)return location.reload();}if(r&&r.ok===false&&/^send:/.test(x.then)){var sb=bkOf(x.then.slice(5));if(sb){delete sb.sent;sndDel(sb.id);window.RST.mark("send refused: "+(r.msg||""));if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}}if(r&&r.ok===false&&r.msg)oops(r.msg);obDrain();},function(){clearTimeout(lost);if(OBT!==tk)return;OBB=0;setTimeout(obDrain,15000);});}
+/* 26 Oct (Rich: "the book size selection is non responsive"; the Perf log shows the size menu opened and no tap after it): every tap while a
+   menu is open is marked (what it landed on), so the next time a menu does not answer the log shows where the taps went */
+document.addEventListener("click",function(e){try{if($("sh")&&!$("sh").hidden){var t=e.target||{},d=t.getAttribute?t.getAttribute("data-sz")||t.getAttribute("data-bh")||t.getAttribute("data-sp"):"";window.RST.mark("tap "+(t.id||d||String(t.className||"").slice(0,20)||t.tagName));}}catch(x){}},true);
+document.addEventListener("touchstart",function(e){try{if($("sh")&&!$("sh").hidden){var t=e.target||{};window.RST.mark("touch "+(t.id||(t.getAttribute&&t.getAttribute("data-sz"))||String(t.className||"").slice(0,20)||t.tagName));}}catch(x){}},{capture:true,passive:true});
 function obFlush(){return new Promise(function(res){if(!obQ().length)return res();OBW.push(res);setTimeout(function(){if(!OBHOLD)res();},10000);obDrain();});}
 setTimeout(obDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)obDrain();});
 function nameSheet(then){BUSY=0;
