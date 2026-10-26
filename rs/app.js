@@ -310,10 +310,14 @@ function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
 /* 26 Oct (Rich: "the size picker on the new book menu is still stuck"; the Perf log, 6:29 PM: "touch 25" then "tap HTML", twice): the iPhone
    took the touch on the size button but sent the click to the page, so the button never ran. A touch that lifts on a menu's button or link
    and brings no click to it within 350 ms runs that button (once): every menu, not only the sizes */
-(function(){var P=null,lab=function(t){return t.id||t.getAttribute("data-sz")||t.getAttribute("data-bh")||String(t.textContent||"").trim().slice(0,12);};
- document.addEventListener("pointerup",function(e){if(e.pointerType!=="touch"||!$("sh")||$("sh").hidden)return;var t=e.target&&e.target.closest?e.target.closest("#shb button,#shb a"):null;if(!t)return;var me=P={t:t};
+/* 26 Oct (Rich: "my home page took 10 taps to go.  this happens when i share a book"): the bottom bar too (#tb), with or without a menu open;
+   its touches and taps are marked, so the log shows where they went */
+(function(){var P=null,lab=function(t){return t.id||t.getAttribute("data-sz")||t.getAttribute("data-bh")||(t.getAttribute("data-tb")?"bar "+t.getAttribute("data-tb"):"")||String(t.textContent||"").trim().slice(0,12);};
+ var mine=function(x){if(!x||!x.closest)return null;var o=$("sh")&&!$("sh").hidden;return (o&&x.closest("#shb button,#shb a"))||x.closest("#tb button");};
+ document.addEventListener("touchstart",function(e){try{var t=e.target&&e.target.closest?e.target.closest("#tb button"):null;if(t)window.RST.mark("touch "+lab(t));}catch(x){}},{capture:true,passive:true});
+ document.addEventListener("pointerup",function(e){if(e.pointerType!=="touch")return;var t=mine(e.target);if(!t)return;var me=P={t:t};
   setTimeout(function(){if(P!==me)return;P=null;if(!t.isConnected||t.disabled)return;window.RST.mark("tap lost, run: "+lab(t));t.click();},350);},true);
- document.addEventListener("click",function(e){if(!P)return;var t=e.target&&e.target.closest?e.target.closest("#shb button,#shb a"):null;if(t===P.t)P=null;},true);})();
+ document.addEventListener("click",function(e){try{var t=e.target&&e.target.closest?e.target.closest("#tb button"):null;if(t)window.RST.mark("tap "+lab(t));else if(P&&P.t.closest("#tb"))window.RST.mark("tap "+((e.target||{}).id||(e.target||{}).tagName));}catch(x){}if(!P)return;var u=mine(e.target);if(u===P.t)P=null;},true);})();
 function shut(){if(!$("sh").hidden)window.RST.mark("menu closed");$("sh").hidden=true;$("shb").innerHTML="";}
 $("sh").onclick=function(e){if(e.target===$("sh")&&!BUSY)shut();};
 var BUSY=0;
