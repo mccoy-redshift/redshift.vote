@@ -119,7 +119,8 @@ function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oc
  if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
   return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k]&&!have[k].done?have[k]:null;return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  // Rich, 24 Oct: finished books and "Give back this book" (99zzzye): each book shows Finished or how many are left, with a Give back button
- if(id==="mine"){frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";wpFix(b);return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+bkIcons(b)+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
+ /* 25 Oct (Rich: "when i have  bunch of books and i take a new one   it should be first, and in general the ones that i shared should be after the ones i have not shared"): not sent first, newest taken first (b.on: when taken) */
+ if(id==="mine"){S.books=S.books.slice().sort(function(a,b){return (a.sent?1:0)-(b.sent?1:0)||(b.on||0)-(a.on||0);});frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";wpFix(b);return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+bkIcons(b)+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
   :'<div class="note">No books yet on this phone.</div><div class="list">'+card("new","New Books","new")+'</div>',true,"My Books");
   [].forEach.call(document.querySelectorAll("[data-gb]"),function(x){x.onclick=function(){giveBack(x.getAttribute("data-gb"));};});bkWire();return;}
  if(id==="dash"){frame('<div class="list"><div class="spin"></div></div>',true,"Dashboard");return call("vDash",[PID,PASS]).then(dash,function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Dashboard");});}
@@ -368,7 +369,7 @@ function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
   if(r.reg){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
-  var b=r.book;S.books=S.books.filter(function(x){return x.id!==b.id;}).concat([b]);S.act=true;
+  var b=r.book;b.on=Date.now();S.books=[b].concat(S.books.filter(function(x){return x.id!==b.id;}));S.act=true;
   /* 25 Oct (Rich: "you are basically rendering the same mape in two different apps"; "i want it faster"): no route pop-up; a new walk book brings its walk page and its walk (99zzzyu), kept in the tab for the walk page on /m/ */
   if(k==="door"&&r.fresh&&r.walk&&r.walk.k){try{sessionStorage.setItem("rs_wp:"+r.walk.k,JSON.stringify(r.walk));}catch(e){}}
   /* 25 Oct: a Call / Text book just handed out carries its link: straight to it (the open call was a second round trip, about 3 s) */
