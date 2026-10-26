@@ -120,7 +120,7 @@ function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oc
   return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k]&&!have[k].done?have[k]:null;return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  // Rich, 24 Oct: finished books and "Give back this book" (99zzzye): each book shows Finished or how many are left, with a Give back button
  /* 25 Oct (Rich: "when i have  bunch of books and i take a new one   it should be first, and in general the ones that i shared should be after the ones i have not shared"): not sent first, newest taken first (b.on: when taken) */
- if(id==="mine"){S.books=S.books.slice().sort(function(a,b){return (a.sent?1:0)-(b.sent?1:0)||(b.on||0)-(a.on||0);});frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";wpFix(b);return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+bkIcons(b)+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
+ if(id==="mine"){sndApply();S.books=S.books.slice().sort(function(a,b){return (a.sent?1:0)-(b.sent?1:0)||(b.on||0)-(a.on||0);});frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";wpFix(b);return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+bkIcons(b)+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
   :'<div class="note">No books yet on this phone.</div><div class="list">'+card("new","New Books","new")+'</div>',true,"My Books");
   [].forEach.call(document.querySelectorAll("[data-gb]"),function(x){x.onclick=function(){giveBack(x.getAttribute("data-gb"));};});bkWire();return;}
  if(id==="dash"){frame('<div class="list"><div class="spin"></div></div>',true,"Dashboard");return call("vDash",[PID,PASS]).then(dash,function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Dashboard");});}
@@ -197,29 +197,42 @@ function bkIcons(b){var h=b.sent?Math.max(0,Math.ceil((b.sent.until-Date.now())/
   (b.sent?'<span style="opacity:.75">Pending · '+(b.sent.to?esc(b.sent.to)+' · ':'')+(h>=48?Math.round(h/24)+' days':h+' h')+'</span><button type="button" data-bx="'+esc(b.id)+'" aria-label="Take the send back" style="border:0;background:none;padding:4px;color:inherit;opacity:.6">'+BKI.x+'</button>':
    (S.canSend?'<button type="button" data-bs="'+esc(b.id)+'" aria-label="Send this book" style="border:0;background:none;padding:4px;color:inherit">'+BKI.share+'</button>':''))+
   '<button type="button" data-bn="'+esc(b.id)+'" aria-label="Nickname" style="border:0;background:none;padding:4px;color:inherit;opacity:.7">'+BKI.pen+'</button></div>';}
+/* 26 Oct (Rich: "the text sent but the book library does not show it pending to a person"; "make a client side change and put the command to assign it on the pipe and change the icon to cancel vs share"): a send or a take-back made on this phone is kept here (rs_snd:<PID>) and shown at once (Pending with the cancel icon, or back to the share icon), whatever Home answers before the outbox has reached the server; a send is kept until its time is up, a take-back for 10 minutes, a refused send is dropped */
+function sndG(){try{return JSON.parse(LS.get("rs_snd:"+(PID||""))||"{}")||{};}catch(e){return {};}}
+function sndS(o){try{if(Object.keys(o).length)LS.set("rs_snd:"+(PID||""),JSON.stringify(o));else LS.del("rs_snd:"+(PID||""));}catch(e){}}
+function sndPut(id,v){var o=sndG();o[id]=v;sndS(o);}
+function sndDel(id){var o=sndG();if(o[id]){delete o[id];sndS(o);}}
+function sndApply(){var o=sndG(),now=Date.now(),ch=false;Object.keys(o).forEach(function(k){if(!o[k]||!(o[k].until>now)){delete o[k];ch=true;}});if(ch)sndS(o);
+ (S.books||[]).forEach(function(b){var v=o[b.id];if(!v)return;if(v.x)delete b.sent;else b.sent={until:v.until,h:v.h,to:v.to||""};});}
 function bkOf(id){return (S.books||[]).filter(function(b){return b.id===id;})[0];}
 function bkWire(){[].forEach.call(document.querySelectorAll("[data-bs]"),function(x){x.onclick=function(){bkSend(x.getAttribute("data-bs"));};});
- [].forEach.call(document.querySelectorAll("[data-bx]"),function(x){x.onclick=function(){var b=bkOf(x.getAttribute("data-bx"));if(!b)return;obAdd("vSendCancel",[PID,b.id]);delete b.sent;show("mine");};});
+ [].forEach.call(document.querySelectorAll("[data-bx]"),function(x){x.onclick=function(){var b=bkOf(x.getAttribute("data-bx"));if(!b)return;obAdd("vSendCancel",[PID,b.id]);delete b.sent;sndPut(b.id,{x:1,until:Date.now()+600000});show("mine");};});
  [].forEach.call(document.querySelectorAll("[data-bn]"),function(x){x.onclick=function(){bkNick(x.getAttribute("data-bn"));};});}
 function bkSend(id){var b=bkOf(id);if(!b)return;BUSY=0;
  /* 26 Oct (Rich: "use the people search on the share so that (1) you can prepopulate the # in the text and (2) ... who it was sent to"; "link to a person object"): find the person (sInvitePeople, signed in); their key goes with the send, their cell into the text */var PK=null;
  /* 26 Oct (Rich: "you have a number in your hand and this should work exactly the same way" as the text blast book; "update the client graphic immediately and let status update sync later"): with a person picked, each hours button is the text link itself (as the book's Text button): the tap opens the text app, the send goes into the outbox (vSendRec), the book shows Pending at once. The send link is in hand (b.sk, from Home or the new book; else asked now, 99zzzzo) */
- if(!b.sk)call("vSendKey",[PID,b.id]).then(function(r){if(r&&r.ok&&r.sk){b.sk=r.sk;hrefs();if($("bsm")&&$("bsm").textContent==="One moment...")$("bsm").textContent="";}},function(){});
+ var SKE="";if(!b.sk)call("vSendKey",[PID,b.id]).then(function(r){if(r&&r.ok&&r.sk){b.sk=r.sk;hrefs();if($("bsm")&&$("bsm").textContent==="One moment...")$("bsm").textContent="";return;}SKE=(r&&r.msg)||"Please try again.";if($("bsm"))$("bsm").textContent=SKE;window.RST.mark("send: no link ("+SKE+")");},function(e){SKE=(e&&e.message)||"Please try again.";if($("bsm"))$("bsm").textContent=SKE;window.RST.mark("send: no link ("+SKE+")");});
  sheet('<h3>Send this book</h3>'+(PASS?'<label>Find</label><input id="bsf" maxlength="60" autocomplete="off" placeholder="Start typing a name"><div id="bsl"></div>':'')+'<p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24,72,120].map(function(h){return '<a class="btn alt" target="_top" href="#" data-bh="'+h+'" style="text-align:center;text-decoration:none;box-sizing:border-box">'+(h>=72?h/24+' days':h+' h')+'</a>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
  $("bsx").onclick=shut;
  function txt(h){var nm=String(S.sf||S.first||"").trim();return "Hi! "+nm+" is inviting you to help save Michigan by reaching Republicans who tend to skip midterms.\n\nReply IN if we can count on your help, then tap the card below to start.\n\nThis invite expires in "+(h>=72?h/24+" days":h+" hours")+" because we are running out of time.\n\n"+location.origin+"/r/?s="+b.sk;}
  function ph(){return PK&&PK.phone?String(PK.phone).replace(/[^0-9+]/g,""):"";}
  function hrefs(){[].forEach.call(document.querySelectorAll("a[data-bh]"),function(a){var h=Number(a.getAttribute("data-bh"));a.href=b.sk&&ph()?"sms:"+ph()+"?&body="+encodeURIComponent(txt(h)):"#";});}
  hrefs();
- if($("bsf")){var BST=null,BSQ=0;$("bsf").oninput=function(){PK=null;hrefs();clearTimeout(BST);var v=$("bsf").value.trim();if(v.length<2){$("bsl").innerHTML="";return;}BST=setTimeout(function(){var g=++BSQ;call("sInvitePeople",[v]).then(function(r){if(g!==BSQ||!r||!r.ok)return;var L=(r.people||[]).filter(function(x){return x.k;});
+ if($("bsf")){var BST=null,BSQ=0;$("bsf").oninput=function(){PK=null;hrefs();clearTimeout(BST);var v=$("bsf").value.trim();if(v.length<2){$("bsl").innerHTML="";return;}BST=setTimeout(function(){var g=++BSQ;call("sInvitePeople",[v]).then(function(r){if(g!==BSQ)return;if(!r||!r.ok){$("bsl").innerHTML='<div class="msg">'+esc((r&&r.msg)||"Search did not work. Try again.")+'</div>';return;}var L=(r.people||[]).filter(function(x){return x.k;});
    $("bsl").innerHTML=L.map(function(x,i){return '<button type="button" class="btn alt" data-sp="'+i+'" style="text-align:left;font-size:15px;padding:10px 14px">'+esc(x.name)+' <small style="opacity:.6">'+esc(x.badge)+(x.where?' · '+esc(x.where):'')+'</small></button>';}).join("");
-   [].forEach.call(document.querySelectorAll("[data-sp]"),function(b2){b2.onclick=function(){var x=L[Number(b2.getAttribute("data-sp"))];PK={k:x.k,name:x.name,phone:x.phone||""};$("bsf").value=x.name;$("bsl").innerHTML="";hrefs();window.RST.mark("person picked"+(ph()?"":" (no cell)"));};});});},300);};}
+   [].forEach.call(document.querySelectorAll("[data-sp]"),function(b2){b2.onclick=function(){var x=L[Number(b2.getAttribute("data-sp"))];PK={k:x.k,name:x.name,phone:x.phone||""};$("bsf").value=x.name;$("bsl").innerHTML="";hrefs();window.RST.mark("person picked"+(ph()?"":" (no cell)"));};});},function(e){if(g===BSQ)$("bsl").innerHTML='<div class="msg">Search did not work. Try again.</div>';});},300);};}
  [].forEach.call(document.querySelectorAll("a[data-bh]"),function(x){x.onclick=function(e){var h=Number(x.getAttribute("data-bh"));
-  if(!b.sk){e.preventDefault();$("bsm").textContent="One moment...";window.RST.mark("send: no link yet");return;}
-  var sk=b.sk,t=txt(h),p=ph();delete b.sk;
-  obAdd("vSendRec",[PID,sk,h,PK?PK.k:""]);b.sent={until:Date.now()+h*3600000,h:h,to:PK?PK.name:""};
-  if(p){window.RST.mark("text tapped");setTimeout(function(){shut();show("mine");},400);return;}   /* the tap opens the text app (the href) */
-  e.preventDefault();window.RST.mark("send: share sheet");show("mine");shareSheet(t,"Send this book","");};});}
+  if(!b.sk){e.preventDefault();$("bsm").textContent=SKE||"One moment...";window.RST.mark("send: no link yet");return;}
+  if(b.sent){e.preventDefault();return;}
+  var sk=b.sk,t=txt(h),p=ph(),pk=PK;
+  /* 26 Oct (Rich: "i ... hit send wo a number or a person and then hit close and it put it in pending state instead of available"; "do not assume the happy path"): the book is Pending only when the text goes: a number tapped (the text app opens, as the book's Text button), or the share sheet's Send that shares; Close, Cancel, or a share cancelled leaves it as it was */
+  var put=function(){if(b.sent)return;delete b.sk;obAdd("vSendRec",[PID,sk,h,pk?pk.k:""],"send:"+b.id);b.sent={until:Date.now()+h*3600000,h:h,to:pk?pk.name:""};sndPut(b.id,b.sent);};
+  if(p){put();window.RST.mark("text tapped");setTimeout(function(){shut();show("mine");},400);return;}   /* the tap opens the text app (the href) */
+  e.preventDefault();window.RST.mark("send: share sheet");BUSY=0;
+  sheet('<h3>Send this book</h3><button class="btn" id="shs">Send</button><button class="btn alt" id="shx">Close</button>');
+  $("shx").onclick=function(){window.RST.mark("send: closed, not sent");shut();};
+  $("shs").onclick=function(){if(navigator.share){navigator.share({text:t}).then(function(){put();window.RST.mark("send: shared");show("mine");},function(){window.RST.mark("send: share cancelled, not sent");});shut();return;}
+   put();window.RST.mark("send: text app (no share)");shut();show("mine");location.href="sms:?&body="+encodeURIComponent(t);};};});}
 function bkNick(id){var b=bkOf(id);if(!b)return;BUSY=0;
  sheet('<h3>Nickname</h3><input id="bnn" maxlength="40" value="'+esc(b.nick||"")+'"><button class="btn" id="bns">Save</button><button class="btn alt" id="bnx">Cancel</button>');
  $("bnx").onclick=shut;$("bnn").focus();
@@ -344,7 +357,7 @@ function obSet(q){try{if(q.length)LS.set("rs_ob",JSON.stringify(q));else LS.del(
 var OBB=0,OBW=[];
 function obAdd(fn,args,then){var q=obQ();q.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),fn:fn,args:args,then:then||""});obSet(q);setTimeout(obDrain,0);}
 function obDrain(){var q=obQ();if(!q.length){if(OBHOLD)return;var w=OBW;OBW=[];w.forEach(function(f){f();});return;}if(OBB)return;OBB=1;var x=q[0];
- call(x.fn,x.args).then(function(r){OBB=0;obSet(obQ().filter(function(y){return y.id!==x.id;}));if(x.then==="name"){obName(x,r);return obDrain();}if(x.then==="reload"&&r&&r.ok!==false){if(!obQ().length)return location.reload();}if(r&&r.ok===false&&r.msg)oops(r.msg);obDrain();},function(){OBB=0;setTimeout(obDrain,15000);});}
+ call(x.fn,x.args).then(function(r){OBB=0;obSet(obQ().filter(function(y){return y.id!==x.id;}));if(x.then==="name"){obName(x,r);return obDrain();}if(x.then==="reload"&&r&&r.ok!==false){if(!obQ().length)return location.reload();}if(r&&r.ok===false&&/^send:/.test(x.then)){var sb=bkOf(x.then.slice(5));if(sb){delete sb.sent;sndDel(sb.id);window.RST.mark("send refused: "+(r.msg||""));if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}}if(r&&r.ok===false&&r.msg)oops(r.msg);obDrain();},function(){OBB=0;setTimeout(obDrain,15000);});}
 function obFlush(){return new Promise(function(res){if(!obQ().length)return res();OBW.push(res);setTimeout(function(){if(!OBHOLD)res();},10000);obDrain();});}
 setTimeout(obDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)obDrain();});
 function nameSheet(then){BUSY=0;
