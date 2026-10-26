@@ -3,7 +3,7 @@
  "note": "Rich, 14 Oct: three sections (Republican Ticket, Judicial Races, Local Races only when the voter has any); every race only where the voter votes on it; the proposals are left off (they are on the voter guide).",
  "sections": [
   {
-   "t": "Republican Ticket",
+   "k": "s2b9c5e6d8c40", "t": "Republican Ticket",
    "straight": true,
    "r": [
     {
@@ -139,7 +139,7 @@
    ]
   },
   {
-   "t": "Judicial Races",
+   "k": "s2c7d3b18f793", "t": "Judicial Races",
    "r": [
     {
      "o": "Michigan Supreme Court Justice",
@@ -159,7 +159,7 @@
    ]
   },
   {
-   "t": "Local Races",
+   "k": "s73c9c6fba254", "t": "Local Races",
    "r": [
     {
      "o": "St. Joseph Public Schools",
