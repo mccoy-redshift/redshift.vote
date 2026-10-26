@@ -307,6 +307,13 @@ function doneSweep(quiet){if(!S||!S.books||!S.books.length)return;var gone=[];
  if(gone.length&&!quiet&&CUR&&/^(home|new|mine)$/.test(CUR))show(CUR);}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)doneSweep();});addEventListener("pageshow",function(e){if(e&&e.persisted&&!$("sh").hidden){window.RST.mark("page restored: menu closed");BUSY=0;shut();}doneSweep();});
 function sheet(h){$("shb").innerHTML=h;$("sh").hidden=false;}
+/* 26 Oct (Rich: "the size picker on the new book menu is still stuck"; the Perf log, 6:29 PM: "touch 25" then "tap HTML", twice): the iPhone
+   took the touch on the size button but sent the click to the page, so the button never ran. A touch that lifts on a menu's button or link
+   and brings no click to it within 350 ms runs that button (once): every menu, not only the sizes */
+(function(){var P=null,lab=function(t){return t.id||t.getAttribute("data-sz")||t.getAttribute("data-bh")||String(t.textContent||"").trim().slice(0,12);};
+ document.addEventListener("pointerup",function(e){if(e.pointerType!=="touch"||!$("sh")||$("sh").hidden)return;var t=e.target&&e.target.closest?e.target.closest("#shb button,#shb a"):null;if(!t)return;var me=P={t:t};
+  setTimeout(function(){if(P!==me)return;P=null;if(!t.isConnected||t.disabled)return;window.RST.mark("tap lost, run: "+lab(t));t.click();},350);},true);
+ document.addEventListener("click",function(e){if(!P)return;var t=e.target&&e.target.closest?e.target.closest("#shb button,#shb a"):null;if(t===P.t)P=null;},true);})();
 function shut(){if(!$("sh").hidden)window.RST.mark("menu closed");$("sh").hidden=true;$("shb").innerHTML="";}
 $("sh").onclick=function(e){if(e.target===$("sh")&&!BUSY)shut();};
 var BUSY=0;
