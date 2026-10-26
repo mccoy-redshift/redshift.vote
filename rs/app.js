@@ -159,7 +159,7 @@ function mePanel(){var m=meInfo();if(!m)return;
 var INV=null,IKT={V:"Volunteer",TV:"Volunteer",CA:"Campaign Admin",AA:"App Admin"};
 /* 25 Oct: the Campaign Admin invite says so, and where to set up the campaign ([their name], [campaigns], [link] are filled by Red Shift) */
 function IKCA(){return "Hey, this is "+String((INV&&INV.first)||"").trim()+" from Red Shift. [their name], I'd like you to be the Campaign Admin for [campaigns] in Red Shift. Sign in with your Google account: [link] Then tap your profile (the circle at the top) and choose Configure Campaign to set up your campaign.";}
-function invShare(t,ph){if(ph){location.href="sms:"+ph+"&body="+encodeURIComponent(t);return;}if(navigator.share){navigator.share({text:t}).catch(function(){});return;}location.href="sms:?&body="+encodeURIComponent(t);}
+function invShare(t,ph){if(ph){location.href="sms:"+ph+"?&body="+encodeURIComponent(t);return;}if(navigator.share){navigator.share({text:t}).catch(function(){});return;}location.href="sms:?&body="+encodeURIComponent(t);}
 // the share sheet needs a fresh tap (iPhone refuses it after waiting on the server): one button that opens it
 function shareSheet(t,title,ph){BUSY=0;sheet((title?'<h3>'+esc(title)+'</h3>':'')+'<button class="btn" id="shs">Send</button><button class="btn alt" id="shx">Close</button>');$("shs").onclick=function(){invShare(t,ph);shut();};$("shx").onclick=shut;}
 function invSheet(){busy("One moment...");call("sInvite",[]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");INV=r;BUSY=0;
