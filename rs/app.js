@@ -159,7 +159,7 @@ function mePanel(){var m=meInfo();if(!m)return;
 var INV=null,IKT={V:"Volunteer",TV:"Volunteer",CA:"Campaign Admin",AA:"App Admin"};
 /* 25 Oct: the Campaign Admin invite says so, and where to set up the campaign ([their name], [campaigns], [link] are filled by Red Shift) */
 function IKCA(){return "Hey, this is "+String((INV&&INV.first)||"").trim()+" from Red Shift. [their name], I'd like you to be the Campaign Admin for [campaigns] in Red Shift. Sign in with your Google account: [link] Then tap your profile (the circle at the top) and choose Configure Campaign to set up your campaign.";}
-function invShare(t,ph){if(ph){location.href="sms:"+ph+"?&body="+encodeURIComponent(t);return;}if(navigator.share){navigator.share({text:t}).catch(function(){});return;}location.href="sms:?&body="+encodeURIComponent(t);}
+function invShare(t,ph){if(ph){/* 26 Oct: opened the way the call / text book's Text button does (a link tapped), which works on your iPhone */var A=document.createElement("a");A.href="sms:"+ph+"?&body="+encodeURIComponent(t);A.target="_top";document.body.appendChild(A);A.click();A.remove();window.RST.mark("text opened");return;}if(navigator.share){navigator.share({text:t}).catch(function(){});return;}location.href="sms:?&body="+encodeURIComponent(t);}
 // the share sheet needs a fresh tap (iPhone refuses it after waiting on the server): one button that opens it
 function shareSheet(t,title,ph){BUSY=0;sheet((title?'<h3>'+esc(title)+'</h3>':'')+'<button class="btn" id="shs">Send</button><button class="btn alt" id="shx">Close</button>');$("shs").onclick=function(){invShare(t,ph);shut();};$("shx").onclick=shut;}
 function invSheet(){busy("One moment...");call("sInvite",[]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");INV=r;BUSY=0;
@@ -382,7 +382,7 @@ function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book
   if(r.fresh&&b.launch){try{if(r.page&&r.page.t&&r.page.r)sessionStorage.setItem("rs_bp:"+r.page.t,JSON.stringify(r.page.r));}catch(e){}window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}window.RST.mark("book link");window.RST.send("open book");return location.replace(b.launch);}
   openBook(b.id);
  },function(e){oops(e.message);});}
-function openBook(id){busy("Opening your book...");window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}call("vOpen",[PID,id]).then(function(r){if(!r.ok)return oops(r.msg);window.RST.mark("book link");window.RST.send("open book");location.replace(r.launch);},function(e){oops(e.message);});}
+function openBook(id){busy("Opening your book...");window.RST.mark("tap book");try{sessionStorage.setItem("rs_tap",String(Date.now()));}catch(e){}call("vOpen",[PID,id,LS.get("rs_wid")||""]).then(function(r){if(!r.ok)return oops(r.msg);/* 26 Oct: a walk book opened here brings its walk (99zzzyu): kept in the tab for the walk page on /m/, as a new book does */if(r.walk&&r.walk.k){try{sessionStorage.setItem("rs_wp:"+r.walk.k,JSON.stringify(r.walk));}catch(e){}}window.RST.mark("book link");window.RST.send("open book");location.replace(r.launch);},function(e){oops(e.message);});}
 // ---- the route pop-up
 var LF=null;
 function leaflet(done){if(window.L&&L.map)return done();if(LF)return LF.push(done);LF=[done];
