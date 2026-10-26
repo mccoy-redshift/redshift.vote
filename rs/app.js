@@ -370,6 +370,7 @@ function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book
   if(r.reg){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
   var b=r.book;b.on=Date.now();S.books=[b].concat(S.books.filter(function(x){return x.id!==b.id;}));S.act=true;
+  /* 26 Oct (Rich: "i build 2 books in a row and go to my books and the new books are not there yet"): the kept home screen gets the new book at once */try{var hk="rsHome:"+(PID||""),ho=JSON.parse(LS.get(hk)||"null");if(ho){ho.books=S.books;ho.act=true;LS.set(hk,JSON.stringify(ho));}}catch(e){}
   /* 25 Oct (Rich: "you are basically rendering the same mape in two different apps"; "i want it faster"): no route pop-up; a new walk book brings its walk page and its walk (99zzzyu), kept in the tab for the walk page on /m/ */
   if(k==="door"&&r.fresh&&r.walk&&r.walk.k){try{sessionStorage.setItem("rs_wp:"+r.walk.k,JSON.stringify(r.walk));}catch(e){}}
   /* 25 Oct: a Call / Text book just handed out carries its link: straight to it (the open call was a second round trip, about 3 s) */
@@ -493,7 +494,7 @@ function boot(){/* 25 Oct: /home asks for no pit stop; elsewhere the kept pit st
 home.then(function(r){if(!r){boot();return "re";}S=r;gbOut();try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
-if(HG>=0&&QG!==HG){/* /home: the person already went on from the kept home screen */}
+if(HG>=0&&QG!==HG){/* /home: the person already went on from the kept home screen; 26 Oct: Home or My Books still showing is drawn again with the fresh books */if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}
   else if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
   else show(W.land?"home":W.page);
   if(pr&&pr.html&&!ISQR&&!PE){if(pr.kept&&PF)pr=PF;pit(pr);if(pr.kept)pitLive();}
