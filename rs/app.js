@@ -88,7 +88,8 @@ var ML={door:"Walk",call:"Call",text:"Text"};
 function card(id,label,ic,sub,n){return '<button class="card" data-go="'+esc(id)+'"><span><span class="label">'+esc(label)+'</span>'+(sub?'<span class="sub">'+esc(sub)+'</span>':"")+'</span><span class="ic">'+IC[ic]+(n?'<b class="bub">'+n+'</b>':"")+'</span></button>';}
 var FOOT='';   // no sponsor line under the screens (Rich, 19 Oct: "since we have the splash.  remove the BCGOP stuff from the bottom")
 // Register, subtle, at the foot of every screen for anyone not registered (Rich, 19 Oct: "put a subtle registere at the bottom for all non0registered")
-function foot(){return S.reg?'':'<div class="reg"><a href="'+esc(S.regUrl||"/admin/")+'">Register</a></div>';}
+function foot(){return S.reg||S.nonew?'':'<div class="reg"><a href="'+esc(S.regUrl||"/admin/")+'">Register</a></div>';}
+function regBtn(){return S.nonew&&S.regUrl?'<a class="btn" href="'+esc(S.regUrl)+'" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;margin:0 0 14px">Register</a>':"";}
 function frame(inner,back,title){$("app").innerHTML='<div class="top"><div class="word"><span class="r">Red</span><span class="s">shift</span></div>'+'</div>'+(title?'<div class="ttl">'+esc(title)+'</div>':"")+inner+foot();
  // 22 Oct (Rich: "a 2nd click was qued and use went from QR to call book"): a tap made while the screen before was still up (a second tap
  // on Continue as guest, or on the QR) lands on whatever is drawn under the finger next; the screen's buttons take no tap for its first 700 ms
@@ -115,13 +116,15 @@ var NOTE="";
 function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
  if(!S.adm&&id!=="links")id="new";
  CUR=id;
- if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+card("new","New Books","new","Call \u00b7 Walk \u00b7 Text")+'</div>');
- if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
+ /* 26 Oct (Rich: "a trusted guest ... should have access to mybooks and to dashboard. but not new until they register"; "and a register button"): S.nonew (99zzzzx): no New Books; a Register button */
+if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+(S.nonew?"":card("new","New Books","new","Call \u00b7 Walk \u00b7 Text"))+'</div>'+regBtn());
+ if(id==="new"&&S.nonew){id="home";CUR="home";return show("home");}
+if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
   return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k]&&!have[k].done?have[k]:null;return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  // Rich, 24 Oct: finished books and "Give back this book" (99zzzye): each book shows Finished or how many are left, with a Give back button
  /* 25 Oct (Rich: "when i have  bunch of books and i take a new one   it should be first, and in general the ones that i shared should be after the ones i have not shared"): not sent first, newest taken first (b.on: when taken) */
- if(id==="mine"){sndApply();S.books=S.books.slice().sort(function(a,b){return (a.sent?1:0)-(b.sent?1:0)||(b.on||0)-(a.on||0);});frame(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";wpFix(b);return card("b:"+b.id,ML[b.mode]+" book",b.mode,b.nick+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+bkIcons(b)+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
-  :'<div class="note">No books yet on this phone.</div><div class="list">'+card("new","New Books","new")+'</div>',true,"My Books");
+ if(id==="mine"){sndApply();/* 26 Oct (Rich: "please keep them in the order last sent"): sent books after the others, the last sent first */var sAt=function(x){return x.sent&&x.sent.until?x.sent.until-(Number(x.sent.h)||0)*3600000:0;};S.books=S.books.slice().sort(function(a,b){return (a.sent?1:0)-(b.sent?1:0)||(a.sent&&b.sent?sAt(b)-sAt(a):0)||(b.on||0)-(a.on||0);});frame(regBtn()+(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";wpFix(b);return card("b:"+b.id,ML[b.mode]+" book",b.mode,(b.nick&&b.nick!==b.id?b.nick+" · ":"")+b.id+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+bkIcons(b)+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
+  :'<div class="note">No books yet on this phone.</div>'+(S.nonew?"":'<div class="list">'+card("new","New Books","new")+'</div>')),true,"My Books");
   [].forEach.call(document.querySelectorAll("[data-gb]"),function(x){x.onclick=function(){giveBack(x.getAttribute("data-gb"));};});bkWire();return;}
  if(id==="dash"){frame('<div class="list"><div class="spin"></div></div>',true,"Dashboard");return call("vDash",[PID,PASS]).then(dash,function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Dashboard");});}
  if(id==="links"){frame('<div class="list"><div class="spin"></div></div>',true,"Links");return call("vLinks",[PASS]).then(function(r){
@@ -212,21 +215,21 @@ function bkSend(id){var b=bkOf(id);if(!b)return;BUSY=0;
  /* 26 Oct (Rich: "use the people search on the share so that (1) you can prepopulate the # in the text and (2) ... who it was sent to"; "link to a person object"): find the person (sInvitePeople, signed in); their key goes with the send, their cell into the text */var PK=null;
  /* 26 Oct (Rich: "you have a number in your hand and this should work exactly the same way" as the text blast book; "update the client graphic immediately and let status update sync later"): with a person picked, each hours button is the text link itself (as the book's Text button): the tap opens the text app, the send goes into the outbox (vSendRec), the book shows Pending at once. The send link is in hand (b.sk, from Home or the new book; else asked now, 99zzzzo) */
  var SKE="";if(!b.sk)call("vSendKey",[PID,b.id]).then(function(r){if(r&&r.ok&&r.sk){b.sk=r.sk;hrefs();if($("bsm")&&$("bsm").textContent==="One moment...")$("bsm").textContent="";return;}SKE=(r&&r.msg)||"Please try again.";if($("bsm"))$("bsm").textContent=SKE;window.RST.mark("send: no link ("+SKE+")");},function(e){SKE=(e&&e.message)||"Please try again.";if($("bsm"))$("bsm").textContent=SKE;window.RST.mark("send: no link ("+SKE+")");});
- sheet('<h3>Send this book</h3>'+(PASS?'<label>Find</label><input id="bsf" maxlength="60" autocomplete="off" placeholder="Start typing a name"><div id="bsl"></div>':'')+'<p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24,72,120].map(function(h){return '<a class="btn alt" target="_top" href="#" data-bh="'+h+'" style="text-align:center;text-decoration:none;box-sizing:border-box">'+(h>=72?h/24+' days':h+' h')+'</a>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
+ sheet('<h3>Send this book</h3>'+(PASS?'<label>Find</label><input id="bsf" maxlength="60" autocomplete="off" placeholder="Start typing a name"><div id="bsl"></div><label id="bst" hidden style="display:flex;align-items:center;gap:10px;margin:10px 0;font-size:16px"><input type="checkbox" id="bstc" style="width:22px;height:22px;margin:0"> Trusted</label>':'')+'<p style="text-align:center">Reserve it for</p><div class="szs">'+[4,8,12,24,72,120].map(function(h){return '<a class="btn alt" target="_top" href="#" data-bh="'+h+'" style="text-align:center;text-decoration:none;box-sizing:border-box">'+(h>=72?h/24+' days':h+' h')+'</a>';}).join("")+'</div><div class="msg" id="bsm"></div><button class="btn alt" id="bsx">Cancel</button>');
  $("bsx").onclick=shut;
  function txt(h){var nm=String(S.sf||S.first||"").trim(),cy=String(S.scty||"").trim();/* 26 Oct (Rich: "make the message Hi, Rich from the <County Name> County GOP"; "how about This is Rich from..."): the sender's county from Home (99zzzzu); none for a guest */return "Hi! "+(nm?"This is "+nm+(cy?" from the "+cy+" County GOP":"")+". I'm":"I'm")+" inviting you to help save Michigan by reaching Republicans who tend to skip midterms.\n\nReply IN if we can count on your help, then tap the card below to start.\n\nThis invite expires in "+(h>=72?h/24+" days":h+" hours")+" because we are running out of time.\n\n"+(b.id?"Book ID = "+b.id+"\n\n":"")+location.origin+"/r/?s="+b.sk;}  /* 26 Oct (Rich: "book id = xxxxx"; "please move the book id to above the link"; on "Book ID = 38-sjps Text Rich": "that is not a book id"): the Book ID itself (its key), never a name, then the link last */
  function ph(){return PK&&PK.phone?String(PK.phone).replace(/[^0-9+]/g,""):"";}
  function hrefs(){[].forEach.call(document.querySelectorAll("a[data-bh]"),function(a){var h=Number(a.getAttribute("data-bh"));a.href=b.sk&&ph()?"sms:"+ph()+"?&body="+encodeURIComponent(txt(h)):"#";});}
  hrefs();
- if($("bsf")){var BST=null,BSQ=0;$("bsf").oninput=function(){PK=null;hrefs();clearTimeout(BST);var v=$("bsf").value.trim();if(v.length<2){$("bsl").innerHTML="";return;}BST=setTimeout(function(){var g=++BSQ;call("sInvitePeople",[v]).then(function(r){if(g!==BSQ)return;if(!r||!r.ok){$("bsl").innerHTML='<div class="msg">'+esc((r&&r.msg)||"Search did not work. Try again.")+'</div>';return;}var L=(r.people||[]).filter(function(x){return x.k;});
+ if($("bsf")){var BST=null,BSQ=0;$("bsf").oninput=function(){PK=null;hrefs();if($("bst")){$("bst").hidden=true;$("bstc").checked=false;}clearTimeout(BST);var v=$("bsf").value.trim();if(v.length<2){$("bsl").innerHTML="";return;}BST=setTimeout(function(){var g=++BSQ;call("sInvitePeople",[v]).then(function(r){if(g!==BSQ)return;if(!r||!r.ok){$("bsl").innerHTML='<div class="msg">'+esc((r&&r.msg)||"Search did not work. Try again.")+'</div>';return;}var L=(r.people||[]).filter(function(x){return x.k;});
    $("bsl").innerHTML=L.map(function(x,i){return '<button type="button" class="btn alt" data-sp="'+i+'" style="text-align:left;font-size:15px;padding:10px 14px">'+esc(x.name)+' <small style="opacity:.6">'+esc(x.badge)+(x.where?' · '+esc(x.where):'')+'</small></button>';}).join("");
-   [].forEach.call(document.querySelectorAll("[data-sp]"),function(b2){b2.onclick=function(){var x=L[Number(b2.getAttribute("data-sp"))];PK={k:x.k,name:x.name,phone:x.phone||""};$("bsf").value=x.name;$("bsl").innerHTML="";hrefs();window.RST.mark("person picked"+(ph()?"":" (no cell)"));};});},function(e){if(g===BSQ)$("bsl").innerHTML='<div class="msg">Search did not work. Try again.</div>';});},300);};}
+   [].forEach.call(document.querySelectorAll("[data-sp]"),function(b2){b2.onclick=function(){var x=L[Number(b2.getAttribute("data-sp"))];PK={k:x.k,name:x.name,phone:x.phone||""};$("bsf").value=x.name;$("bsl").innerHTML="";hrefs();if($("bst"))$("bst").hidden=false;window.RST.mark("person picked"+(ph()?"":" (no cell)"));};});},function(e){if(g===BSQ)$("bsl").innerHTML='<div class="msg">Search did not work. Try again.</div>';});},300);};}
  [].forEach.call(document.querySelectorAll("a[data-bh]"),function(x){x.onclick=function(e){var h=Number(x.getAttribute("data-bh"));
   if(!b.sk){e.preventDefault();$("bsm").textContent=SKE||"One moment...";window.RST.mark("send: no link yet");return;}
   if(b.sent){e.preventDefault();return;}
-  var sk=b.sk,t=txt(h),p=ph(),pk=PK;
+  var sk=b.sk,t=txt(h),p=ph(),pk=PK,tr=!!(PK&&$("bstc")&&$("bstc").checked);
   /* 26 Oct (Rich: "i ... hit send wo a number or a person and then hit close and it put it in pending state instead of available"; "do not assume the happy path"): the book is Pending only when the text goes: a number tapped (the text app opens, as the book's Text button), or the share sheet's Send that shares; Close, Cancel, or a share cancelled leaves it as it was */
-  var put=function(){if(b.sent)return;delete b.sk;obAdd("vSendRec",[PID,sk,h,pk?pk.k:""],"send:"+b.id);b.sent={until:Date.now()+h*3600000,h:h,to:pk?pk.name:""};sndPut(b.id,b.sent);};
+  var put=function(){if(b.sent)return;delete b.sk;obAdd("vSendRec",[PID,sk,h,pk?pk.k:"",tr],"send:"+b.id);b.sent={until:Date.now()+h*3600000,h:h,to:pk?pk.name:""};sndPut(b.id,b.sent);};
   if(p){put();window.RST.mark("text tapped");setTimeout(function(){shut();show("mine");},400);return;}   /* the tap opens the text app (the href) */
   e.preventDefault();window.RST.mark("send: share sheet");BUSY=0;
   sheet('<h3>Send this book</h3><button class="btn" id="shs">Send</button><button class="btn alt" id="shx">Close</button>');
@@ -356,7 +359,17 @@ function gbQ(){try{return JSON.parse(LS.get("rs_gbq")||"[]")||[];}catch(e){retur
 function gbSet(q){try{if(q.length)LS.set("rs_gbq",JSON.stringify(q));else LS.del("rs_gbq");}catch(e){}}
 function gbOut(){var q=gbQ();if(q.length&&S&&S.books)S.books=S.books.filter(function(b){return q.indexOf(b.id)<0;});}
 var GBB=0;
-function gbAdd(id){var q=gbQ();if(q.indexOf(id)<0)q.push(id);gbSet(q);gbOut();setTimeout(gbDrain,0);}
+/* 26 Oct (Rich: "that code is not in my books"; "i told you to update the client before putting on the slow pipe"): a book taken on this phone is
+   kept here (rs_nb:<PID>) and stays in My Books whatever an older Home answer says, until Home lists it (then the server has it) or it is given back */
+function nbG(){try{return JSON.parse(LS.get("rs_nb:"+(PID||""))||"{}")||{};}catch(e){return {};}}
+function nbS(o){try{if(Object.keys(o).length)LS.set("rs_nb:"+(PID||""),JSON.stringify(o));else LS.del("rs_nb:"+(PID||""));}catch(e){}}
+function nbPut(b){try{var o=nbG(),c={};Object.keys(b).forEach(function(k){if(k!=="walk")c[k]=b[k];});o[b.id]={b:c,at:Date.now()};nbS(o);}catch(e){}}
+function nbDel(id){var o=nbG();if(o[id]){delete o[id];nbS(o);}}
+function nbMerge(){var o=nbG(),now=Date.now(),ch=false,have={};(S.books||[]).forEach(function(x){have[x.id]=1;});var gq=[];try{gq=gbQ();}catch(e){}
+ Object.keys(o).forEach(function(id){var x=o[id];if(!x||now-x.at>6*3600000||have[id]||gq.indexOf(id)>=0){delete o[id];ch=true;return;}
+  S.books=[x.b].concat(S.books||[]);window.RST.mark("kept new book "+id);});
+ if(ch)nbS(o);}
+function gbAdd(id){nbDel(id);var q=gbQ();if(q.indexOf(id)<0)q.push(id);gbSet(q);gbOut();setTimeout(gbDrain,0);}
 function gbDrain(){var q=gbQ();if(!q.length||GBB)return;GBB=1;var id=q[0];
  call("vGiveBack",[PID,id]).then(function(){GBB=0;gbSet(gbQ().filter(function(x){return x!==id;}));gbDrain();},function(){GBB=0;setTimeout(gbDrain,15000);});}
 setTimeout(gbDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)gbDrain();});
@@ -412,7 +425,7 @@ function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
   if(r.reg){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
-  var b=r.book;b.on=Date.now();S.books=[b].concat(S.books.filter(function(x){return x.id!==b.id;}));S.act=true;
+  var b=r.book;b.on=Date.now();S.books=[b].concat(S.books.filter(function(x){return x.id!==b.id;}));S.act=true;nbPut(b);
   /* 26 Oct (Rich: "i build 2 books in a row and go to my books and the new books are not there yet"): the kept home screen gets the new book at once */try{var hk="rsHome:"+(PID||""),ho=JSON.parse(LS.get(hk)||"null");if(ho){ho.books=S.books;ho.act=true;LS.set(hk,JSON.stringify(ho));}}catch(e){}
   /* 25 Oct (Rich: "you are basically rendering the same mape in two different apps"; "i want it faster"): no route pop-up; a new walk book brings its walk page and its walk (99zzzyu), kept in the tab for the walk page on /m/ */
   if(k==="door"&&r.fresh&&r.walk&&r.walk.k){try{sessionStorage.setItem("rs_wp:"+r.walk.k,JSON.stringify(r.walk));}catch(e){}}
@@ -534,7 +547,7 @@ function boot(){/* 25 Oct: /home asks for no pit stop; elsewhere the kept pit st
  /* /home: the phone's last home screen at once (a tap made on it is not undone when the fresh one comes) */var HK=null,HG=-1;if(W.home){try{HK=JSON.parse(LS.get("rsHome:"+(PID||""))||"null");}catch(e){HK=null;}if(HK&&HK.adm){S=HK;gbOut();NOTE=HK.note||"";try{meDraw();}catch(e){}show("home");HG=QG;splashOff();}}
  var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
  if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},true,false);});}return r;});   /* one sign-in panel (21 Oct) */
-home.then(function(r){if(!r){boot();return "re";}S=r;gbOut();try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
+home.then(function(r){if(!r){boot();return "re";}S=r;nbMerge();gbOut();try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
 if(HG>=0&&QG!==HG){/* /home: the person already went on from the kept home screen; 26 Oct: Home or My Books still showing is drawn again with the fresh books */if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}
