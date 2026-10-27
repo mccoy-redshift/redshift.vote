@@ -67,7 +67,13 @@ function fit(){var vv=window.visualViewport,h=Math.round((vv&&vv.height)||innerH
  document.body.classList.toggle("wide",innerWidth>innerHeight&&innerWidth>=900&&fine);}
 fit();addEventListener("resize",fit);try{visualViewport.addEventListener("resize",fit);}catch(e){}addEventListener("orientationchange",function(){setTimeout(fit,250);});
 // ---- the address
-function where(){var p=location.pathname.replace(/\/+$/,"").replace(/^\/+/,"").split("/"),a=(p[0]||"").toLowerCase(),q=p.slice(1).join("/");
+/* 25 Oct (Rich: "please start using rest thinking so like   .vote\\sjps\\ca"): redshift.vote/<campaign>/<role>/<page>, e.g. /sjps/ca/newbooks; the address names the
+   role, the server decides it (99zzzzh: a role you do not hold there is put right) */
+var RCODES={o:1,aa:1,ca:1,c:1,v:1};
+function where(){var p0=location.pathname.replace(/\/+$/,"").replace(/^\/+/,"").split("/"),cp=null;
+ if(p0.length>=2&&RCODES[(p0[1]||"").toLowerCase()]&&/^[a-z0-9]{2,30}$/i.test(p0[0]||"")){cp={camp:p0[0].toLowerCase(),role:p0[1].toLowerCase()};p0=p0.slice(2);}
+ var w=where0(p0);if(cp){w.camp=cp.camp;w.role=cp.role;if(w.land&&!p0.length){delete w.land;w.home=1;}}return w;}
+function where0(p){var a=(p[0]||"").toLowerCase(),q=p.slice(1).join("/");if(a==="configure")return{page:"cfg"};
  try{q=decodeURIComponent(q);}catch(e){}
  /* Rich, 23 Oct ("you should be restful  ..  /splash  /pitstop /admin"; "just build it"): /splash keeps the splash up; /pitstop shows the pit stop alone and keeps it up, live */if(a==="splash")return{splash:1,land:1,page:"home",q:""};if(a==="pitstop")return{pit:1,land:1,page:"home",q:""};/* Rich, 25 Oct ("rs.v/spash  rs.v/pitstop  rs.v/home   etc"): /home is the home screen alone: no splash, no pit stop */if(a==="home")return{home:1,page:"home",q:""};if(a==="qr")return{land:1,page:"new",q:q};if(a==="newbooks")return{page:"new",q:q};if(a==="mybooks")return{page:"mine"};if(a==="dashboard")return{page:"dash"};if(a==="links")return{page:"links"};
  return{land:1,page:"home",q:""};}
@@ -107,20 +113,21 @@ function tbar(){var t=$("tb");if(!t)return;var b=function(k,lab,extra){return '<
 document.addEventListener("click",function(e){var x=e.target&&e.target.closest&&e.target.closest("#tb [data-tb]");if(!x)return;var k=x.getAttribute("data-tb");
  if(k==="back"){if(NAVN>0)history.back();}else if(k==="home"){if(ONQR)return location.assign("/home");go("home");}else if(k==="qr")go("qr");
  else if(k==="test")call("testToken",[PASS]).then(function(tk){if(tk)location.href=API+"/tests?tk="+encodeURIComponent(tk);}).catch(function(){});});
-var PATHS={home:"/",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/links"};
+var PATHS={home:"/",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/links",cfg:"/configure"};
 function go(id){if(/^(walk|call|text)$/.test(id))return tap(id);if(/^b:/.test(id))return openBook(id.slice(2));
  if(id==="qr"){if(location.pathname.replace(/\/+$/,"")!=="/qr"){history.pushState({p:"qr"},"","/qr");NAVN++;}return qrTry();}
- if(PATHS[id]){var p=PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");if(location.pathname!==p){history.pushState({p:id},"",p);NAVN++;}show(id);}}
-addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();/* 26 Oct: Back closes a menu or spinner left open (it stayed over every screen after it) */if(!$("sh").hidden){window.RST.mark("Back: menu closed");BUSY=0;shut();}/* 25 Oct (Rich: "end up on QR code screen some how"): Back never opens the QR screen again; only the QR icon does */if(/^\/qr\/?$/.test(location.pathname)){try{history.replaceState(null,"","/home");}catch(e){}W=where();return show("home");}show(W.page);});
+ if(PATHS[id]){var p=csWant(id)||(PATHS[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):""));if(location.pathname!==p){history.pushState({p:id},"",p);NAVN++;}show(id);}}
+addEventListener("popstate",function(){NAVN=Math.max(0,NAVN-1);W=where();/* 26 Oct: Back closes a menu or spinner left open (it stayed over every screen after it) */if(!$("sh").hidden){window.RST.mark("Back: menu closed");BUSY=0;shut();}try{if(W.camp){var cw=csByCode(W.camp),cn=csCur();if(cw&&(!cn||cw.id!==cn.id))csUse(cw);}}catch(e){}/* 25 Oct (Rich: "end up on QR code screen some how"): Back never opens the QR screen again; only the QR icon does */if(/^\/qr\/?$/.test(location.pathname)){try{history.replaceState(null,"","/home");}catch(e){}W=where();return show("home");}show(W.page);});
 var NOTE="";
 function show(id){QG++;window.RST.mark("show "+id);window.scrollTo(0,0);/* 21 Oct (Rich: "did you chanage the color scheme ?"): the pit stop poster turns the page navy and locks scrolling while it is up; once it is gone, every screen gets the page back */if(!document.getElementById("lnd")){var de0=document.documentElement.style,bd0=document.body.style;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";}if(ONQR){ONQR=false;TVID++;document.body.classList.remove("tvm");}setTimeout(tbar,0);
+ if(id==="cfg"){CUR=id;csPath(id);return cfgOpen();}
  if(!S.adm&&id!=="links")id="new";
- CUR=id;
+ CUR=id;try{csPath(id);}catch(e){}
  /* 26 Oct (Rich: "a trusted guest ... should have access to mybooks and to dashboard. but not new until they register"; "and a register button"): S.nonew (99zzzzx): no New Books; a Register button */
-if(id==="home")return frame((NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+(S.nonew?"":card("new","New Books","new","Call \u00b7 Walk \u00b7 Text"))+'</div>'+regBtn());
+if(id==="home")return frame(csBar()+(NOTE?'<div class="note">'+esc(NOTE)+'</div>':"")+'<div class="list">'+card("dash","Dashboard","dash")+card("mine","My Books","mine","",(S.books||[]).length)+(S.nonew?"":card("new","New Books","new","Call \u00b7 Walk \u00b7 Text"))+'</div>'+regBtn());
  if(id==="new"&&S.nonew){id="home";CUR="home";return show("home");}
-if(id==="new"){statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
-  return frame((S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k]&&!have[k].done?have[k]:null;return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
+if(id==="new"){var cg=csGate();if(cg)return frame(csBar()+cg,S.act,S.act?"New Books":"");statGet();var have={};S.books.forEach(function(b){have[b.mode]=b;});
+  return frame(csBar()+(S.code==="used"||S.code==="bad"?'<div class="note">This code was already used. Register to join the team.</div>':"")+(S.qbad?'<div class="note bad">That list is not available. These books come from the main list.</div>':"")+'<div class="list">'+["walk","call","text"].map(function(m){var k=m==="walk"?"door":m,b=have[k]&&!have[k].done?have[k]:null;return card(m,ML[k],k,b?"Open your "+ML[k]+" book":"");}).join("")+'</div>'+bcBox(),S.act,S.act?"New Books":"");}
  // Rich, 24 Oct: finished books and "Give back this book" (99zzzye): each book shows Finished or how many are left, with a Give back button
  /* 25 Oct (Rich: "when i have  bunch of books and i take a new one   it should be first, and in general the ones that i shared should be after the ones i have not shared"): not sent first, newest taken first (b.on: when taken) */
  if(id==="mine"){sndApply();/* 26 Oct (Rich: "please keep them in the order last sent"): sent books after the others, the last sent first */var sAt=function(x){return x.sent&&x.sent.until?x.sent.until-(Number(x.sent.h)||0)*3600000:0;};S.books=S.books.slice().sort(function(a,b){return (a.sent?1:0)-(b.sent?1:0)||(a.sent&&b.sent?sAt(b)-sAt(a):0)||(b.on||0)-(a.on||0);});frame(regBtn()+(S.books.length?'<div class="list">'+S.books.map(function(b){var u=b.mode==="door"?"doors":"people";wpFix(b);return card("b:"+b.id,ML[b.mode]+" book",b.mode,(b.nick&&b.nick!==b.id?b.nick+" · ":"")+b.id+" · "+(b.done?"Finished":(b.left!=null?b.left+" of "+(b.total!=null?b.total:(b.mode==="door"?b.doors:b.people))+" "+(b.unit||u)+" left":(b.mode==="door"?b.doors:b.people)+" "+u)))+bkIcons(b)+'<button type="button" class="btn alt" data-gb="'+esc(b.id)+'">Give back this book</button>';}).join("")+'</div>'
@@ -149,8 +156,8 @@ function meDraw(){var m=meInfo(),b=$("me");if(!m){if(b)b.hidden=true;return;}
  b.className=m.signed?"in":"";b.innerHTML=meFace(m);b.hidden=false;var im=b.querySelector("img");if(im)im.onerror=function(){b.textContent=meIni(m.name);};}
 function mePanel(){var m=meInfo();if(!m)return;
  sheet('<div class="mew"><div class="mec"'+(m.signed?' style="background:var(--navy)"':'')+'>'+meFace(m)+'</div><div><b>'+esc(m.name)+'</b><span>'+(m.signed?esc(m.email)+'<br>Signed in with Google':'Guest on this phone')+'</span></div></div>'+
-  (m.signed?'<button class="btn" id="meo">Sign out</button>':'<button class="btn" id="mei">Sign in with Google</button>')+(m.signed?'<button class="btn alt" id="meinv">Invite</button><button class="btn alt" id="mecfg">Configure Campaign</button>':'')+'<button class="btn alt" id="meoc">Record DNC / DNT</button><button class="btn alt" id="mex">Close</button>');
- $("mex").onclick=shut;$("meoc").onclick=optSheet;if($("meinv"))$("meinv").onclick=invSheet;if($("mecfg"))$("mecfg").onclick=function(){shut();cfgOpen();};
+  (m.signed?'<button class="btn" id="meo">Sign out</button>':'<button class="btn" id="mei">Sign in with Google</button>')+(m.signed?'<button class="btn alt" id="meinv">Invite</button><button class="btn alt" id="mecfg"'+(S&&S.cs&&!S.cs.list.some(function(x){return x.adm;})?' hidden':'')+'>Configure Campaign</button>':'')+'<button class="btn alt" id="meoc">Record DNC / DNT</button><button class="btn alt" id="mex">Close</button>');
+ $("mex").onclick=shut;$("meoc").onclick=optSheet;if($("meinv"))$("meinv").onclick=invSheet;if($("mecfg"))$("mecfg").onclick=function(){shut();var c=csCur();if(c&&c.adm)CFGC=c.id;if(S&&S.cs)go("cfg");else cfgOpen();};
  if($("meo"))$("meo").onclick=function(){try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}LS.del("rsPass");LS.del("rsMe");PASS="";location.href="/";};
  if($("mei"))$("mei").onclick=function(){shut();signIn(function(){location.reload();},false);};}
 // Rich, 24 Oct: "logging a DNC or DNT for a book the person no longer has ... a drop down even better so the user can enter their code";
@@ -255,9 +262,9 @@ var CFGI={ABEV:"In GOP Data Center, export your district as List Style: ABEV Lis
 /* 25 Oct (Rich: "get rid of all that junk under DCE  and just put under the title:  Select all,  No Filters.   Then under Target put Optional Filtered List form GOP Data Center"): a line under the title; the (i) only where there is more to say */
 var CFGS={GOPX:"Select all, No Filters.",TGT:"Optional Filtered List from GOP Data Center",ABEV:"Used for Ballot Chasing",VBK:"Optional: upload any file with voters contacted already. Must include the GOP Data Center Voter Key."};   /* Rich, 25 Oct: "in the biline:  must include gop data center voter key" */   /* Rich, 25 Oct: "under Latest ABEV, the biline is 'Used for Ballot Chasing'" */
 var CFG=null,CFGC=null;
-function cfgOpen(){frame('<div class="list"><div class="spin"></div></div>',true,"Configure Campaign");call("sConfig",[]).then(function(r){if(!r.ok)return frame('<div class="note bad">'+esc(r.msg||"Please try again.")+'</div>',true,"Configure Campaign");CFG=r;CFGC=CFGC&&r.camps.some(function(c){return c.id===CFGC;})?CFGC:r.camps[0].id;cfgDraw();},function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Configure Campaign");});}
+function cfgOpen(){frame('<div class="list"><div class="spin"></div></div>',true,"Configure Campaign");call("sConfig",[]).then(function(r){if(!r.ok)return frame('<div class="note bad">'+esc(r.msg||"Please try again.")+'</div>',true,"Configure Campaign");CFG=r;var c0=CFGC||LS.get("rs_el");CFGC=c0&&r.camps.some(function(c){return c.id===c0;})?c0:r.camps[0].id;cfgDraw();},function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Configure Campaign");});}
 function cfgDraw(){var c=CFG.camps.filter(function(x){return x.id===CFGC;})[0],A=c.about||{};
- var row=function(t){return '<div class="lk" style="padding:12px 16px"><div style="display:flex;align-items:center;gap:10px"><div style="flex:1"><b>'+esc(t.label)+'</b>'+(CFGS[t.k]?'<div style="font-size:14px;opacity:.75;margin-top:2px">'+esc(CFGS[t.k])+'</div>':'')+'</div>'+(CFGI[t.k]?'<button type="button" class="ii" data-ci="'+t.k+'" aria-label="How" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--navy);background:#fff;color:var(--navy);font:700 15px Georgia,serif">i</button>':'')+'<label class="btn alt" style="width:auto;margin:0;padding:8px 14px;font-size:15px">Upload<input type="file" data-cu="'+t.k+'" hidden></label></div><div data-cx="'+t.k+'" hidden style="white-space:pre-line;font-size:14px;line-height:1.45;margin-top:8px;color:#333">'+esc(CFGI[t.k]||"")+'</div><div class="msg" data-cm="'+t.k+'"></div></div>';};
+ var row=function(t){return '<div class="lk" style="padding:12px 16px"><div style="display:flex;align-items:center;gap:10px"><div style="flex:1"><b>'+esc(t.label)+'</b>'+(CFGS[t.k]?'<div style="font-size:14px;opacity:.75;margin-top:2px">'+esc(CFGS[t.k])+'</div>':'')+'</div>'+(CFGI[t.k]?'<button type="button" class="ii" data-ci="'+t.k+'" aria-label="How" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--navy);background:#fff;color:var(--navy);font:700 15px Georgia,serif">i</button>':'')+'<label class="btn alt" style="width:auto;margin:0;padding:8px 14px;font-size:15px">Upload<input type="file" data-cu="'+t.k+'" hidden></label></div><div data-cx="'+t.k+'" hidden style="white-space:pre-line;font-size:14px;line-height:1.45;margin-top:8px;color:#333">'+esc(CFGI[t.k]||"")+'</div><div class="msg" data-cm="'+t.k+'"></div>'+(t.k==="GOPX"?'<button type="button" class="lnk" id="cfh">Or use a file Red Shift already has</button>':'')+'</div>';};
  frame('<div class="cfgv"><style>#app .reg{display:none}.cfgv label:not(.btn){display:block;margin:12px 0 4px;font-size:14px;font-weight:600}.cfgv input:not([type=file]),.cfgv select,.cfgv textarea{display:block;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #DDE2EE;border-radius:12px;font:inherit;font-size:16px;background:#fff}.cfgv input[type=file]:not([hidden]){display:block;margin:4px 0}.cfgv .msg:empty{display:none}.cfgv .lk>b{display:block}</style>'+(CFG.camps.length>1?'<div class="lk" style="padding:12px 16px"><label style="margin-top:0">Campaign</label><select id="cfc">'+CFG.camps.map(function(x){return '<option value="'+esc(x.id)+'"'+(x.id===CFGC?' selected':'')+'>'+esc(x.label)+'</option>';}).join("")+'</select></div>':'<div class="note">'+esc(c.label)+'</div>')+
   CFG.types.map(row).join("")+
   (c.candidate?'':'<div class="lk" style="padding:12px 16px"><b>Candidate</b><div style="font-size:14px;opacity:.75;margin-top:2px">No candidate is set for this campaign yet.</div><label>Candidate\'s full name</label><input id="ccn" maxlength="80"><div class="msg" id="ccm"></div><button class="btn" id="ccs">Save</button></div>')+'<div class="lk" style="padding:12px 16px"><b>About '+esc(c.candidate||'the candidate')+'</b>'+(A.status?'<div style="font-size:13px;opacity:.7;margin-top:2px">'+esc(A.status)+(A.notes?': '+esc(A.notes):'')+'</div>':'')+
@@ -268,10 +275,39 @@ function cfgDraw(){var c=CFG.camps.filter(function(x){return x.id===CFGC;})[0],A
   (c.files.length?'<div class="lk" style="padding:12px 16px"><b>Sent</b>'+c.files.map(function(f){return '<div style="font-size:14px;margin-top:6px">'+esc(f.file)+' <small style="opacity:.65">'+esc(f.type)+' · '+esc(f.status)+(f.on?' · '+esc(f.on):'')+'</small></div>';}).join("")+'</div>':'')+'</div>',true,"Configure Campaign");
  if($("cfc"))$("cfc").onchange=function(){CFGC=$("cfc").value;cfgDraw();};
  [].forEach.call(document.querySelectorAll("[data-ci]"),function(b){b.onclick=function(){var x=document.querySelector('[data-cx="'+b.getAttribute("data-ci")+'"]');x.hidden=!x.hidden;};});
- [].forEach.call(document.querySelectorAll("[data-cu]"),function(inp){inp.onchange=function(){var f=inp.files&&inp.files[0];if(f)cfgUp(c.id,inp.getAttribute("data-cu"),f);inp.value="";};});
- $("cas").onclick=function(){cfgAbout(c);};
+ [].forEach.call(document.querySelectorAll("[data-cu]"),function(inp){inp.onchange=function(){var f=inp.files&&inp.files[0],k=inp.getAttribute("data-cu");inp.value="";if(!f)return;
+  /* 25 Oct (Rich: "an export wo voter key is kinda not cool"; "if a a CA imports an export file wo a voter key, they get a dialog saying try again"): the file is looked at on the phone first */
+  if(!CFGK[k])return cfgUp(c.id,k,f);var m=document.querySelector('[data-cm="'+k+'"]');m.textContent="Checking the file...";
+  cfgHasKey(f).then(function(ok){m.textContent="";if(ok!==false)return cfgUp(c.id,k,f);BUSY=0;
+   sheet('<h3>No Voter Key</h3><p>'+esc(f.name)+' has no GOP Data Center Voter Key column. Export it again from GOP Data Center with the Voter Key, then upload that file.</p><button class="btn" id="cky">Try again</button><button class="btn alt" id="ckn">Cancel</button>');
+   $("ckn").onclick=shut;$("cky").onclick=function(){shut();inp.click();};});};});
+ $("cas").onclick=function(){cfgAbout(c);};if($("cfh"))$("cfh").onclick=function(){cfgHave(c);};
  /* 25 Oct (Rich: "if it has not been configured, allow the CA to specifiy name"): a campaign with no candidate gets one here (99zzzzc sCandidate) */
  if($("ccs"))$("ccs").onclick=function(){var n=$("ccn").value.trim();if(n.length<3){$("ccm").textContent="Type the candidate's full name.";return;}$("ccm").textContent="One moment...";call("sCandidate",[c.id,n]).then(function(r){if(!r.ok){$("ccm").textContent=r.msg||"Please try again.";return;}c.candidate=r.candidate;cfgDraw();},function(e){$("ccm").textContent=e.message;});};}
+/* 25 Oct (Rich: "they at least much approve the use of a file we have if they choose not to import an export"; "do a warning and encourage the CA
+   to do their own import...or at least flag them"): the exports Red Shift has; the admin approves one after the warning (99zzzzh sCfgUseFile) */
+function cfgHave(c){busy("One moment...");call("sCfgFiles",[c.id]).then(function(r){if(!r.ok)return oops(r.msg||"Please try again.");BUSY=0;
+ if(!r.files.length)return oops("Red Shift has no files to offer. Please import your export.");
+ sheet('<h3>Files Red Shift has</h3>'+r.files.map(function(f){return '<button class="btn alt" data-cf="'+esc(f.id)+'">'+esc(f.name)+'<br><small style="opacity:.7">'+esc(f.mb+" MB \u00b7 "+f.when)+'</small></button>';}).join("")+'<button class="btn alt" id="cfx">Close</button>');
+ $("cfx").onclick=shut;[].forEach.call(document.querySelectorAll("[data-cf]"),function(b){b.onclick=function(){var f=r.files.filter(function(x){return x.id===b.getAttribute("data-cf");})[0];
+  sheet('<h3>Use '+esc(f.name)+'?</h3><p>Your own GOP Data Center export is best: it is current and covers exactly your district. If you use this file instead, your campaign is marked as not using its own import.</p><button class="btn" id="cfy">Use this file</button><button class="btn alt" id="cfn">Cancel</button>');
+  $("cfn").onclick=shut;$("cfy").onclick=function(){busy("One moment...");call("sCfgUseFile",[c.id,f.id]).then(function(x){BUSY=0;if(!x.ok)return oops(x.msg||"Please try again.");
+   try{if(S&&S.cs)S.cs.list.forEach(function(y){if(y.id===c.id&&x.ready){y.ready=true;y.q=x.q||"";if(LS.get("rs_el")===c.id&&y.q){LS.set("rs_q",y.q);QN=y.q;}}});}catch(e){}
+   sheet('<h3>'+(x.ready?'Ready':'Done')+'</h3><p style="text-align:center">'+esc(x.msg)+'</p><button class="btn" id="cfok">OK</button>');$("cfok").onclick=function(){shut();cfgOpen();};},function(e){oops(e.message);});};};});},function(e){oops(e.message);});}
+/* the uploads that must carry the GOP Data Center Voter Key; cfgHasKey(file) -> true | false | null (could not tell: the upload goes on) */
+var CFGK={GOPX:1,TGT:1,VBK:1};
+function cfgKeyIn(t){var l=String(t||"").split(/\r?\n/)[0]||"";return l.split(/[,\t;|]/).some(function(h){return h.replace(/["'\s_\-]/g,"").toLowerCase()==="voterkey";});}
+function cfgZip(done){if(window.JSZip)return done(true);var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";s.onload=function(){done(true);};s.onerror=function(){done(false);};document.head.appendChild(s);}
+function cfgHasKey(f){var n=String(f.name||"").toLowerCase();
+ if(/\.(csv|txt|tsv)$/.test(n))return f.slice(0,65536).text().then(cfgKeyIn,function(){return null;});
+ if(/\.(zip|xlsx)$/.test(n))return new Promise(function(res){cfgZip(function(ok){if(!ok)return res(null);JSZip.loadAsync(f).then(function(z){
+   if(/\.zip$/.test(n)){var c=Object.keys(z.files).filter(function(k){return /\.(csv|txt)$/i.test(k);})[0];if(!c)return res(null);
+    var got="",st=z.file(c).internalStream("string");st.on("data",function(t){got+=t;if(got.indexOf("\n")>=0){st.pause();res(cfgKeyIn(got));}}).on("end",function(){res(cfgKeyIn(got));}).on("error",function(){res(null);}).resume();return;}
+   /* a workbook: the header words are in its shared strings (or written inline in the first sheet) */
+   var ss=z.file("xl/sharedStrings.xml"),s1=z.file("xl/worksheets/sheet1.xml");
+   Promise.all([ss?ss.async("string"):"",s1?s1.async("string"):""]).then(function(a){var t=(a[0]+a[1]).replace(/<[^>]+>/g," ");res(/(^|\s)voter\s?_?key(\s|$)/i.test(t));},function(){res(null);});
+  },function(){res(null);});});});
+ return Promise.resolve(null);}
 // the pipe: 4 MiB pieces, one after another; a piece that fails is sent again (3 tries, then the upload stops and says so)
 function cfgUp(el,k,f){var m=document.querySelector('[data-cm="'+k+'"]'),PS=4194304,t0=Date.now();m.textContent="Starting...";
  call("sCfgUpStart",[{el:el,type:k,name:f.name,size:f.size,mime:f.type||"application/octet-stream"}]).then(function(r){if(!r.ok){m.textContent=r.msg||"Please try again.";return;}
@@ -335,7 +371,25 @@ var BUSY=0;
 var BUSYN=0;function busy(t){BUSY=1;var n=++BUSYN;window.RST.mark("spinner: "+t);sheet('<div class="spin"></div><p style="text-align:center">'+esc(t)+'</p>');setTimeout(function(){if(BUSY&&BUSYN===n&&!$("sh").hidden&&$("shb").querySelector(".spin")){window.RST.mark("spinner: no answer in 20 s");oops("Red Shift is busy. Please try again.");}},20000);}
 function oops(t){BUSY=0;sheet('<h3>Sorry</h3><p>'+esc(t)+'</p><button class="btn" id="sx">OK</button>');$("sx").onclick=shut;}
 // ---- New Books: a name first (first name, last name, last 4 of the phone), then the book
-function tap(m){if(!S.adm){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
+/* 25 Oct (Rich: "a switch to switch to a campaitn and become that role"; "he cannot have the get book until he imports the export file"): the campaign
+   bar on Home and New Books (the current campaign and your role there; tap to switch); a campaign with no list yet has no books (99zzzzh) */
+function csCur(){var C=S&&S.cs;if(!C||!C.list.length)return null;var id=LS.get("rs_el")||C.cur;return C.list.filter(function(c){return c.id===id;})[0]||C.list.filter(function(c){return c.id===C.cur;})[0]||C.list[0];}
+function csByCode(k){var C=S&&S.cs;return C?C.list.filter(function(c){return c.code===k;})[0]||null:null;}
+function csUse(c){if(!c)return;LS.set("rs_el",c.id);if(c.q){LS.set("rs_q",c.q);QN=c.q;}else{LS.del("rs_q");QN="";}S.qbad=false;STAT=null;STATASK=0;}
+/* the campaign the address names (if it is one of yours), else a list link's campaign */
+function csRoute(){var C=S&&S.cs;if(!C||!C.list.length)return;if(W.camp){var c=csByCode(W.camp);if(c){if(W.q)LS.set("rs_el",c.id);else csUse(c);}}else if(W.q&&C.cur)LS.set("rs_el",C.cur);}
+var CSUB={home:"",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/links",cfg:"/configure"};
+function csWant(id){var c=csCur();if(!c||!(id in CSUB))return "";return "/"+c.code+"/"+c.rc+CSUB[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");}
+/* every screen shows its address: /<campaign>/<role>/<page> */
+function csPath(id,push){if(W.splash||W.pit)return;var u=csWant(id);if(!u||location.pathname.replace(/\/+$/,"")===u)return;try{if(push){history.pushState({p:id},"",u);NAVN++;}else history.replaceState(history.state,"",u);}catch(e){}}
+function csBar(){var c=csCur();if(!c)return "";return '<button type="button" class="csb" id="csb">'+esc(c.label)+' \u00b7 '+esc(c.role)+(S.cs.list.length>1?' \u25be':'')+'</button>';}
+function csGate(){var c=csCur();if(!c||c.ready)return "";return '<div class="note"><b>'+esc(c.label)+'</b> is not ready for books yet. '+(c.adm?'Import your GOP Data Center export in Configure Campaign, or choose a file Red Shift already has.</div><div class="list"><button class="btn" id="csg">Configure Campaign</button></div>':'Its Campaign Admin is setting it up.</div>');}
+function csSheet(){var C=S.cs,c=csCur();if(!C||C.list.length<2)return;BUSY=0;
+ sheet('<h3>Switch campaign</h3>'+C.list.map(function(x){return '<button class="btn'+(x.id===c.id?'':' alt')+'" data-cs="'+esc(x.id)+'">'+esc(x.label)+' <small style="opacity:.75">\u00b7 '+esc(x.role)+'</small></button>';}).join("")+'<button class="btn alt" id="csx">Close</button>');
+ $("csx").onclick=shut;[].forEach.call(document.querySelectorAll("[data-cs]"),function(b){b.onclick=function(){var x=C.list.filter(function(y){return y.id===b.getAttribute("data-cs");})[0];if(!x)return;
+  LS.set("rs_el",x.id);if(x.q){LS.set("rs_q",x.q);QN=x.q;}else{LS.del("rs_q");QN="";}S.qbad=false;STAT=null;STATASK=0;shut();csPath(CUR||"home",true);show(CUR||"home");};});}
+document.addEventListener("click",function(e){var t=e.target&&e.target.closest&&e.target.closest("#csb,#csg");if(!t)return;if(t.id==="csb")csSheet();else{var c=csCur();if(c)CFGC=c.id;go("cfg");}});
+function tap(m){var cc=csCur();if(cc&&!cc.ready)return show("new");if(!S.adm){if(PASS){location.href=S.regUrl||"/admin/";return;}return knownSheet(function(){location.reload();});}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
  // 25 Oct (Rich: "get rid of book preview.  no need"): no Preview / Take a book choice for admins
  if(!S.named)return nameSheet(function(){tap(m);});size(m);}
@@ -554,7 +608,7 @@ function boot(){/* 25 Oct: /home asks for no pit stop; elsewhere the kept pit st
  /* /home: the phone's last home screen at once (a tap made on it is not undone when the fresh one comes) */var HK=null,HG=-1;if(W.home){try{HK=JSON.parse(LS.get("rsHome:"+(PID||""))||"null");}catch(e){HK=null;}if(HK&&HK.adm){S=HK;gbOut();NOTE=HK.note||"";try{meDraw();}catch(e){}show("home");HG=QG;splashOff();}}
  var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
  if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},true,false);});}return r;});   /* one sign-in panel (21 Oct) */
-home.then(function(r){if(!r){boot();return "re";}S=r;nbMerge();gbOut();try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
+home.then(function(r){if(!r){boot();return "re";}S=r;nbMerge();gbOut();try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;try{csRoute();}catch(e){}NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
  setTimeout(function(){
   // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
 if(HG>=0&&QG!==HG){/* /home: the person already went on from the kept home screen; 26 Oct: Home or My Books still showing is drawn again with the fresh books */if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}
