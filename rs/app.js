@@ -379,7 +379,7 @@ function csUse(c){if(!c)return;LS.set("rs_el",c.id);if(c.q){LS.set("rs_q",c.q);Q
 /* the campaign the address names (if it is one of yours), else a list link's campaign */
 function csRoute(){var C=S&&S.cs;if(!C||!C.list.length)return;if(W.camp){var c=csByCode(W.camp);if(c){if(W.q)LS.set("rs_el",c.id);else csUse(c);}}else if(W.q&&C.cur)LS.set("rs_el",C.cur);}
 var CSUB={home:"",new:"/newbooks",mine:"/mybooks",dash:"/dashboard",links:"/links",cfg:"/configure"};
-function csWant(id){var c=csCur();if(!c||!(id in CSUB))return "";return "/"+c.code+"/"+c.rc+CSUB[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");}
+function csWant(id){var c=csCur();if(!c||!c.code||!(id in CSUB))return "";return "/"+c.code+"/"+c.rc+CSUB[id]+(id==="new"&&W.q?"/"+encodeURIComponent(W.q):"");}
 /* every screen shows its address: /<campaign>/<role>/<page> */
 function csPath(id,push){if(W.splash||W.pit)return;var u=csWant(id);if(!u||location.pathname.replace(/\/+$/,"")===u)return;try{if(push){history.pushState({p:id},"",u);NAVN++;}else history.replaceState(history.state,"",u);}catch(e){}}
 function csBar(){var c=csCur();if(!c)return "";return '<button type="button" class="csb" id="csb">'+esc(c.label)+' \u00b7 '+esc(c.role)+(S.cs.list.length>1?' \u25be':'')+'</button>';}
