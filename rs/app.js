@@ -22,7 +22,7 @@ window.RSINST=(function(){var K="rsInst",SEQ=["/splash/","/pitstop/","/home/"],A
 window.RST=window.RST||(function(){var T=function(){return Math.round(performance.now());},R={ev:[],calls:[],fly:{},k:0,sent:0,e0:0,c0:0,url:"",page:location.pathname,id:Math.random().toString(36).slice(2,8),
  mark:function(n){if(R.ev.length<400)R.ev.push([String(n).slice(0,80),T()]);},
  call:function(fn){var s=T(),i=++R.k;R.fly[i]=[String(fn).slice(0,30),s];return function(sv){delete R.fly[i];if(R.calls.length<400)R.calls.push([String(fn).slice(0,30),s,T(),sv&&sv[0]||0,sv&&sv[1]||0]);};},
- send:function(whyhe if(R.sent>=40||!R.url)return;if(R.e0>=R.ev.length&&R.c0>=R.calls.length&&why!=="leave")return;R.sent++;
+ send:function(why){if(R.sent>=40||!R.url)return;if(R.e0>=R.ev.length&&R.c0>=R.calls.length&&why!=="leave")return;R.sent++;
   var fly=[];for(var k in R.fly)fly.push([R.fly[k][0],R.fly[k][1]]);
   var o={p:R.page,id:R.id,part:R.sent,why:String(why||""),now:T(),ev:R.ev.slice(R.e0),calls:R.calls.slice(R.c0),fly:fly,tap:-1,nav:0};R.e0=R.ev.length;R.c0=R.calls.length;
   if(R.sent===1){try{var n=performance.getEntriesByType("navigation")[0];if(n)o.nav=[Math.round(n.responseStart),Math.round(n.domInteractive),Math.round(n.domContentLoadedEventEnd)];}catch(e){}
