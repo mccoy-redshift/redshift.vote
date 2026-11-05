@@ -301,7 +301,8 @@ var CFG=null,CFGC=null;
 /* 5 Nov (Rich: "so why would you not be planning to move the scoring constants"; "if home has the dashboard and the dashboard depends on
    those, why are we even having this discussion"): Campaign Analytics, the campaign's scoring and dashboard constants (2 Momentos > Walk
    Settings, 99zzzzzzzzzzzzzzz analytics.js sAnalyticsSave), each with its source under a circle i */
-function cfgAnHtml(c){var a=c.an;if(!a||!a.length)return "";var sec=null,h='';
+/* 5 Nov (Rich: "keep hidden until we are ready"): set cfgAnHtml.on=true to show it */
+function cfgAnHtml(c){var a=c.an;if(!cfgAnHtml.on||!a||!a.length)return "";var sec=null,h='';
  a.forEach(function(x,i){if(x.sec!==sec){var was=sec;sec=x.sec;if(sec)h+='<div style="font-size:13px;font-weight:700;opacity:.7;margin:14px 0 2px">'+esc(sec)+'</div>';else if(was)h+='<div style="border-top:1px solid #DDE2EE;margin:14px 0 2px"></div>';}
   h+='<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><div style="flex:1;font-size:14px">'+esc(x.k)+'</div>'+(x.src?'<button type="button" data-ai="'+i+'" aria-label="Source" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--navy);background:#fff;color:var(--navy);font:700 13px Georgia,serif;flex:none">i</button>':'')+
    '<input data-an="'+i+'" inputmode="decimal" value="'+esc(x.v===null||x.v===undefined?"":String(x.v))+'" style="width:96px;flex:none;text-align:right;margin:0"></div>'+
