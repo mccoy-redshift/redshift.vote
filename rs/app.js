@@ -452,16 +452,20 @@ function tap(m){var cc=csCur();if(cc&&!cc.ready)return show("new");if(!S.adm){if
 // Rich, 24 Oct: "add a selection of 5, 25, 50, 75, 100 and let people choose what size of book they want ... The size of 5 is to be inviting":
 // a book of this kind already held opens as before; otherwise the size first (the standard size, from the ready queue, is marked)
 var SZ=[5,25,50,75,100],SZD={door:25,call:100,text:100};
-function size(m){var k=m==="walk"?"door":m,hb=S.admin?null:S.books.filter(function(b){return b.mode===k&&!b.done;})[0];   /* 25 Oct (Rich: "n books of each kind for a total of 200 voters per kind"; "admin only.  non admin gets one of each"; the server holds the quota, 99zzzzb) */
+function size(m,more){var k=m==="walk"?"door":m,hb=S.admin||more?null:S.books.filter(function(b){return b.mode===k&&!b.done;})[0];   /* 25 Oct (Rich: "n books of each kind for a total of 200 voters per kind"; "admin only.  non admin gets one of each"; the server holds the quota, 99zzzzb) */
  // Rich, 24 Oct: one book of each kind at a time; New Books with an unfinished one asks: open it, or give it back and get a new one ("that is smart")
  if(hb){sheet('<h3>Your '+esc(ML[k])+' book</h3><p style="text-align:center">'+(hb.left!=null?esc(hb.left+" "+(hb.unit||(k==="door"?"doors":"people"))+" left"):"")+'</p><button class="btn" id="hbo">Open my book</button><button class="btn alt" id="hbn">Give it back and get a new one</button>');
   $("hbo").onclick=function(){shut();build(m);};
-  $("hbn").onclick=function(){gbAdd(hb.id);BUSY=0;shut();size(m);};return;}
+  /* 6 Nov (Rich: "let's make it 3 total vs 1 of each"): under 3 books of their own, another; at 3, give one back first */
+  if(S.max!=null&&(S.made||0)<S.max){$("hbn").textContent="Get another "+ML[k]+" book";$("hbn").onclick=function(){BUSY=0;shut();size(m,true);};return;}
+  $("hbn").onclick=function(){if(!gbOk(hb.id))return;gbAdd(hb.id);BUSY=0;shut();size(m,true);};return;}
  sheet('<h3>'+esc(ML[k])+' book</h3><p style="text-align:center">'+(k==="door"?"How many doors?":"How many people?")+'</p><div class="szs">'+SZ.map(function(n){return '<button type="button" class="btn'+(n===SZD[k]?"":" alt")+'" data-sz="'+n+'">'+n+'</button>';}).join("")+'</div>');
  window.RST.mark("size menu: "+k);[].forEach.call(document.querySelectorAll("[data-sz]"),function(b){b.onclick=function(){window.RST.mark("size tapped: "+b.getAttribute("data-sz"));shut();build(m,Number(b.getAttribute("data-sz")));};});}
 // give a book back (99zzzye vGiveBack): it comes off the phone and its voters not yet reached go back for other volunteers
+var GBMSG="You have returned 2 books unfinished. To continue, please register";
+function gbOk(id){var b=(S.books||[]).filter(function(x){return x.id===id;})[0],k=b&&b.mode;if(!b||b.done||!S.gbLeft||S.gbLeft[k]==null)return true;if(S.gbLeft[k]<=0){regSheet(GBMSG);return false;}S.gbLeft[k]--;return true;}
 function giveBack(id){BUSY=0;sheet('<h3>Give back this book?</h3><p>The people you have not reached go back for other volunteers.</p><button class="btn" id="gby">Give it back</button><button class="btn alt" id="gbn">Keep it</button>');
- $("gbn").onclick=shut;$("gby").onclick=function(){gbAdd(id);BUSY=0;shut();show("mine");};}
+ $("gbn").onclick=shut;$("gby").onclick=function(){if(!gbOk(id))return;gbAdd(id);BUSY=0;shut();show("mine");};}
 // 25 Oct (Rich: "why does give back this book not just go into the outbox command que?  why does it wait on http"): a give-back is a command in
 // the phone's outbox (rs_gbq), as DNC / DNT are (rs_ocq): the book leaves the phone at once and the outbox sends it, again until the server has
 // it. A new book asked for meanwhile carries the give-backs still waiting, so the server lets them go first.
@@ -481,7 +485,7 @@ function nbMerge(){var o=nbG(),now=Date.now(),ch=false,have={};(S.books||[]).for
  if(ch)nbS(o);}
 function gbAdd(id){nbDel(id);var q=gbQ();if(q.indexOf(id)<0)q.push(id);gbSet(q);gbOut();setTimeout(gbDrain,0);}
 function gbDrain(){var q=gbQ();if(!q.length||GBB)return;GBB=1;var id=q[0];
- call("vGiveBack",[PID,id]).then(function(){GBB=0;gbSet(gbQ().filter(function(x){return x!==id;}));gbDrain();},function(){GBB=0;setTimeout(gbDrain,15000);});}
+ call("vGiveBack",[PID,id]).then(function(r){GBB=0;gbSet(gbQ().filter(function(x){return x!==id;}));if(r&&r.limit){regSheet(r.msg||GBMSG);return;}gbDrain();},function(){GBB=0;setTimeout(gbDrain,15000);});}
 setTimeout(gbDrain,3000);document.addEventListener("visibilitychange",function(){if(!document.hidden)gbDrain();});
 // 25 Oct (Rich: "so another button that does not use the outbox ?"): every command button (That's me, the Welcome back tie) goes into one outbox
 // on the phone (rs_ob): the screen goes on at once; the outbox sends in order, again until the server has it. A new book waits for the
@@ -533,9 +537,9 @@ document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&
 function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
  obFlush().then(function(){window.RST.mark("book asked");return call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ(),LS.get("rs_wid")||""]);}).then(function(r){
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
-  if(r.reg){if(PASS){location.href=S.regUrl||"/register/";return;}return signIn(function(){location.reload();});}
+  if(r.reg)return regSheet(r.msg||"Register to make more books.");
   if(!r.ok)return oops(r.msg||"Please try again.");
-  var b=r.book;b.on=Date.now();S.books=[b].concat(S.books.filter(function(x){return x.id!==b.id;}));S.act=true;nbPut(b);
+  var b=r.book;b.on=Date.now();S.books=[b].concat(S.books.filter(function(x){return x.id!==b.id;}));S.act=true;nbPut(b);if(r.fresh&&S.max!=null)S.made=(S.made||0)+1;
   /* 26 Oct (Rich: "i build 2 books in a row and go to my books and the new books are not there yet"): the kept home screen gets the new book at once */try{var hk="rsHome:"+(PID||""),ho=JSON.parse(LS.get(hk)||"null");if(ho){ho.books=S.books;ho.act=true;LS.set(hk,JSON.stringify(ho));}}catch(e){}
   /* 25 Oct (Rich: "you are basically rendering the same mape in two different apps"; "i want it faster"): no route pop-up; a new walk book brings its walk page and its walk (99zzzyu), kept in the tab for the walk page on /m/ */
   if(k==="door"&&r.fresh&&r.walk&&r.walk.k){try{sessionStorage.setItem("rs_wp:"+r.walk.k,JSON.stringify(r.walk));}catch(e){}}
@@ -592,7 +596,7 @@ function pitFresh(o){if(!o||!$("lnd"))return;if(o.v!==PITV)return pit(o);pitNums
 function pitLoop(){clearTimeout(PITT);PITT=setTimeout(function(){if(!$("lnd-k"))return;if(document.hidden)return pitLoop();pitAsk().then(function(o){pitFresh(o);pitLoop();},pitLoop);},15000);}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&$("lnd-k"))pitAsk().then(pitFresh,function(){});});
 function pit(o){window.RST.mark("pit stop");var p=$("pit");if(!p||!o||!o.html)return;PITV=o.v;p.innerHTML=o.html;if(p.querySelector("#lnd"))document.body.classList.add("pitup");
- var rg=$("lnd-rg");if(rg){if(PASS)rg.parentNode.removeChild(rg);else rg.onclick=function(){location.href=S.regUrl||("/register/"+(REF0?"?ref="+REF0:""));};}
+ var rg=$("lnd-rg");if(rg){if(PASS)rg.parentNode.removeChild(rg);else rg.onclick=regTap;}
  [["lnd-k",o.n&&o.n.doors],["lnd-kc",o.n&&o.n.calls],["lnd-kt",o.n&&o.n.texts]].forEach(function(a){var e=$(a[0]);if(e)e.textContent=Math.max(0,Math.round(Number(a[1])||0)).toLocaleString("en-US");});
  [].forEach.call(p.querySelectorAll("script"),function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});
  pitMe(o);pitLoop();
@@ -646,8 +650,7 @@ if(!BOOKQ)statGet();
 // phone number 3. confirm your email 4. check the boxes (for 2 adn 3 you pre-fill the values and let them edit"; "at the bottom it can say
 // Continue as Guest"; 5 Nov: Continue as Guest is gone, "i am not seeing any reason for this anymore"): a Trusted Precinct Delegate's phone
 // (vHome r.prereg, 99zzzzzu prereg.js); Register registers the Google account chosen in step 1
-var PRSKIP=0;
-function preReg(pr){PRSKIP=1;splashOff();
+function preReg(pr){splashOff();
  if(!$("prgcss")){var st=document.createElement("style");st.id="prgcss";st.textContent='.prg{padding:4px 22px 28px;max-width:520px;margin:0 auto;box-sizing:border-box}.prg h3{font-size:20px;margin:6px 0 10px}.prg ol{padding:0;margin:0;list-style:none;counter-reset:s}.prg ol>li{counter-increment:s;position:relative;padding:14px 0 14px 42px;border-bottom:1px solid var(--line)}.prg ol>li:before{content:counter(s);position:absolute;left:0;top:13px;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}.prg ol>li.dn:before{content:"\\2713";background:#1a8f4a}.prg h4{margin:4px 0 8px;font-size:16px}.prg label{display:block;font-size:13px;font-weight:600;color:var(--gray);margin:10px 0 4px}.prg input.f{width:100%;box-sizing:border-box;font:500 17px Poppins,system-ui,sans-serif;padding:12px 14px;border:2px solid var(--line);border-radius:14px;color:var(--navy);outline:none;background:#fff}.prg label.ck{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:15px;font-weight:500;color:var(--navy)}.prg label.ck input{width:22px;height:22px;flex:0 0 auto;margin:0}.prg .gbtn{justify-content:flex-start;margin:6px 0 0;min-height:44px}.prg .who{font-weight:700;margin:0 0 4px;word-break:break-all}.prg .sub{font-size:13px;color:var(--gray);margin:0 0 4px}.prg .more{margin-top:16px}.prg .msg{color:var(--red);font-weight:600;min-height:20px;margin:12px 0}.prg .gst{display:block;width:100%;text-align:center;margin:20px 0 0;padding:12px;color:var(--navy);font-weight:700;background:none;border:0;font-size:16px;text-decoration:underline;cursor:pointer}';document.head.appendChild(st);}
  var inp=function(k,l,t,ac,v){return '<label for="pr-'+k+'">'+esc(l)+'</label><input class="f" type="'+t+'" id="pr-'+k+'" autocomplete="'+ac+'" maxlength="120" value="'+esc(v||"")+'">';};
  frame('<div class="prg"><h3>Your registration has been pre-approved</h3><ol>'+
@@ -707,6 +710,12 @@ function play(L){L.forEach(function(s){if(s.prep)s.prep();});var i=0;(function n
 function again(){play(entry().slice(-1));}
 // the pit stop's CONTINUE (its own script takes #lnd down)
 function pitGone(cb){if(!$("lnd"))return cb();var mo=new MutationObserver(function(){if($("lnd"))return;mo.disconnect();cb();});mo.observe($("pit"),{childList:true,subtree:true});}
+// REGISTER on the pit stop (6 Nov): the pit stop goes, and the app step opens the person's own register link or their pre-approved form
+var REGWANT=0,REGAPP=0;
+function regTap(){if(!REGAPP){location.href=(S&&S.regUrl)||("/register/"+(REF0?"?ref="+REF0:""));return;}REGWANT=1;var v=$("lnd-vt");if(v)v.click();}
+// REGISTER from a sheet (a refused book or give-back)
+function regGo(){shut();if(S&&S.prereg)return preReg(S.prereg);location.href=(S&&S.regUrl)||"/register/";}
+function regSheet(t){BUSY=0;sheet('<p style="text-align:center">'+esc(t)+'</p><button class="btn" id="rgo">REGISTER</button><button class="btn alt" id="rgx">Not now</button>');$("rgo").onclick=regGo;$("rgx").onclick=shut;}
 var STEP={
  // up at least 2.2 s from the page's start when it shows; the next step takes it down when it draws
  splash:function(){return {run:function(next){setTimeout(next,Math.max(0,($("spw")?2200:0)-(Date.now()-T0)));}};},
@@ -718,9 +727,11 @@ var STEP={
    var t=setTimeout(function(){t=0;fail();},hold?60000:8000);
    a.then(function(o){if(!t)return pitFresh(o);clearTimeout(t);draw(o);},function(){if(t){clearTimeout(t);fail();}});}};},
  // Home or the page asked for; drawn behind the pit stop as soon as it is in, unless a sign-in or a pre-approved registration must come first
- app:function(){var h=null,drawn=false,HG=-1;
-  var gate=function(r){if(r&&r.prereg&&!r.prereg.skip&&!PRSKIP)return "prereg";if(!PASS&&!CODE)return "signin";return "";};
-  var land=function(r){if(drawn)return;drawn=true;S=r;nbMerge();gbOut();
+ app:function(){var h=null,drawn=false,HG=-1;REGAPP=1;
+  /* 6 Nov (Rich: "As long as you recogize the phone that a qr or book link was givien to. you can treat them as trusted"; claude/ACCESS_POLICY_6NOV.md):
+     a phone let in (r.adm) is never sent to sign in; the pre-approved form opens only from REGISTER */
+  var gate=function(r){if(REGWANT)return r&&r.prereg?"prereg":"reg";if(!PASS&&!CODE&&!(r&&r.adm))return "signin";return "";};
+  var land=function(r){if(drawn)return;drawn=true;S=r;nbMerge();gbOut();if(r.reg){var rg0=$("lnd-rg");if(rg0)rg0.parentNode.removeChild(rg0);}
     try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm"&&k!=="prereg")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}
     doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;try{csRoute();}catch(e){}NOTE=r.note||"";
     if(HG>=0&&QG!==HG){if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}   // /home: already moved on from the kept screen (26 Oct)
@@ -733,6 +744,7 @@ var STEP={
     h.then(function(r){if(r&&!gate(r))land(r);},function(){});},
    run:function(next){h.then(function(r){if(!r)return down();var g=gate(r);splashOff();
      if(g==="prereg"){S=r;return preReg(r.prereg);}
+     if(g==="reg"){location.href=r.regUrl||("/register/"+(REF0?"?ref="+REF0:""));return;}
      if(g==="signin")return signIn(again);
      land(r);if(S.confirm)confirmSheet(S.confirm);next();},down);}};},
  // the book's own page, from the server, drawn in place of this page
