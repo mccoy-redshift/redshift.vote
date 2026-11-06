@@ -61,8 +61,8 @@ var INSTM="We are installing the latest revisions to Red Shift. Please try again
 function instCheck(cb){if(window.RSINST)window.RSINST.check(function(on){cb(!!on);});else cb(false);}
 function instShow(on){var b=document.getElementById("instb");if(!on){if(b)b.parentNode.removeChild(b);return;}if(b)return;b=document.createElement("div");b.id="instb";b.setAttribute("role","status");b.style.cssText="position:fixed;left:12px;right:12px;top:12px;z-index:9999;background:#ffd38a;color:#0B1A4F;border-radius:12px;padding:12px 14px;font:600 15px/1.35 Poppins,system-ui,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.35)";b.textContent=INSTM;document.body.appendChild(b);}
 var INSTN=0;
-function call(fn,args){INSTN++;var fin=false,it=setTimeout(function(){if(!fin)instCheck(function(on){if(on&&!fin){if(window.RSINST)window.RSINST.start();else instShow(true);}});},10000),end=function(){fin=true;clearTimeout(it);if(--INSTN<=0){INSTN=0;instShow(false);}};return call0(fn,args).then(function(r){end();return r;},function(e){end();throw e;});}
-function call0(fn,args){if(window.RSINST&&window.RSINST.on)return new Promise(function(){});var done=window.RST.call(fn);return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[],p:PASS}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){done(null);throw new Error("Red Shift is busy. Please try again.");}done(j.sv);if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
+function call(fn,args,pw){INSTN++;var fin=false,it=setTimeout(function(){if(!fin)instCheck(function(on){if(on&&!fin){if(window.RSINST)window.RSINST.start();else instShow(true);}});},10000),end=function(){fin=true;clearTimeout(it);if(--INSTN<=0){INSTN=0;instShow(false);}};return call0(fn,args,pw).then(function(r){end();return r;},function(e){end();throw e;});}
+function call0(fn,args,pw){if(window.RSINST&&window.RSINST.on)return new Promise(function(){});var done=window.RST.call(fn);return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[],p:pw===undefined?PASS:pw}),credentials:"omit"}).then(function(r){return r.text();}).then(function(t){var j;try{j=JSON.parse(t);}catch(e){done(null);throw new Error("Red Shift is busy. Please try again.");}done(j.sv);if(!j.ok)throw new Error(j.error||"Server error");return j.result;});}
 window.RUN=function(){var ok,no,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){no=f;return o;},rpc:function(fn,a){call(fn,a).then(function(r){if(ok)ok(r);},function(e){if(no)no(e);});}};return o;};
 // ---- the measured screen; phone or laptop
 function fit(){var vv=window.visualViewport,h=Math.round((vv&&vv.height)||innerHeight||0),S=screen.height||h;if(!h||h>S)h=(screen.availHeight||S)-100;h=Math.max(320,h);
@@ -82,6 +82,8 @@ function where0(p){var a=(p[0]||"").toLowerCase(),q=p.slice(1).join("/");if(a===
  /* Rich, 23 Oct ("you should be restful  ..  /splash  /pitstop /admin"; "just build it"): /splash keeps the splash up; /pitstop shows the pit stop alone and keeps it up, live */if(a==="splash")return{splash:1,land:1,page:"home",q:""};if(a==="pitstop")return{pit:1,land:1,page:"home",q:""};/* Rich, 25 Oct ("rs.v/spash  rs.v/pitstop  rs.v/home   etc"): /home is the home screen alone: no splash, no pit stop */if(a==="home")return{home:1,page:"home",q:""};if(a==="qr")return{land:1,page:"new",q:q};if(a==="newbooks")return{page:"new",q:q};if(a==="mybooks")return{page:"mine"};if(a==="dashboard")return{page:"dash"};if(a==="links")return{page:"links"};
  return{land:1,page:"home",q:""};}
 var W=where(),S={act:false,books:[],named:false,first:"",q:""};
+// a book link (/b/ a call or text book, /m/ a walk book): its own end of the one way in (below, entry)
+var BOOKQ=/^\/m(\/|$)/.test(location.pathname)?"walk":/^\/b(\/|$)/.test(location.pathname)?"book":"";
 if(W.q!==undefined&&W.page==="new"){if(W.q)LS.set("rs_q",W.q);else LS.del("rs_q");}
 var QN=W.q||LS.get("rs_q")||"",CODE=(Q0.get("c")||"").replace(/[^a-f0-9e]/g,"").slice(0,24);
 if(CODE)try{history.replaceState(null,"",location.pathname);}catch(e){}
@@ -165,7 +167,7 @@ function mePanel(){var m=meInfo();if(!m)return;
   (m.signed?'<button class="btn" id="meo">Sign out</button>':'<button class="btn" id="mei">Sign in with Google</button>')+(m.signed?'<button class="btn alt" id="meinv">Invite</button><button class="btn alt" id="mecfg"'+(S&&S.cs&&!S.cs.list.some(function(x){return x.adm;})?' hidden':'')+'>Configure Campaign</button>':'')+'<button class="btn alt" id="meoc">Record DNC / DNT</button><button class="btn alt" id="mex">Close</button>');
  $("mex").onclick=shut;$("meoc").onclick=optSheet;[].forEach.call(document.querySelectorAll("[data-of]"),function(x){x.onclick=function(){busy("One moment...");call("sOfferAccept",[x.getAttribute("data-of")]).then(function(r){if(!r||!r.ok)return oops((r&&r.msg)||"Please try again.");location.reload();},function(e){oops(e.message);});};});if($("meinv"))$("meinv").onclick=invSheet;if($("mecfg"))$("mecfg").onclick=function(){shut();var c=csCur();if(c&&c.adm)CFGC=c.id;if(S&&S.cs)go("cfg");else cfgOpen();};
  if($("meo"))$("meo").onclick=function(){try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}LS.del("rsPass");LS.del("rsMe");PASS="";location.href="/";};
- if($("mei"))$("mei").onclick=function(){shut();signIn(function(){location.reload();},false);};}
+ if($("mei"))$("mei").onclick=function(){shut();signIn(function(){location.reload();});};}
 // Rich, 24 Oct: "logging a DNC or DNT for a book the person no longer has ... a drop down even better so the user can enter their code";
 // "call it DNC and DNT"; then "take the number and write it to the outbox and be done" and a pop-up "no matter what screen the user is on" when
 // the server finds the code was not good (99zzzyk ocPost). DNC = no calls, DNT = no texts.
@@ -443,7 +445,7 @@ function csSheet(){var C=S.cs,c=csCur();if(!C||C.list.length<2)return;BUSY=0;
  $("csx").onclick=shut;[].forEach.call(document.querySelectorAll("[data-cs]"),function(b){b.onclick=function(){var x=C.list.filter(function(y){return y.id===b.getAttribute("data-cs");})[0];if(!x)return;
   LS.set("rs_el",x.id);if(x.q){LS.set("rs_q",x.q);QN=x.q;}else{LS.del("rs_q");QN="";}S.qbad=false;STAT=null;STATASK=0;shut();csPath(CUR||"home",true);show(CUR||"home");};});}
 document.addEventListener("click",function(e){var t=e.target&&e.target.closest&&e.target.closest("#csb,#csg");if(!t)return;if(t.id==="csb")csSheet();else{var c=csCur();if(c)CFGC=c.id;go("cfg");}});
-function tap(m){var cc=csCur();if(cc&&!cc.ready)return show("new");if(!S.adm){if(PASS){location.href=S.regUrl||"/register/";return;}return knownSheet(function(){location.reload();});}
+function tap(m){var cc=csCur();if(cc&&!cc.ready)return show("new");if(!S.adm){if(PASS){location.href=S.regUrl||"/register/";return;}return signIn(function(){location.reload();});}
  // Rich, 19 Oct: "admin should get a pop up...is this a preview or are you taking this book as yours"; "admins can previuew the CWT scrresn wo claiming them"
  // 25 Oct (Rich: "get rid of book preview.  no need"): no Preview / Take a book choice for admins
  if(!S.named)return nameSheet(function(){tap(m);});size(m);}
@@ -457,13 +459,6 @@ function size(m){var k=m==="walk"?"door":m,hb=S.admin?null:S.books.filter(functi
   $("hbn").onclick=function(){gbAdd(hb.id);BUSY=0;shut();size(m);};return;}
  sheet('<h3>'+esc(ML[k])+' book</h3><p style="text-align:center">'+(k==="door"?"How many doors?":"How many people?")+'</p><div class="szs">'+SZ.map(function(n){return '<button type="button" class="btn'+(n===SZD[k]?"":" alt")+'" data-sz="'+n+'">'+n+'</button>';}).join("")+'</div>');
  window.RST.mark("size menu: "+k);[].forEach.call(document.querySelectorAll("[data-sz]"),function(b){b.onclick=function(){window.RST.mark("size tapped: "+b.getAttribute("data-sz"));shut();build(m,Number(b.getAttribute("data-sz")));};});}
-// a guest on a browser not let in yet: Your info -> vKnown (a guest let in before comes in; anyone else: scan the event QR code or sign in)
-function knownSheet(done){BUSY=0;
- sheet('<h3>Your info</h3><label>First name</label><input id="kf" autocomplete="given-name" maxlength="40"><label>Last name</label><input id="kl" autocomplete="family-name" maxlength="40"><label>Last 4 digits of your phone</label><input id="k4" inputmode="numeric" maxlength="4" pattern="[0-9]*"><div class="msg" id="km"></div><button class="btn" id="kgo">Continue</button><button class="btn alt" id="kgg">Sign in with Google</button>');
- $("kgg").onclick=function(){location.href=S.regUrl||"/register/";};
- $("kgo").onclick=function(){var f=$("kf").value.trim(),l=$("kl").value.trim(),p=$("k4").value.replace(/\D/g,""),bt=this;
-  if(!f){$("km").textContent="Add your first name.";return;}if(p.length!==4){$("km").textContent="Add the last 4 digits of your phone number.";return;}
-  bt.disabled=true;call("vKnown",[PID,f,l,p]).then(function(r){if(!r.ok||!r.in){$("km").textContent=r.msg||"Please try again.";bt.disabled=false;return;}shut();done();},function(e){$("km").textContent=e.message;bt.disabled=false;});};}
 // give a book back (99zzzye vGiveBack): it comes off the phone and its voters not yet reached go back for other volunteers
 function giveBack(id){BUSY=0;sheet('<h3>Give back this book?</h3><p>The people you have not reached go back for other volunteers.</p><button class="btn" id="gby">Give it back</button><button class="btn alt" id="gbn">Keep it</button>');
  $("gbn").onclick=shut;$("gby").onclick=function(){gbAdd(id);BUSY=0;shut();show("mine");};}
@@ -538,7 +533,7 @@ document.addEventListener("click",function(e){var b=e.target&&e.target.closest&&
 function build(m,sz){var k=m==="walk"?"door":m;busy("Getting your "+ML[k]+" book...");
  obFlush().then(function(){window.RST.mark("book asked");return call("vNew",[PID,m,QN,false,sz||SZD[k],null,gbQ(),LS.get("rs_wid")||""]);}).then(function(r){
   if(r.need==="name"){S.named=false;return nameSheet(function(){build(m,sz);});}
-  if(r.reg){if(PASS){location.href=S.regUrl||"/register/";return;}return knownSheet(function(){location.reload();});}
+  if(r.reg){if(PASS){location.href=S.regUrl||"/register/";return;}return signIn(function(){location.reload();});}
   if(!r.ok)return oops(r.msg||"Please try again.");
   var b=r.book;b.on=Date.now();S.books=[b].concat(S.books.filter(function(x){return x.id!==b.id;}));S.act=true;nbPut(b);
   /* 26 Oct (Rich: "i build 2 books in a row and go to my books and the new books are not there yet"): the kept home screen gets the new book at once */try{var hk="rsHome:"+(PID||""),ho=JSON.parse(LS.get(hk)||"null");if(ho){ho.books=S.books;ho.act=true;LS.set(hk,JSON.stringify(ho));}}catch(e){}
@@ -597,13 +592,13 @@ function pitFresh(o){if(!o||!$("lnd"))return;if(o.v!==PITV)return pit(o);pitNums
 function pitLoop(){clearTimeout(PITT);PITT=setTimeout(function(){if(!$("lnd-k"))return;if(document.hidden)return pitLoop();pitAsk().then(function(o){pitFresh(o);pitLoop();},pitLoop);},15000);}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&$("lnd-k"))pitAsk().then(pitFresh,function(){});});
 function pit(o){window.RST.mark("pit stop");var p=$("pit");if(!p||!o||!o.html)return;PITV=o.v;p.innerHTML=o.html;if(p.querySelector("#lnd"))document.body.classList.add("pitup");
- var rg=$("lnd-rg");if(rg){if(PASS)rg.parentNode.removeChild(rg);else rg.onclick=function(){location.href=S.regUrl||"/register/";};}
+ var rg=$("lnd-rg");if(rg){if(PASS)rg.parentNode.removeChild(rg);else rg.onclick=function(){location.href=S.regUrl||("/register/"+(REF0?"?ref="+REF0:""));};}
  [["lnd-k",o.n&&o.n.doors],["lnd-kc",o.n&&o.n.calls],["lnd-kt",o.n&&o.n.texts]].forEach(function(a){var e=$(a[0]);if(e)e.textContent=Math.max(0,Math.round(Number(a[1])||0)).toLocaleString("en-US");});
  [].forEach.call(p.querySelectorAll("script"),function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});
  pitMe(o);pitLoop();
  try{if(!window.PITMO){window.PITMO=new MutationObserver(function(){if(document.getElementById("lnd"))return;document.body.classList.remove("pitup");var de0=document.documentElement.style,bd0=document.body.style;if(!de0.background&&!bd0.background&&!bd0.height)return;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";});window.PITMO.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});}}catch(e){}}
 // ---- Google sign-in on the volunteer pages (Rich, 20 Oct: the front door): no live pass -> the browser's Google account, the same check as /admin
-var CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",GSIQ=null,GSIDONE=null,GSITRIED=0,GSIWAIT=30000;
+var CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",GSIQ=null,GSIDONE=null;
 function gsiLoad(cb){if(window.google&&google.accounts&&google.accounts.id)return cb(true);if(GSIQ)return GSIQ.push(cb);GSIQ=[cb];
  var s=document.createElement("script");s.src="https://accounts.google.com/gsi/client";s.async=true;
  s.onload=function(){var q=GSIQ;GSIQ=null;q.forEach(function(f){f(true);});};s.onerror=function(){var q=GSIQ;GSIQ=null;q.forEach(function(f){f(false);});};document.head.appendChild(s);}
@@ -613,19 +608,16 @@ function gsiInit(){google.accounts.id.initialize({client_id:CID,callback:gsiCred
    the moment Google answers, a second answer is ignored, and a refused sign-in brings the panel back with why */
 var GSIBUSY=0;
 function gsiCred(c){if(GSIBUSY)return;GSIBUSY=1;var gb0=$("gbtn"),hold=gb0?gb0.parentNode:null;if(hold){hold.style.display="none";var gw=document.createElement("div");gw.id="gwait";gw.className="spin";hold.parentNode.insertBefore(gw,hold);}
- var undo=function(){GSIBUSY=0;var w=$("gwait");if(w)w.parentNode.removeChild(w);if(hold)hold.style.display="";};try{var pl=JSON.parse(decodeURIComponent(escape(atob(String(c&&c.credential||"").split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));LS.set("rsMe",JSON.stringify({email:String(pl.email||"").toLowerCase(),name:pl.name||"",pic:pl.picture||""}));}catch(e){}call("vPass",[c&&c.credential||""]).then(function(r){if(!r||!r.ok){undo();return gsiBad(r&&r.msg);}GSIBUSY=0;passSet(r.pass);/* 5 Nov (Rich: "Putting me in a loop after i succussfully select my google profile"): the sign-in panel is taken down at once, so the pit stop's CONTINUE can never show it again while Home is still being asked for */BUSY=0;try{shut();}catch(e){}frame('<div class="list"><div class="spin"></div></div>',false);if(GSIDONE){var d=GSIDONE;GSIDONE=null;d();}else{GSITRIED=1;boot();}},function(e){undo();gsiBad(e&&e.message);});}
+ var undo=function(){GSIBUSY=0;var w=$("gwait");if(w)w.parentNode.removeChild(w);if(hold)hold.style.display="";};try{var pl=JSON.parse(decodeURIComponent(escape(atob(String(c&&c.credential||"").split(".")[1].replace(/-/g,"+").replace(/_/g,"/")))));LS.set("rsMe",JSON.stringify({email:String(pl.email||"").toLowerCase(),name:pl.name||"",pic:pl.picture||""}));}catch(e){}call("vPass",[c&&c.credential||""]).then(function(r){if(!r||!r.ok){undo();return gsiBad(r&&r.msg);}GSIBUSY=0;passSet(r.pass);/* 5 Nov (Rich: "Putting me in a loop after i succussfully select my google profile"): the sign-in panel is taken down at once, so the pit stop's CONTINUE can never show it again while Home is still being asked for */BUSY=0;try{shut();}catch(e){}frame('<div class="list"><div class="spin"></div></div>',false);if(GSIDONE){var d=GSIDONE;GSIDONE=null;d();}else again();},function(e){undo();gsiBad(e&&e.message);});}
 // 5 Nov: a refused Google sign-in says why, on the sign-in panel (it used to stop with no word)
 function gsiBad(m){try{var g=$("gbtn");if(!g)return;var n=$("gbad");if(!n){n=document.createElement("div");n.id="gbad";n.className="note bad";g.parentNode.insertBefore(n,g);}n.textContent=m||"Google sign-in was not accepted. Please try again.";}catch(e){}}
-// Rich, 20 Oct: "you are not blocking on the google login": the splash stays until Google answers (a sign-in, or its prompt skipped or closed)
-function gsi(done){var fired=0,fin=function(){if(fired)return;fired=1;GSIDONE=null;done();};GSIDONE=fin;setTimeout(fin,GSIWAIT);
- gsiLoad(function(ok){if(!ok)return fin();try{gsiInit();google.accounts.id.prompt(function(n){try{if(n.isSkippedMoment()||n.isDismissedMoment())setTimeout(function(){if(GSIDONE===fin)fin();},400);}catch(e){}});}catch(e){fin();}});}
 // ---- /qr: the Owner's event code; a browser not signed in is told so, with Google's button (Rich, 20 Oct)
 var ISQR=location.pathname.replace(/\/+$/,"")==="/qr"||/^\/qr\//.test(location.pathname);
 // 22 Oct (Rich: "while waiting on QR code to render first page, a 2nd click was qued and use went from QR to call book"): the screen under
 // the QR stayed up and could be tapped while the code was fetched; the wait now covers it, and an answer that comes after the person went
 // elsewhere is dropped
 var QG=0;
-function qrTry(){var g=++QG;frame('<div class="list"><div class="spin"></div></div>',true);call("qrTv",[PASS,W.q||"",1]).then(function(r){if(g!==QG)return;if(r&&r.ok)return tv(r);if(r&&r.why==="signin"){PASS="";LS.del("rsPass");return qrSign();}boot();},function(){if(g===QG)boot();});}
+function qrTry(){var g=++QG;frame('<div class="list"><div class="spin"></div></div>',true);call("qrTv",[PASS,W.q||"",1]).then(function(r){if(g!==QG)return;if(r&&r.ok)return tv(r);if(r&&r.why==="signin"){PASS="";LS.del("rsPass");return qrSign();}play([STEP.app()]);},function(){if(g===QG)play([STEP.app()]);});}
 function qrSign(){splashOff();frame('<div class="note">This browser is not signed in to Red Shift.</div><div id="gbtn" class="gbtn"></div>',true);
  gsiLoad(function(ok){if(!ok)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});}catch(e){}});}
 // ---- the Perf Lab (Owner; redshift.vote/?lab): each mechanic 5 times cold and 5 times warm, best / middle / worst; Save keeps them
@@ -639,32 +631,23 @@ function lab(){splashOff();S.reg=true;var L=null,R=[],run=false;
    var rep=function(){if(k>=5){var g=ms.filter(function(x){return x>=0;}).sort(function(a,b){return a-b;});R.push([name,how,g.length,g[0]||0,g[Math.floor(g.length/2)]||0,g[g.length-1]||0,ms.length-g.length?(ms.length-g.length)+" failed":""]);i++;return next();}
     one(name,how).then(function(x){ms.push(x);k++;rep();});};rep();};next();};
  call("perfLab",[PASS]).then(function(r){if(!r||!r.ok){frame('<div class="note bad">'+esc((r&&r.msg)||"For the Owner.")+'</div>',true,"Perf Lab");return;}L=r.list;draw();},function(e){frame('<div class="note bad">'+esc(e.message)+'</div>',true,"Perf Lab");});}
-// ---- Sign in (Rich, 21 Oct: "i want our app to always challenge for the google login. and allow the user to contine on as a guest wo it.
-// and when a user hits a qr: same thing"): a browser with no live pass gets Google's button and Continue as guest (Google's automatic
-// prompt alone does not work on iPhone: "the normal One Tap UX doesn't work on Chrome on iOS, Safari, or Firefox", Google's One Tap guide)
-// Rich, 24 Oct: "always give them guest option and if they are a recognized guest, then they should never have to re-enter": Continue as guest
-// is always there; a browser not let in yet asks Your info and comes in when it matches a guest let in before (99zzzyd vKnown)
-function signIn(go,guest,inn){var done=0,fin=function(){if(done)return;done=1;GSIDONE=null;GSITRIED=1;go();};GSIDONE=fin;
+// ---- Sign in (Rich, 21 Oct: "i want our app to always challenge for the google login"; 5 Nov: "the google picker should still be the gate....you have
+// the identity as the PD record but the google picker binds to google and that is a real login authentiation going forward"): one panel, ours, with
+// Google's button (Google's automatic prompt alone does not work on iPhone: "the normal One Tap UX doesn't work on Chrome on iOS, Safari, or
+// Firefox", Google's One Tap guide). Continue as guest is gone (Rich, 5 Nov: "i am not seeing any reason for this anymore"): a book link is
+// worked from the link, and the pit stop has REGISTER.
+function signIn(go){var done=0,fin=function(){if(done)return;done=1;GSIDONE=null;go();};GSIDONE=fin;
  setTimeout(function(){if(done)return;splashOff();
-  frame('<div class="list"><div id="gbtn" class="gbtn" style="display:flex;justify-content:center;min-height:46px;margin-top:18px"></div>'+(guest?'<button class="btn alt" id="gsg">Continue as guest</button>':'')+'</div>',false);
-  if(guest)$("gsg").onclick=function(){var on=function(){frame('<div class="list"><div class="spin"></div></div>',false);fin();};if(inn===false)return knownSheet(on);on();};
+  frame('<div class="list"><div id="gbtn" class="gbtn" style="display:flex;justify-content:center;min-height:46px;margin-top:18px"></div></div>',false);
   gsiLoad(function(ok){if(!ok||done)return;try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(320,innerWidth-48))});google.accounts.id.cancel();}catch(e){}});   /* Rich, 21 Oct: one sign-in panel, ours; no Google prompt at the bottom */
  },Math.max(0,1500-(Date.now()-T0)));}
-statGet();
-// 22 Oct (Rich: "when user came in as guest and then hit arrow, it put him back at the spash and then login screen"): a guest let in by a
-// QR code who comes back to its address (/qr/<list>, e.g. Back from the book) got the Owner's QR sign-in; /qr is the event code only for a
-// signed-in browser, and anyone else comes in as on every other address
-if(W.splash){/* the splash only */}else if(W.pit){var PK0=pitKept();if(PK0){pit(PK0);splashOff();}pitAsk().then(function(o){if($("lnd"))return pitFresh(o);pit(o);splashOff();},function(){if(PK0)return;splashOff();frame('<div class="note bad">The pit stop could not be reached. Reload.</div>');});}else if(Q0.get("lab")!==null&&PASS){lab();}else if(ISQR&&!CODE&&PASS){qrTry();}else if(!PASS&&!window.RS_TEST){
- // Rich, 21 Oct: "i dont think univited guests should be able to get into redshift.vote.   they can only get in via a book link or a qr";
- // "build that first": Continue as guest only with an event code, or on a phone a QR code or book link already let in
- var BT=function(){if(ISQR&&PASS)return qrTry();boot();};if(CODE)signIn(BT,true,true);else call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.prereg&&!r.prereg.skip&&!PRSKIP){S=r;return preReg(r.prereg,BT);}signIn(BT,true,!!(r&&r.adm));},function(){signIn(BT,true,false);});}
-else boot();
+if(!BOOKQ)statGet();
 // ---- Pre-approved registration (Rich, 27 Oct: "Your registration has been pre-approved 1. Choose the google account to use 2. confirm your cell
 // phone number 3. confirm your email 4. check the boxes (for 2 adn 3 you pre-fill the values and let them edit"; "at the bottom it can say
-// Continue as Guest"): a Trusted Precinct Delegate's phone (vHome r.prereg, 99zzzzzu prereg.js); Register registers the Google account chosen
-// in step 1; Continue as Guest goes on as the Trusted guest (signed out of Google here) and is remembered; the Register button opens it again
+// Continue as Guest"; 5 Nov: Continue as Guest is gone, "i am not seeing any reason for this anymore"): a Trusted Precinct Delegate's phone
+// (vHome r.prereg, 99zzzzzu prereg.js); Register registers the Google account chosen in step 1
 var PRSKIP=0;
-function preReg(pr,go){PRSKIP=1;splashOff();
+function preReg(pr){PRSKIP=1;splashOff();
  if(!$("prgcss")){var st=document.createElement("style");st.id="prgcss";st.textContent='.prg{padding:4px 22px 28px;max-width:520px;margin:0 auto;box-sizing:border-box}.prg h3{font-size:20px;margin:6px 0 10px}.prg ol{padding:0;margin:0;list-style:none;counter-reset:s}.prg ol>li{counter-increment:s;position:relative;padding:14px 0 14px 42px;border-bottom:1px solid var(--line)}.prg ol>li:before{content:counter(s);position:absolute;left:0;top:13px;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}.prg ol>li.dn:before{content:"\\2713";background:#1a8f4a}.prg h4{margin:4px 0 8px;font-size:16px}.prg label{display:block;font-size:13px;font-weight:600;color:var(--gray);margin:10px 0 4px}.prg input.f{width:100%;box-sizing:border-box;font:500 17px Poppins,system-ui,sans-serif;padding:12px 14px;border:2px solid var(--line);border-radius:14px;color:var(--navy);outline:none;background:#fff}.prg label.ck{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:15px;font-weight:500;color:var(--navy)}.prg label.ck input{width:22px;height:22px;flex:0 0 auto;margin:0}.prg .gbtn{justify-content:flex-start;margin:6px 0 0;min-height:44px}.prg .who{font-weight:700;margin:0 0 4px;word-break:break-all}.prg .sub{font-size:13px;color:var(--gray);margin:0 0 4px}.prg .more{margin-top:16px}.prg .msg{color:var(--red);font-weight:600;min-height:20px;margin:12px 0}.prg .gst{display:block;width:100%;text-align:center;margin:20px 0 0;padding:12px;color:var(--navy);font-weight:700;background:none;border:0;font-size:16px;text-decoration:underline;cursor:pointer}';document.head.appendChild(st);}
  var inp=function(k,l,t,ac,v){return '<label for="pr-'+k+'">'+esc(l)+'</label><input class="f" type="'+t+'" id="pr-'+k+'" autocomplete="'+ac+'" maxlength="120" value="'+esc(v||"")+'">';};
  frame('<div class="prg"><h3>Your registration has been pre-approved</h3><ol>'+
@@ -673,13 +656,13 @@ function preReg(pr,go){PRSKIP=1;splashOff();
   '<li><h4>Confirm your email address</h4>'+inp("email","Email address","email","email",pr.email)+'</li>'+
   '<li><h4>Check the boxes</h4><label class="ck"><input type="checkbox" id="pr-tos"><span>I agree to the <a href="https://redshift.vote/terms.html" target="_blank" rel="noopener">Terms of Service</a> and the <a href="https://redshift.vote/privacy.html" target="_blank" rel="noopener">Privacy Policy</a></span></label><label class="ck"><input type="checkbox" id="pr-age"><span>I am 18 or older</span></label></li></ol>'+
   '<div class="more">'+inp("first","First name","text","given-name",pr.first)+inp("last","Last name","text","family-name",pr.last)+inp("address","Street address","text","street-address",pr.address)+inp("town","City / town","text","address-level2",pr.town)+inp("state","State","text","address-level1",pr.state)+inp("zip","Zip","text","postal-code",pr.zip)+'</div>'+
-  '<div class="msg" id="pr-m"></div><button class="btn" id="pr-go">Register</button><button class="gst" id="pr-g">Continue as Guest</button></div>',false);
+  '<div class="msg" id="pr-m"></div><button class="btn" id="pr-go">Register</button></div>',false);
  var rf=document.querySelector("#app .reg");if(rf)rf.parentNode.removeChild(rf);
  var me=function(){if(!PASS)return null;try{return JSON.parse(LS.get("rsMe")||"null");}catch(e){return null;}};
  var who=function(){var m=me(),w=$("pr-who");if(!w)return;w.innerHTML=m&&m.email?'<div class="who">'+esc(m.email)+'</div><div class="sub">To use another Google account, choose again:</div>':"";$("pr-s1").className=m&&m.email?"dn":"";};
  var gb=function(){GSIDONE=function(){who();gb();};gsiLoad(function(ok){if(!$("pr-s1"))return;if(!ok){$("pr-m").textContent="Google sign-in did not load. Check your signal and reload.";return;}try{gsiInit();google.accounts.id.renderButton($("gbtn"),{theme:"filled_blue",size:"large",shape:"pill",text:"signin_with",width:Math.max(200,Math.min(300,innerWidth-110))});google.accounts.id.cancel();}catch(e){}});};
  who();gb();
- var busy=function(x){$("pr-go").disabled=$("pr-g").disabled=x;};
+ var busy=function(x){$("pr-go").disabled=x;};
  $("pr-go").onclick=function(){var m=$("pr-m"),bt=this;m.textContent="";
   if(!PASS||!me()){m.textContent="Choose your Google account first (step 1).";return;}
   var F={};["first","last","phone","email","address","town","state","zip"].forEach(function(k){F[k]=$("pr-"+k).value.trim();});
@@ -692,10 +675,8 @@ function preReg(pr,go){PRSKIP=1;splashOff();
   call("vPreReg",[PID,PASS,F]).then(function(r){if(!r||!r.ok){m.textContent=(r&&r.msg)||"Please try again.";busy(false);bt.textContent="Register";return;}
    if(r.pass)passSet(r.pass);var nx=function(){location.href="/mybooks/";};
    if(r.fin){var t=setTimeout(nx,4000);call("registerFinish",[r.fin]).then(function(){clearTimeout(t);nx();},function(){clearTimeout(t);nx();});}else nx();},
-   function(e){m.textContent=e.message;busy(false);bt.textContent="Register";});};
- $("pr-g").onclick=function(){busy(true);GSIDONE=null;if(PASS){try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}PASS="";LS.del("rsPass");LS.del("rsMe");}
-  if(pr)pr.skip=true;frame('<div class="list"><div class="spin"></div></div>',false);var on=function(){go();};call("vPreRegSkip",[PID]).then(on,on);};}
-document.addEventListener("click",function(e){var a=e.target&&e.target.closest?e.target.closest("a"):null;if(!a||!S||!S.prereg||!S.regUrl||a.getAttribute("href")!==S.regUrl)return;e.preventDefault();e.stopPropagation();shut&&$("sh")&&!$("sh").hidden&&shut();preReg(S.prereg,function(){boot();});},true);
+   function(e){m.textContent=e.message;busy(false);bt.textContent="Register";});};}
+document.addEventListener("click",function(e){var a=e.target&&e.target.closest?e.target.closest("a"):null;if(!a||!S||!S.prereg||!S.regUrl||a.getAttribute("href")!==S.regUrl)return;e.preventDefault();e.stopPropagation();shut&&$("sh")&&!$("sh").hidden&&shut();preReg(S.prereg);},true);
 // ---- Confirm your info (a guest or a precinct delegate matched by the signed-in email; Rich, 20 Oct)
 function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First name</label><input value="'+esc(c.first)+'" readonly><label>Last name</label><input value="'+esc(c.last)+'" readonly><div class="msg" id="cm"></div><button class="btn" id="cy">That\'s me</button><button class="btn alt" id="cn">Not me</button>');
  var on=function(x){$("cy").disabled=$("cn").disabled=!x;};
@@ -703,25 +684,88 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
    if(yes){location.reload();return;}if(!r.in){location.href=S.regUrl||"/register/";return;}nameSheet(function(){location.reload();});},function(e){$("cm").textContent=e.message;on(true);});};
  /* 25 Oct (Rich: "the yes it's me button does not work"): That's me closes at once; the page reloads when the server has it */
  $("cy").onclick=function(){BUSY=0;shut();obAdd("vConfirm",[PID,true,c.k,c.s],"reload");};$("cn").onclick=function(){ans(false);};}
-// Rich, 22 Oct night: "redshift.vote and /admin is the same sequence.   spash then pitstop  then contnet"; "all except the QR code": the pit stop
-// is asked for at once, beside Home, for everyone (not a QR code); the splash stays until both are in (the pit stop at most 8 s)
-function boot(){/* 25 Oct: /home asks for no pit stop; elsewhere the kept pit stop is used at once and the fresh answer fills it in (pitFresh) */var PK=ISQR||W.home?null:pitKept(),pitF=ISQR||W.home?null:pitAsk().then(null,function(){return null;});
- var pitP=ISQR||W.home?Promise.resolve(null):PK?Promise.resolve(PK):Promise.race([pitF,new Promise(function(res){setTimeout(function(){res(null);},8000);})]);
- /* a phone already let in (its home screen kept) gets the kept pit stop at once, before Home answers */var PE=false;if(PK){var HK0=null;try{HK0=JSON.parse(LS.get("rsHome:"+(PID||""))||"null");}catch(e){}if(HK0&&HK0.adm){pit(PK);PE=true;}}
- var PF=null;if(pitF)pitF.then(function(o){if(o){PF=o;pitFresh(o);}});
- /* /home: the phone's last home screen at once (a tap made on it is not undone when the fresh one comes) */var HK=null,HG=-1;if(W.home){try{HK=JSON.parse(LS.get("rsHome:"+(PID||""))||"null");}catch(e){HK=null;}if(HK&&HK.adm){S=HK;gbOut();NOTE=HK.note||"";try{meDraw();}catch(e){}show("home");HG=QG;splashOff();}}
- var home=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}
- if(r&&r.ok!==false&&!r.adm&&!CODE&&!PASS&&!GSITRIED){GSITRIED=1;return new Promise(function(res){signIn(function(){res(PASS?null:r);},true,false);});}return r;});   /* one sign-in panel (21 Oct) */
-home.then(function(r){if(!r){boot();return "re";}if(r.prereg&&!r.prereg.skip&&!PRSKIP){S=r;preReg(r.prereg,boot);return "re";}S=r;nbMerge();gbOut();try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm"&&k!=="prereg")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;try{csRoute();}catch(e){}NOTE=r.note||"";return pitP;}).then(function(pr){if(pr==="re")return;
- setTimeout(function(){
-  // Rich, 19 Oct: "admins should goto the broader home page and not directly to WTC"
-if(HG>=0&&QG!==HG){/* /home: the person already went on from the kept home screen; 26 Oct: Home or My Books still showing is drawn again with the fresh books */if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}
-  else if(W.page==="reg")show("reg");
-  else if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");
-  else show(W.land?"home":W.page);
-  if(pr&&pr.html&&!ISQR&&!PE)pit(PF||pr);
-  splashOff();if(S.confirm)confirmSheet(S.confirm);},Math.max(0,(W.home||!$("spw")?0:2200)-(Date.now()-T0)));
-},function(e){setTimeout(function(){frame('<div class="note bad">Red Shift could not be reached ('+esc(e.message)+'). Check your signal and reload.</div>');splashOff();},Math.max(0,1500-(Date.now()-T0)));});}
+// ---- One way in (Rich, 5 Nov: "my goal is to collapse down to a single entry path"; "do you see that this creates one path with 3 forks at the end?
+// This can be done by composing the correct object array at invokation"; "this is how we will finally get peiple to register"). Every address is a
+// list of steps, composed here and played in order by one runner: the splash (once per tab, Rich 24 Oct), the pit stop (REGISTER for anyone not
+// signed in, CONTINUE for everyone), then the end:
+//   the app: Home or the page asked for, behind Google's sign-in; a QR code (?c=) lets in without it and ends on New Books
+//   a book: a book link (/b/?t= call or text, /m/?k= walk); the link is the key, no sign-in
+//   the Owner's tools (/qr event code, ?lab), and /splash, /pitstop, /home, which are one step each
+// Each step may start its fetch at once (prep), so the end is ready behind the pit stop and CONTINUE opens it with no wait.
+function entry(){
+ if(W.splash)return [];                                        // /splash: the splash alone, kept up
+ if(W.pit)return [STEP.pit(true)];                             // /pitstop: the poster alone, kept up (the county site)
+ if(BOOKQ)return [STEP.splash(),STEP.pit(),STEP.book()];       // a book link
+ if(ISQR&&!CODE&&PASS)return [STEP.tv()];                       // the Owner's event code (a tool)
+ if(Q0.get("lab")!==null&&PASS)return [STEP.lab()];             // the Owner's Perf Lab
+ if(W.home)return [STEP.app()];                                 // /home: the home screen alone (Rich, 25 Oct)
+ return [STEP.splash(),STEP.pit(),STEP.app()];                  // redshift.vote and its pages; a QR code ends on New Books
+}
+// the runner: every step's prep starts now; the steps then play in order, each calling next when it is done
+function play(L){L.forEach(function(s){if(s.prep)s.prep();});var i=0;(function next(){var s=L[i++];if(s)s.run(next);})();}
+// after a sign-in or a registration: the address's end again (no splash, no pit stop)
+function again(){play(entry().slice(-1));}
+// the pit stop's CONTINUE (its own script takes #lnd down)
+function pitGone(cb){if(!$("lnd"))return cb();var mo=new MutationObserver(function(){if($("lnd"))return;mo.disconnect();cb();});mo.observe($("pit"),{childList:true,subtree:true});}
+var STEP={
+ // up at least 2.2 s from the page's start when it shows; the next step takes it down when it draws
+ splash:function(){return {run:function(next){setTimeout(next,Math.max(0,($("spw")?2200:0)-(Date.now()-T0)));}};},
+ // the phone's kept copy at once, else the server's answer (at most 8 s, else no pit stop); hold = kept up (/pitstop)
+ pit:function(hold){var a=null;return {prep:function(){a=pitAsk();},
+  run:function(next){var k=pitKept(),fail=function(){splashOff();if(hold)return frame('<div class="note bad">The pit stop could not be reached. Reload.</div>');next();};
+   var draw=function(o){if(!o)return fail();pit(o);splashOff();if(!hold)pitGone(next);};
+   if(k){draw(k);a.then(pitFresh,function(){});return;}
+   var t=setTimeout(function(){t=0;fail();},hold?60000:8000);
+   a.then(function(o){if(!t)return pitFresh(o);clearTimeout(t);draw(o);},function(){if(t){clearTimeout(t);fail();}});}};},
+ // Home or the page asked for; drawn behind the pit stop as soon as it is in, unless a sign-in or a pre-approved registration must come first
+ app:function(){var h=null,drawn=false,HG=-1;
+  var gate=function(r){if(r&&r.prereg&&!r.prereg.skip&&!PRSKIP)return "prereg";if(!PASS&&!CODE)return "signin";return "";};
+  var land=function(r){if(drawn)return;drawn=true;S=r;nbMerge();gbOut();
+    try{if(r.adm){var r2={};Object.keys(r).forEach(function(k){if(k!=="pass"&&k!=="confirm"&&k!=="prereg")r2[k]=r[k];});LS.set("rsHome:"+(PID||""),JSON.stringify(r2));}}catch(e){}
+    doneSweep(true);try{meDraw();}catch(e){}S.qbad=!!QN&&r.qok===false;try{csRoute();}catch(e){}NOTE=r.note||"";
+    if(HG>=0&&QG!==HG){if((CUR==="mine"||CUR==="home")&&$("sh").hidden)show(CUR);}   // /home: already moved on from the kept screen (26 Oct)
+    else if(W.page==="reg")show("reg");else if(!S.adm||(W.land&&!S.act&&!S.admin))show("new");else show(W.land?"home":W.page);};   // Rich, 19 Oct: "admins should goto the broader home page"
+  var down=function(e){splashOff();frame('<div class="note bad">Red Shift could not be reached'+(e&&e.message?' ('+esc(e.message)+')':'')+'. Check your signal and reload.</div>');};
+  return {prep:function(){
+    // /home: the phone's last home screen at once; a tap made on it is not undone when the fresh one comes (Rich, 25 Oct)
+    if(W.home&&PASS){var HK=null;try{HK=JSON.parse(LS.get("rsHome:"+(PID||""))||"null");}catch(e){}if(HK&&HK.adm){S=HK;gbOut();NOTE=HK.note||"";try{meDraw();}catch(e){}show("home");HG=QG;splashOff();}}
+    h=call("vHome",[PID,QN,PASS,CODE]).then(function(r){if(r&&r.ok!==false){if(r.pass)passSet(r.pass);else if(PASS){PASS="";LS.del("rsPass");}}return r;});
+    h.then(function(r){if(r&&!gate(r))land(r);},function(){});},
+   run:function(next){h.then(function(r){if(!r)return down();var g=gate(r);splashOff();
+     if(g==="prereg"){S=r;return preReg(r.prereg);}
+     if(g==="signin")return signIn(again);
+     land(r);if(S.confirm)confirmSheet(S.confirm);next();},down);}};},
+ // the book's own page, from the server, drawn in place of this page
+ book:function(){var a=null;return {prep:function(){a=bookGet();},
+  run:function(){splashOff();var w=setTimeout(function(){frame('<div class="list"><div class="spin"></div></div>',false);},300);
+   a.then(function(r){clearTimeout(w);bookDraw(r);},function(e){clearTimeout(w);frame('<div class="note bad">'+esc(e.message)+'</div>',false);});}};},
+ tv:function(){return {run:function(){qrTry();}};},
+ lab:function(){return {run:function(){lab();}};}
+};
+// ---- a book link (21 Oct, 99zzzd bookhost.js: the book's page is drawn on redshift.vote, so Google's banner never shows): /b/?t=... a call or text
+// book (bookPage; its calls carry no pass, as its page always did), /m/?k=... a walk book (walkPage). The page that came with the book on New Books
+// (rs_bp:, 25 Oct) or a walk just handed out (rs_wp:, Rich 25 Oct: "i want it faster") is drawn without asking.
+function bookGet(){var p={};Q0.forEach(function(v,k){p[k]=v;});p.pid=PID;
+ if(BOOKQ==="walk"){if(!/^[A-Za-z0-9]{16,40}$/.test(p.k||""))return Promise.reject(new Error("This map link is not complete."));
+  var WP=null;try{WP=JSON.parse(sessionStorage.getItem("rs_wp:"+p.k)||"null");sessionStorage.removeItem("rs_wp:"+p.k);}catch(e){WP=null;}
+  if(WP&&WP.html){window.RS_WO=WP.open||null;window.RST.mark("walk from the hand-out");return Promise.resolve({ok:true,html:WP.html,title:WP.title});}
+  return call("walkPage",[p]);}
+ if(!/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(p.t||""))return Promise.reject(new Error("This link is not complete."));
+ var pre=null;try{var ps=sessionStorage.getItem("rs_bp:"+p.t);if(ps){sessionStorage.removeItem("rs_bp:"+p.t);pre=JSON.parse(ps);}}catch(e){pre=null;}
+ if(pre&&pre.ok&&pre.html){window.RST.mark("book page with the book");return Promise.resolve(pre);}
+ return call("bookPage",[p],"");}
+function bookDraw(r){if(!r||!r.ok)return frame('<div class="note bad">'+esc((r&&r.msg)||"This link is not complete.")+'</div>',false);
+ if(r.title)document.title=r.title;
+ // the book's page has its own look: the app's style sheet, classes and page styles go
+ [].forEach.call(document.querySelectorAll('link[href="/rs/app.css"]'),function(l){l.parentNode.removeChild(l);});document.body.className="";document.documentElement.removeAttribute("style");document.body.removeAttribute("style");
+ // its google.script.run, as the server's own address gives it
+ var pw=BOOKQ==="walk"?undefined:"",run=function(){var ok=null,bad=null,o={withSuccessHandler:function(f){ok=f;return o;},withFailureHandler:function(f){bad=f;return o;},withUserObject:function(){return o;},
+  rpc:function(fn,args){call(fn,args,pw).then(function(x){if(ok)ok(x);},function(e){if(bad)bad(e);});}};return o;};
+ window.google=window.google||{};window.google.script={history:{replace:function(){},push:function(){},setChangeHandler:function(){}},host:{close:function(){},setHeight:function(){},setWidth:function(){}}};
+ Object.defineProperty(window.google.script,"run",{get:run});
+ document.body.innerHTML=r.html;window.RST.mark("book html in");
+ [].forEach.call(document.body.querySelectorAll("script"),function(x){var n=document.createElement("script");n.text=x.text;x.parentNode.replaceChild(n,x);});window.RST.mark("book scripts run");}
+play(entry());
 // the Owner's TV page (Rich, 19 Oct: "it will be rendered on a TV from my laptop"; "scan and burn"): one code on screen; when a phone uses it,
 // a new one comes up within about 2 seconds
 function tv(r){var QRC=null;try{QRC=new Function(r.lib+";return qrcode;")();}catch(e){}
