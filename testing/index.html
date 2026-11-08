@@ -5,7 +5,7 @@
 <body>
 <!-- RSRLT (Red Shift regression and load testing): the 2.0 web app's pages. No parameters: the live dashboard (Play all opens a tab per volunteer,
      Stop closes them and resets the run). ?page=client&k=N is one volunteer's client tab. The pages inside talk tab to tab through this page:
-     a message from the frame goes to this site's other tabs, and from them down into their frames. -->
+     a message from the frame goes to this site's other tabs whose pages listen to that kind, and down into their frames. -->
 <iframe id="f" title="Red Shift testing" allow="clipboard-write"></iframe>
 <script>
 var APP_URL = 'https://script.google.com/macros/s/AKfycbwhn2JuQWtx20rfosr5BCL3hzBP_BjcxPGghpDpEWLvJKlhdWBs0MO-UIfo7XaGkggd/exec';
@@ -15,14 +15,17 @@ if (!q.get('page')) u.searchParams.set('page', 'dash');
 u.searchParams.set('base', location.origin + location.pathname);
 var F = document.getElementById('f'); F.src = u.toString();
 var APP_HOSTS = /(^|\.)googleusercontent\.com$|(^|\.)google\.com$/;
-var bus = null; try { bus = new BroadcastChannel('rs2bus'); } catch (e) {}
+// 8 Nov 17:40: one channel per kind of message, and a tab hears only the kinds its page listens to (the page says so: rs2sub). Before, every tab
+// passed every message into its frames, and with 32 tabs the tiles' 64 messages a second swamped Chrome's process for the Google frames.
+var CH = {}, SUB = {};
+function chan(n) { if (!CH[n]) try { CH[n] = new BroadcastChannel('rs2:' + n); } catch (e) {} return CH[n]; }
 function down(d, w) { w = w || F.contentWindow; try { w.postMessage(d, '*'); } catch (e) {} try { for (var i = 0; i < w.frames.length; i++) down(d, w.frames[i]); } catch (e) {} }
 window.addEventListener('message', function (e) {
   var d = e.data, h = ''; try { h = new URL(e.origin).hostname; } catch (x) {}
   if (!d || !(APP_HOSTS.test(h) || h === new URL(APP_URL).hostname)) return;
   if (d.rs2 === 'close') window.close();                       // a client tab asks to close (the dashboard's Stop)
-  if (d.rs2bus && bus) bus.postMessage(d);                     // to this site's other tabs
+  if (d.rs2sub && !SUB[d.rs2sub]) { var n = d.rs2sub, c = chan(n); SUB[n] = 1; if (c) c.onmessage = function (m) { down({ rs2bus: n, data: m.data }); }; }   // the page listens to n: from the other tabs, down into this tab's frames
+  if (d.rs2bus) { var o = chan(d.rs2bus); if (o) o.postMessage(d.data); }   // to this site's other tabs that listen
 });
-if (bus) bus.onmessage = function (e) { down(e.data); };       // from them, down into this tab's frames
 </script>
 </body></html>
