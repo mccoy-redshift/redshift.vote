@@ -3,8 +3,9 @@
 <title>Red Shift testing</title><meta name="robots" content="noindex, nofollow">
 <style>html,body{margin:0;height:100%;background:#f6f5f2}iframe{border:0;width:100%;height:100%;display:block}</style></head>
 <body>
-<!-- RSRLT (Red Shift regression and load testing): the 2.0 web app's pages. No parameters: the live dashboard. ?page=launch opens the client tabs;
-     ?page=client&k=N is one volunteer's client tab. Every page is shown from here so all the tabs share the browser's channels. -->
+<!-- RSRLT (Red Shift regression and load testing): the 2.0 web app's pages. No parameters: the live dashboard (Play all opens a tab per volunteer,
+     Stop closes them and resets the run). ?page=client&k=N is one volunteer's client tab. Every page is shown from here so all the tabs share the
+     browser's channels. -->
 <iframe id="f" title="Red Shift testing" allow="clipboard-write"></iframe>
 <script>
 var q = new URLSearchParams(location.search), u = new URL('https://script.google.com/macros/s/AKfycbwhn2JuQWtx20rfosr5BCL3hzBP_BjcxPGghpDpEWLvJKlhdWBs0MO-UIfo7XaGkggd/exec');
@@ -12,5 +13,7 @@ q.forEach(function (v, k) { u.searchParams.set(k, v); });
 if (!q.get('page')) u.searchParams.set('page', 'dash');
 u.searchParams.set('base', location.origin + location.pathname);
 document.getElementById('f').src = u.toString();
+// a client tab asks to close (the dashboard's Stop): only the page around it can close the tab
+window.addEventListener('message', function (e) { if (e.data && e.data.rs2 === 'close' && /googleusercontent\.com$/.test(new URL(e.origin).hostname)) window.close(); });
 </script>
 </body></html>
