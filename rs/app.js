@@ -770,7 +770,7 @@ function bookGet(){var p={};Q0.forEach(function(v,k){p[k]=v;});p.pid=PID;
  if(!/^rso1\.[\w-]+=*\.[\w-]+=*$/.test(p.t||""))return Promise.reject(new Error("This link is not complete."));
  var pre=null;try{var ps=sessionStorage.getItem("rs_bp:"+p.t);if(ps){sessionStorage.removeItem("rs_bp:"+p.t);pre=JSON.parse(ps);}}catch(e){pre=null;}
  if(pre&&pre.ok&&pre.html){window.RST.mark("book page with the book");return Promise.resolve(pre);}
- return call("bookPage",[p],"");}
+ return call("bookPage",[p]);}
 function bookDraw(r){if(!r||!r.ok)return frame('<div class="note bad">'+esc((r&&r.msg)||"This link is not complete.")+'</div>',false);
  if(r.title)document.title=r.title;
  // the book's page has its own look: the app's style sheet, classes and page styles go
