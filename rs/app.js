@@ -588,7 +588,7 @@ function splashOff(){if(W.splash)return;try{sessionStorage.setItem("rsSpl","1");
 var PITE=W.pit&&Q0.get("embed")!==null,PITT=null,PITV="",PITC=0;
 function pitKey(){return "rsPit2"+(PITE?":e":"");}
 function pitKept(){var o=null;try{o=JSON.parse(LS.get(pitKey())||"null");}catch(e){}return o&&o.html?o:null;}
-function pitAsk(){var k=pitKept();return call("getPitstop",[k?k.v:"",PASS,PITE?1:0]).then(function(r){if(!r||!r.ok)return k;var o={v:r.v,html:r.html||(k&&k.v===r.v?k.html:""),n:r.n,me:r.me||null};if(o.html&&(r.html||JSON.stringify([k.n,k.me])!==JSON.stringify([o.n,o.me])))LS.set(pitKey(),JSON.stringify(o));return o.html?o:k;});}
+function pitAsk(){var k=pitKept();return call("getPitstop",[k?k.v:"",PASS,PITE?1:0]).then(function(r){if(!r||!r.ok)return k;var o={v:r.v,html:r.html||(k&&k.v===r.v?k.html:""),n:r.n,me:r.me||null,own:r.own?1:0};try{if(o.own&&PASS)LS.set("rsOwn","1");else LS.del("rsOwn");}catch(e){}if(o.html&&(r.html||JSON.stringify([k.n,k.me])!==JSON.stringify([o.n,o.me])))LS.set(pitKey(),JSON.stringify(o));return o.html?o:k;});}
 function pitNums(n){if(!n)return;[["lnd-k",n.doors],["lnd-kc",n.calls],["lnd-kt",n.texts]].forEach(function(a){var e=$(a[0]);if(e)e.textContent=Math.max(0,Math.round(Number(a[1])||0)).toLocaleString("en-US");});if(window.lndFit)try{window.lndFit();}catch(e){}}
 function pitMe(o){if(o&&o.me&&PASS&&!PITE&&!PITC&&window.lndCard&&$("ptc")){PITC=1;window.lndCard(o.me.first,o.me);}}
 // a fresh answer: the graphic drawn again only when it is a new one; else the numbers and the card
@@ -599,7 +599,7 @@ function pit(o){window.RST.mark("pit stop");var p=$("pit");if(!p||!o||!o.html)re
  var rg=$("lnd-rg");if(rg){if(PASS)rg.parentNode.removeChild(rg);else rg.onclick=regTap;}
  [["lnd-k",o.n&&o.n.doors],["lnd-kc",o.n&&o.n.calls],["lnd-kt",o.n&&o.n.texts]].forEach(function(a){var e=$(a[0]);if(e)e.textContent=Math.max(0,Math.round(Number(a[1])||0)).toLocaleString("en-US");});
  [].forEach.call(p.querySelectorAll("script"),function(s){var n=document.createElement("script");n.text=s.text;s.parentNode.replaceChild(n,s);});
- pitMe(o);pitLoop();
+ /* 23 Nov (Rich: "i want all access to redshift except for my login to stop at the pitstop page.  do not provide the continue button."): no way on from the pit stop but the Owner's */if(!o.own)["lnd-vt","lnd-rg"].forEach(function(id){var e=$(id);if(e&&e.parentNode)e.parentNode.removeChild(e);});pitMe(o);pitLoop();
  try{if(!window.PITMO){window.PITMO=new MutationObserver(function(){if(document.getElementById("lnd"))return;document.body.classList.remove("pitup");var de0=document.documentElement.style,bd0=document.body.style;if(!de0.background&&!bd0.background&&!bd0.height)return;de0.overflow="";de0.background="";bd0.overflow="";bd0.background="";bd0.height="";});window.PITMO.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});}}catch(e){}}
 // ---- Google sign-in on the volunteer pages (Rich, 20 Oct: the front door): no live pass -> the browser's Google account, the same check as /admin
 var CID="40747318643-55gkq2jreqtaf9ec80qvtt35jrt81dpa.apps.googleusercontent.com",GSIQ=null,GSIDONE=null;
@@ -695,16 +695,18 @@ function confirmSheet(c){BUSY=1;sheet('<h3>Confirm your info</h3><label>First na
 //   a book: a book link (/b/?t= call or text, /m/?k= walk); the link is the key, no sign-in
 //   the Owner's tools (/qr event code, ?lab), and /splash, /pitstop, /home, which are one step each
 // Each step may start its fetch at once (prep), so the end is ready behind the pit stop and CONTINUE opens it with no wait.
+// the Owner's sign-in, as the last pit stop answer said (23 Nov)
+function OWN(){try{return !!PASS&&LS.get("rsOwn")==="1";}catch(e){return false;}}
 function entry(){
  if(W.splash)return [];                                        // /splash: the splash alone, kept up
  if(W.pit)return [STEP.pit(true)];                             // /pitstop: the poster alone, kept up (the county site)
  /* 7 Nov (Rich: "i just clicked on the walk book and it went to pit stop before it opened. fix that"): a book opened from My Books or New Books
     (rs_inapp, set by the tap in this tab within the last 2 minutes) opens straight away; a book link from outside still gets the splash and pit stop */
- if(BOOKQ){var ia=0;try{ia=Number(sessionStorage.getItem("rs_inapp"))||0;sessionStorage.removeItem("rs_inapp");}catch(e){}if(ia&&Date.now()-ia<120000)return [STEP.book()];}
+ if(BOOKQ){var ia=0;try{ia=Number(sessionStorage.getItem("rs_inapp"))||0;sessionStorage.removeItem("rs_inapp");}catch(e){}if(ia&&Date.now()-ia<120000&&OWN())return [STEP.book()];}
  if(BOOKQ)return [STEP.splash(),STEP.pit(),STEP.book()];       // a book link
- if(ISQR&&!CODE&&PASS)return [STEP.tv()];                       // the Owner's event code (a tool)
- if(Q0.get("lab")!==null&&PASS)return [STEP.lab()];             // the Owner's Perf Lab
- if(W.home)return [STEP.app()];                                 // /home: the home screen alone (Rich, 25 Oct)
+ if(ISQR&&!CODE&&PASS&&OWN())return [STEP.tv()];                       // the Owner's event code (a tool)
+ if(Q0.get("lab")!==null&&PASS&&OWN())return [STEP.lab()];             // the Owner's Perf Lab
+ if(W.home)return OWN()?[STEP.app()]:[STEP.pit(),STEP.app()];                                 // /home: the home screen alone (Rich, 25 Oct)
  return [STEP.splash(),STEP.pit(),STEP.app()];                  // redshift.vote and its pages; a QR code ends on New Books
 }
 // the runner: every step's prep starts now; the steps then play in order, each calling next when it is done
@@ -724,8 +726,8 @@ var STEP={
  splash:function(){return {run:function(next){setTimeout(next,Math.max(0,($("spw")?2200:0)-(Date.now()-T0)));}};},
  // the phone's kept copy at once, else the server's answer (at most 8 s, else no pit stop); hold = kept up (/pitstop)
  pit:function(hold){var a=null;return {prep:function(){a=pitAsk();},
-  run:function(next){var k=pitKept(),fail=function(){splashOff();if(hold)return frame('<div class="note bad">The pit stop could not be reached. Reload.</div>');next();};
-   var draw=function(o){if(!o)return fail();pit(o);splashOff();if(!hold)pitGone(next);};
+  run:function(next){var k=pitKept(),fail=function(){splashOff();if(hold||!OWN())return frame('<div class="note bad">The pit stop could not be reached. Reload.</div>');next();};
+   var draw=function(o){if(!o)return fail();pit(o);splashOff();if(hold)return;if(o.own)return pitGone(next);a.then(function(f){if(f&&f.own){if(!$("lnd-vt"))pit(f);pitGone(next);}},function(){});};
    if(k){draw(k);a.then(pitFresh,function(){});return;}
    var t=setTimeout(function(){t=0;fail();},hold?60000:8000);
    a.then(function(o){if(!t)return pitFresh(o);clearTimeout(t);draw(o);},function(){if(t){clearTimeout(t);fail();}});}};},
